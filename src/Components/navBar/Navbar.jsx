@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FiMenu } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import clsx from "clsx";
-import logo from "../../Assets/Images/chhukha_dam.png";
+import logo from "../../Assets/Images/logo.png";
 import profile from "../../Assets/Images/avatar-1.jpg";
 
 const Navbar = () => {
@@ -18,12 +18,12 @@ const Navbar = () => {
   };
 
   const navlinks = [
-    { label: "Dashboard", link: "" },
-    { label: "Reports", link: "" },
-    { label: "Users", link: "" },
-    { label: "Setting", link: "" },
-    { label: "Notification", link: "" },
-    { label: "Logout", link: "" },
+    // { label: "Dashboard", link: "" },
+    // { label: "Reports", link: "" },
+    // { label: "Users", link: "" },
+    // { label: "Setting", link: "" },
+    // { label: "Notification", link: "" },
+    // { label: "Logout", link: "" },
   ];
 
   useEffect(() => {
@@ -42,30 +42,22 @@ const Navbar = () => {
 
   return (
     <>
-      <main className="sticky top-0 z-50 bg-white">
+      <main className="sticky top-0 z-50 bg-white border-b-4 border-yellow-200 shadow-sm">
         <nav className="flex justify-between px-8 items-center py-2 border-0 relative z-50">
           <div className="flex items-center w-100">
             <section className="d-flex justify-content-between w-100 gap-4">
-              <div className="flex items-center gap-2">
-                <FiMenu
-                  onClick={() => setMenu(true)}
-                  className="text-3xl cursor-pointer md:hidden"
-                />
-
+              <div className="flex items-center gap-2 mt-2">
                 <Link to="/" className="">
-                  <img
-                    src={logo}
-                    alt="logo of druk green"
-                    height="50"
-                    className="h-12"
-                  />
+                  <img src={logo} alt="logo" width="50" className="h-12" />
                 </Link>
               </div>
-
-              <h4 className="fw-bold fs-3 items-center d-flex justify-content-center font-sans">
-                Hydropower Forecasting System for Chhukha Dam
-              </h4>
-
+              <h5 className="tracking-wide fs-5 mt-2 items-center d-flex text-center font-sans">
+                KITCHEN MANAGEMENT SYSTEM
+              </h5>
+              <FiMenu
+                onClick={() => setMenu(true)}
+                className="text-3xl cursor-pointer mt-3 md:hidden"
+              />
               <div className="d-none d-md-block">
                 <div className="flex items-cente gap-0">
                   <div
@@ -103,15 +95,8 @@ const Navbar = () => {
                     </button>
 
                     {isOpen && (
-                      <div class="mt-4 absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <div class="mt-4 absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none">
                         <div class="py-1">
-                          <Link
-                            to="/profile"
-                            type="submit"
-                            class="text-decoration-none block w-full px-4 py-2 text-left text-sm text-gray-700"
-                          >
-                            profile
-                          </Link>
                           <button
                             type="submit"
                             class="block w-full px-4 py-2 text-left text-sm text-gray-700"
@@ -130,64 +115,32 @@ const Navbar = () => {
 
           <div
             className={clsx(
-              "fixed h-full w-screen lg:hidden bg-black/50 backdrop-blur-sm top-0 right-0 z-40 transition-all transform",
-              isSideMenuOpen ? "translate-x-0" : "-translate-x-full"
+              "fixed h-full w-screen lg:hidden bg-black/50 backdrop-blur-sm top-0 left-0 z-40 transition-all transform",
+              isSideMenuOpen ? "translate-y-0" : "translate-x-full"
             )}
           >
-            <section className="text-black bg-white flex-col absolute left-0 top-0 h-screen p-8 gap-8 z-50 w-56 flex">
+            <section className="text-black bg-white flex-col absolute right-0 top-0 h-screen p-8 gap-8 z-50 w-56 flex">
               <IoCloseOutline
                 onClick={() => setMenu(false)}
                 className="mt-0 mb-8 text-3xl cursor-pointer"
               />
-              {navlinks.map((d, i) => (
-                <Link key={i} className="font-bold" to={d.link}>
-                  {d.label}
-                </Link>
-              ))}
+              <div className="mx-4">
+                <button
+                  type="submit"
+                  class="block w-full px-4 py-2 text-left text-sm text-gray-700"
+                  onClick={handleLogout}
+                >
+                  Sign out
+                </button>
+                {navlinks.map((d, i) => (
+                  <Link key={i} className="font-bold" to={d.link}>
+                    {d.label}
+                  </Link>
+                ))}
+              </div>
             </section>
           </div>
         </nav>
-
-        <div className="d-flex justify-content-between border-2 shadow-md py-1 px-20">
-          <div className="self-center">
-            <Link to="/" className="nav-link">
-              <i className="fa-solid fa-gauge mx-2 fs-6"></i>
-              <span className="fs-5 fw-2">Dashboards</span>
-            </Link>
-          </div>
-
-          <div className="hidden md:flex gap-4">
-            <Link to="/report" className="text-decoration-none nav-link py-1">
-              Reports
-            </Link>
-            <Link to="/users" className="text-decoration-none nav-link py-1">
-              Users
-            </Link>
-            <Link
-              to="/notification"
-              className="text-decoration-none nav-link py-1"
-            >
-              Notification
-            </Link>
-            <Link to="/setting" className="text-decoration-none nav-link py-1">
-              Setting
-            </Link>
-          </div>
-
-          <div className="self-center">
-            <div className="input-group">
-              <input
-                type="datetime-local"
-                className="form-control dash-filter-picker"
-                data-provider="flatpickr"
-                data-range-date="true"
-                data-date-format="d M, Y"
-                data-default-date="01 Jan 2022 to 31 Jan 2022"
-                ref={datetimeInputRef}
-              />
-            </div>
-          </div>
-        </div>
       </main>
     </>
   );
