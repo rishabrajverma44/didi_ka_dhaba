@@ -51,7 +51,7 @@ const Navbar = () => {
                   <img src={logo} alt="logo" width="70" />
                 </Link>
               </div>
-              <h5 className="tracking-wide text-2xl mt-2 text-center font-sans flex-1">
+              <h5 className="tracking-wide text-4xl mt-2 text-center font-sans flex-1">
                 Didi Ka Dhaba
               </h5>
               <FiMenu
@@ -116,7 +116,7 @@ const Navbar = () => {
               isSideMenuOpen ? "translate-y-0" : "translate-x-full"
             )}
           >
-            <section className="text-black bg-white flex-col absolute right-0 top-0 h-screen p-8 gap-8 z-50 w-56 flex items-center justify-center">
+            <section className="text-black bg-white flex-col absolute right-0 top-0 h-screen p-8 gap-8 z-50 w-56">
               <IoCloseOutline
                 onClick={() => setMenu(false)}
                 className="mt-0 mb-8 text-3xl cursor-pointer"

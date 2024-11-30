@@ -104,9 +104,7 @@ const ReceivedFood = () => {
   return (
     <div className="bg-gray-50">
       <div className="container py-4">
-        <h3 className="text-2xl font-semibold text-gray-800 mb-4">
-          Received Return Food
-        </h3>
+        <h3 className="text-center mb-4">Received Return Food</h3>
 
         <h4 className="text-xl font-semibold text-gray-800">Select Didi</h4>
 
