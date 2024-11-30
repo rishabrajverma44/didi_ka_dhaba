@@ -10,6 +10,16 @@ module.exports = {
       textColor: {
         DEFAULT: "rgb(71 85 105)",
       },
+      colors: {
+        btn: {
+          primary: "#A24C4A",
+          hoverPrimary: "#752F21",
+          hoverPrimaryText: "#ffffff",
+          secondary: "#ffffff",
+          hoverSecondary: "#53230A",
+          hoverSecondaryText: "#ffffff",
+        },
+      },
     },
     screens: {
       sm: "640px",

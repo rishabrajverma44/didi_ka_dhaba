@@ -42,7 +42,7 @@ const Navbar = () => {
 
   return (
     <>
-      <main className="sticky top-0 z-50 bg-white border-b-4 border-yellow-200 shadow-sm">
+      <main className="sticky top-0 z-50 bg-white border-b-4 border-[#A24C4A] shadow-sm">
         <nav className="flex justify-between px-8 items-center py-2 border-0 relative z-50">
           <div className="flex items-center w-100">
             <section className="d-flex justify-content-between w-100 gap-4">
@@ -52,7 +52,7 @@ const Navbar = () => {
                 </Link>
               </div>
               <h5 className="tracking-wide fs-5 mt-2 items-center d-flex text-center font-sans">
-                KITCHEN MANAGEMENT SYSTEM
+                Didi Ka Dhaba
               </h5>
               <FiMenu
                 onClick={() => setMenu(true)}

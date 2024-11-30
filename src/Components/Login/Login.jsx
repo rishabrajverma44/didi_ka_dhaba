@@ -11,26 +11,35 @@ const Login = () => {
   };
   return (
     <>
-      <div>
+      <div
+        id="backgroundimages"
+        style={{
+          backgroundImage: `url(/images/img.jpg)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          height: "100vh",
+          width: "100%",
+        }}
+      >
         <div
-          className="bg-gray-100 d-flex justify-content-center align-items-center"
+          className="d-flex justify-content-center align-items-center"
           style={{ height: "100vh" }}
         >
-          <div className="p-4 w-full md:w-3/4 lg:w-1/2 rounded-lg shadow-lg">
+          <div className="p-2 w-full md:w-3/4 lg:w-1/2">
             <form
               id="login-form"
               action="#"
-              className="bg-white p-6 rounded-lg"
+              className="bg-white p-6 rounded-2xl border-2"
               method="post"
             >
               <div className="text-center">
-                <a className="inline-block" href="" alt="">
+                <a className="inline-block rounded-xl" href="" alt="">
                   <img src={logo} alt="LOGO" width="160" />
                 </a>
               </div>
               <div className="text-center">
                 <h2 className="mt-2 text-lg font-medium text-dark">
-                  Didi Ka Kitchen
+                  Didi Ka Dhaba
                 </h2>
               </div>
 
@@ -74,7 +83,7 @@ const Login = () => {
                   <button
                     type="submit"
                     name="submit"
-                    className="btn btn-primary w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                    className="w-full py-2 rounded-lg  bg-btn-primary hover:bg-btn-hover text-white"
                     onClick={handleSubmit}
                   >
                     Sign in
