@@ -43,15 +43,15 @@ const Navbar = () => {
   return (
     <>
       <main className="sticky top-0 z-50 bg-white border-b-4 border-[#A24C4A] shadow-sm">
-        <nav className="flex justify-between px-8 items-center py-2 border-0 relative z-50">
-          <div className="flex items-center w-100">
-            <section className="d-flex justify-content-between w-100 gap-4">
-              <div className="flex items-center gap-2 mt-2">
-                <Link to="/" className="">
-                  <img src={logo} alt="logo" width="50" className="h-12" />
+        <nav className="flex justify-between px-8 items-center py-1 border-0 relative z-50">
+          <div className="flex items-center w-full justify-between">
+            <section className="flex justify-between items-center w-full">
+              <div className="flex items-center justify-center">
+                <Link to="/">
+                  <img src={logo} alt="logo" width="70" />
                 </Link>
               </div>
-              <h5 className="tracking-wide fs-5 mt-2 items-center d-flex text-center font-sans">
+              <h5 className="tracking-wide text-2xl mt-2 text-center font-sans flex-1">
                 Didi Ka Dhaba
               </h5>
               <FiMenu
@@ -59,11 +59,8 @@ const Navbar = () => {
                 className="text-3xl cursor-pointer mt-3 md:hidden"
               />
               <div className="d-none d-md-block">
-                <div className="flex items-cente gap-0">
-                  <div
-                    className="dropdown topbar-head-dropdown ms-1 header-item mx-4 mt-2"
-                    id="notificationDropdown1"
-                  >
+                <div className="flex items-center gap-4">
+                  <div className="dropdown topbar-head-dropdown ms-1 header-item mx-4 mt-2">
                     <button
                       type="button"
                       className="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"
@@ -95,11 +92,11 @@ const Navbar = () => {
                     </button>
 
                     {isOpen && (
-                      <div class="mt-4 absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none">
-                        <div class="py-1">
+                      <div className="mt-4 absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div className="py-1">
                           <button
                             type="submit"
-                            class="block w-full px-4 py-2 text-left text-sm text-gray-700"
+                            className="block w-full px-4 py-2 text-left text-sm text-gray-700"
                             onClick={handleLogout}
                           >
                             Sign out
@@ -119,7 +116,7 @@ const Navbar = () => {
               isSideMenuOpen ? "translate-y-0" : "translate-x-full"
             )}
           >
-            <section className="text-black bg-white flex-col absolute right-0 top-0 h-screen p-8 gap-8 z-50 w-56 flex">
+            <section className="text-black bg-white flex-col absolute right-0 top-0 h-screen p-8 gap-8 z-50 w-56 flex items-center justify-center">
               <IoCloseOutline
                 onClick={() => setMenu(false)}
                 className="mt-0 mb-8 text-3xl cursor-pointer"
@@ -127,7 +124,7 @@ const Navbar = () => {
               <div className="mx-4">
                 <button
                   type="submit"
-                  class="block w-full px-4 py-2 text-left text-sm text-gray-700"
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700"
                   onClick={handleLogout}
                 >
                   Sign out

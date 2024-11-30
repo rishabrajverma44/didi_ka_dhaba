@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import { FiX } from "react-icons/fi";
 
 const IssueFood = () => {
   const [namesDidi] = useState([
@@ -30,13 +32,33 @@ const IssueFood = () => {
   };
 
   const handleAddItem = (item) => {
-    setSelectedItem(item);
-    setShowModal(true);
+    if (selectedDidi) {
+      setSelectedItem(item);
+      setShowModal(true);
+    } else {
+      toast.warning("Please select Didi");
+    }
+  };
+
+  const handleDeleteItem = (item) => {
+    if (selectedDidi) {
+      setUserWiseData((prevData) => {
+        const updatedData = { ...prevData };
+        if (updatedData[selectedDidi]?.items[item]) {
+          delete updatedData[selectedDidi].items[item];
+          if (Object.keys(updatedData[selectedDidi].items).length === 0) {
+            delete updatedData[selectedDidi];
+          }
+        }
+        return updatedData;
+      });
+      toast.success(`${item} removed.`);
+    }
   };
 
   const handleConfirm = () => {
     if (!weight) {
-      alert("Please fill out the weight!");
+      toast.warning("Please fill out the weight!");
       return;
     }
 
@@ -70,15 +92,13 @@ const IssueFood = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center py-6">
-      <h3 className="text-2xl font-semibold text-gray-800 mb-4">
-        Select Didi Ka Dhaba
-      </h3>
+      <h3 className="text-2xl font-semibold text-gray-800 mb-4">Select Didi</h3>
 
       <div ref={dropdownRef} className="relative w-full max-w-md">
         <input
           type="text"
           placeholder="Search Name..."
-          className="w-full p-2 border-b border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
+          className="cursor-pointer w-full p-2 border-b border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
@@ -110,20 +130,36 @@ const IssueFood = () => {
           <h3 className="text-xl font-semibold text-gray-800 mb-1">
             Submit Items for {selectedDidi}
           </h3>
-          <div>
-            {userWiseData[selectedDidi]?.items &&
-              Object.entries(userWiseData[selectedDidi].items).map(
+          {userWiseData[selectedDidi]?.items &&
+          Object.entries(userWiseData[selectedDidi]).length > 0 ? (
+            <div className="border py-2 px-4 rounded-lg">
+              {Object.entries(userWiseData[selectedDidi].items).map(
                 ([item, info]) => (
-                  <div key={item} className="text-gray-700">
-                    {item} - {info.weight} kg
+                  <div
+                    key={item}
+                    className="text-gray-700 flex justify-between items-center"
+                  >
+                    <span>{item}</span>
+                    <span className="flex items-center space-x-2">
+                      <span>{info.weight} kg</span>
+                      <button
+                        className="text-red-500 hover:text-red-700"
+                        onClick={() => handleDeleteItem(item)}
+                      >
+                        <FiX size={24} />
+                      </button>
+                    </span>
                   </div>
                 )
               )}
-          </div>
+            </div>
+          ) : (
+            <></>
+          )}
           {Object.keys(userWiseData[selectedDidi]?.items || {}).length > 0 && (
             <div className="flex justify-end">
               <button
-                className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg"
+                className="mt-2 bg-blue-500 text-white px-4 py-1 mt-4 rounded-lg"
                 onClick={finalSubmit}
               >
                 Submit
@@ -133,8 +169,16 @@ const IssueFood = () => {
         </div>
       )}
 
-      <div className="w-full max-w-3xl px-4 mt-10 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {["Rice", "Beans", "Wheat", "Daal", "Corn"].map((item, index) => (
+      <div className="w-full max-w-4xl px-4 mt-10 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          "Chawal (चावल)",
+          "Beans (बीन्स)",
+          "Gehu (गेहूं)",
+          "Daal (दाल)",
+          "Makka (मक्का)",
+          "Bajra (बाजरा)",
+          "Rajma (राजमा)",
+        ].map((item, index) => (
           <div
             key={index}
             className="flex justify-between items-center p-2 bg-gray-100 rounded hover:bg-gray-200"
@@ -165,14 +209,14 @@ const IssueFood = () => {
             />
             <div className="flex justify-end space-x-4">
               <button
-                className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400"
+                className="px-4 py-2 rounded-lg btn-secondary border-1 border-[#A24C4A] text-[#A24C4A]"
                 onClick={() => setShowModal(false)}
               >
                 Cancel
               </button>
 
               <button
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                className="px-4 py-2 rounded-lg bg-btn-primary hover:bg-btn-hoverPrimary text-white"
                 onClick={handleConfirm}
               >
                 Confirm
@@ -181,6 +225,8 @@ const IssueFood = () => {
           </div>
         </div>
       )}
+
+      <ToastContainer />
     </div>
   );
 };
