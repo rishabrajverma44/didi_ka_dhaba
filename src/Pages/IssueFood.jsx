@@ -18,6 +18,7 @@ const IssueFood = () => {
   const [selectedItem, setSelectedItem] = useState("");
   const [weight, setWeight] = useState("");
   const [userWiseData, setUserWiseData] = useState({});
+  const [currentDate, setCurrentDate] = useState("");
 
   const dropdownRef = useRef(null);
 
@@ -76,6 +77,7 @@ const IssueFood = () => {
   };
 
   const finalSubmit = () => {
+    toast.success(`Item Submited to ${selectedDidi}`);
     console.log(userWiseData);
   };
 
@@ -88,6 +90,15 @@ const IssueFood = () => {
 
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+  useEffect(() => {
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    setCurrentDate(formattedDate);
   }, []);
 
   return (
@@ -126,52 +137,56 @@ const IssueFood = () => {
             </ul>
           )}
         </div>
+        <div className="mb-3 text-center">
+          <p className="mt-2 text-lg text-[#A24C4A] font-bold">{currentDate}</p>
+        </div>
 
-        {selectedDidi && (
-          <div className="mt-3 bg-white shadow rounded-lg p-2 w-full max-w-md">
-            <h3 className="text-xl font-semibold text-gray-800 mb-1">
-              Submit Items for {selectedDidi}
-            </h3>
-            {userWiseData[selectedDidi]?.items &&
-            Object.entries(userWiseData[selectedDidi]).length > 0 ? (
-              <div className="border py-2 px-4 rounded-lg">
-                {Object.entries(userWiseData[selectedDidi].items).map(
-                  ([item, info]) => (
-                    <div
-                      key={item}
-                      className="text-gray-700 flex justify-between items-center"
-                    >
-                      <span>{item}</span>
-                      <span className="flex items-center space-x-2">
-                        <span>{info.weight} kg</span>
-                        <button
-                          className="text-red-500 hover:text-red-700"
-                          onClick={() => handleDeleteItem(item)}
-                        >
-                          <FiX size={24} />
-                        </button>
-                      </span>
-                    </div>
-                  )
-                )}
-              </div>
-            ) : (
-              <></>
-            )}
-            {Object.keys(userWiseData[selectedDidi]?.items || {}).length >
-              0 && (
-              <div className="flex justify-end">
-                <button
-                  className="mt-2 bg-blue-500 text-white px-4 py-1 mt-4 rounded-lg"
-                  onClick={finalSubmit}
-                >
-                  Submit
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
+        <div className="flex justify-center">
+          {selectedDidi && (
+            <div className="mt-3 bg-white shadow rounded-lg p-2 w-full max-w-md">
+              <h3 className="text-xl font-semibold text-gray-800 mb-1">
+                Submit Items for {selectedDidi}
+              </h3>
+              {userWiseData[selectedDidi]?.items &&
+              Object.entries(userWiseData[selectedDidi]).length > 0 ? (
+                <div className="border py-2 px-4 rounded-lg">
+                  {Object.entries(userWiseData[selectedDidi].items).map(
+                    ([item, info]) => (
+                      <div
+                        key={item}
+                        className="text-gray-700 flex justify-between items-center"
+                      >
+                        <span>{item}</span>
+                        <span className="flex items-center space-x-2">
+                          <span>{info.weight} kg</span>
+                          <button
+                            className="text-red-500 hover:text-red-700"
+                            onClick={() => handleDeleteItem(item)}
+                          >
+                            <FiX size={24} />
+                          </button>
+                        </span>
+                      </div>
+                    )
+                  )}
+                </div>
+              ) : (
+                <></>
+              )}
+              {Object.keys(userWiseData[selectedDidi]?.items || {}).length >
+                0 && (
+                <div className="flex justify-end">
+                  <button
+                    className="mt-2 border-[#A24C4A] text-[#A24C4A] rounded border-1 px-4 py-1 mt-4 rounded-lg"
+                    onClick={finalSubmit}
+                  >
+                    Submit
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
         <div className="w-full max-w-4xl px-4 mt-10 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             "Chawal (चावल)",

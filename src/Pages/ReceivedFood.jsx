@@ -235,9 +235,9 @@ const ReceivedFood = () => {
           </div>
         </div>
 
-        <div className="text-center mt-4">
+        <div className="flex justify-center">
           <button
-            className="btn btn-primary"
+            className="mt-2 border-[#A24C4A] text-[#A24C4A] rounded border-1 px-4 py-1 mt-4 rounded-lg cursor-pointer"
             onClick={handleSubmit}
             disabled={foodData.some((item) => !item.received)}
           >

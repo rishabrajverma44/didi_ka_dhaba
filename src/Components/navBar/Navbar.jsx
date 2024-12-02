@@ -51,16 +51,17 @@ const Navbar = () => {
                   <img src={logo} alt="logo" width="70" />
                 </Link>
               </div>
-              <h5 className="tracking-wide text-4xl mt-2 text-center font-sans flex-1">
+              <h5 className="tracking-wide text-2xl md:text-4xl mt-2 text-center font-sans flex-1">
                 Didi Ka Dhaba
               </h5>
+
               <FiMenu
                 onClick={() => setMenu(true)}
                 className="text-3xl cursor-pointer mt-3 md:hidden"
               />
               <div className="d-none d-md-block">
-                <div className="flex items-center gap-4">
-                  <div className="dropdown topbar-head-dropdown ms-1 header-item mx-4 mt-2">
+                <div className="flex items-center gap-2">
+                  {/* <div className="dropdown topbar-head-dropdown ms-1 header-item mt-2">
                     <button
                       type="button"
                       className="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"
@@ -72,7 +73,7 @@ const Navbar = () => {
                     >
                       <i className="fa-solid fa-bell fa-lg"></i>
                       <span
-                        className="position-absolute topbar-badge translate-middle badge rounded-pill bg-danger"
+                        className="position-absolute topbar-badge translate-middle badge rounded-pill bg-[#A24C4A]"
                         style={{
                           fontSize: "10px",
                         }}
@@ -80,7 +81,7 @@ const Navbar = () => {
                         3
                       </span>
                     </button>
-                  </div>
+                  </div> */}
 
                   <span className="bg-gray-100 p-2">
                     <button onClick={toggleDropdown}>
