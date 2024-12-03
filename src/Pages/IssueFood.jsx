@@ -1,16 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { FiX } from "react-icons/fi";
+import axios from "axios";
 
 const IssueFood = () => {
-  const [namesDidi] = useState([
-    "Didi_1  (GR22)",
-    "Didi_2  (NO72)",
-    "Didi_3  (GR98)",
-    "Didi_4  (GR25)",
-    "Didi_5  (GR34)",
-    "Didi_6  (GR28)",
-  ]);
+  const [namesDidi, setDidiName] = useState([]);
+  const [foodItem, setFoodItem] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDidi, setSelectedDidi] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -21,20 +16,20 @@ const IssueFood = () => {
   const [currentDate, setCurrentDate] = useState("");
 
   const dropdownRef = useRef(null);
-
-  const filteredNames = namesDidi.filter((name) =>
-    name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredNames = namesDidi.filter((item) => {
+    const search = String(searchTerm || "").toLowerCase();
+    return item.didi_name_and_thela_code.toLowerCase().includes(search);
+  });
 
   const handleSelectDidi = (name) => {
-    setSelectedDidi(name);
-    setSearchTerm(name);
+    setSelectedDidi(name.didi_name_and_thela_code);
+    setSearchTerm(name.didi_name_and_thela_code);
     setIsDropdownOpen(false);
   };
 
   const handleAddItem = (item) => {
     if (selectedDidi) {
-      setSelectedItem(item);
+      setSelectedItem(item.food_name);
       setShowModal(true);
     } else {
       toast.warning("Please select Didi");
@@ -76,9 +71,69 @@ const IssueFood = () => {
     setWeight("");
   };
 
-  const finalSubmit = () => {
-    toast.success(`Item Submited to ${selectedDidi}`);
-    console.log(userWiseData);
+  const issueFood = (payload) => {
+    axios
+      .post(
+        "https://didikadhababackend.indevconsultancy.in/dhaba/issue-food/",
+        payload
+      )
+      .then((res) => {
+        if (res.status === 201) {
+          toast.success(
+            `Issued ${payload.food_items.length} Items to ${selectedDidi}`
+          );
+          setUserWiseData({});
+          setSelectedDidi(null);
+          setSearchTerm("");
+        } else {
+          toast.error("somthing went wrong !");
+        }
+      })
+      .catch((err) => {
+        console.log("error in sendind issue food", err);
+      });
+  };
+
+  const finalSubmit = async () => {
+    if (!selectedDidi) {
+      toast.warning("Please select a Didi!");
+      return;
+    }
+    const selectedDidiData = namesDidi.find(
+      (item) => item.didi_name_and_thela_code === selectedDidi
+    );
+
+    if (!selectedDidiData) {
+      toast.error("Invalid Didi selected!");
+      return;
+    }
+
+    const didiThelaId = selectedDidiData.didi_thela_id;
+
+    const items = userWiseData[selectedDidi]?.items || {};
+
+    if (Object.keys(items).length === 0) {
+      toast.warning("No items to submit!");
+      return;
+    }
+
+    const payload = {
+      didi_thela_id: didiThelaId,
+      food_items: Object.entries(items)
+        .map(([foodName, info]) => {
+          const foodData = foodItem.find((item) => item.food_name === foodName);
+          if (!foodData) {
+            toast.error(`Food item "${foodName}" is not valid!`);
+            return null;
+          }
+          return {
+            food_id: foodData.food_id,
+            quantity: info.weight,
+          };
+        })
+        .filter((item) => item !== null),
+    };
+    issueFood(payload);
   };
 
   useEffect(() => {
@@ -99,6 +154,50 @@ const IssueFood = () => {
       day: "numeric",
     });
     setCurrentDate(formattedDate);
+  }, []);
+
+  const getFoodItem = async () => {
+    try {
+      axios
+        .get("https://didikadhababackend.indevconsultancy.in/dhaba/foods/")
+        .then((res) => {
+          if (res.status === 200) {
+            setFoodItem(res.data);
+          } else {
+            setFoodItem([]);
+          }
+        })
+        .catch((e) => {
+          console.log("error in food item", e);
+        });
+    } catch (error) {
+      console.log("error in getting food items", error);
+    }
+  };
+
+  const getDidiName = async () => {
+    try {
+      axios
+        .get("https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/")
+        .then((res) => {
+          if (res.status === 200) {
+            const data = [...res.data];
+            setDidiName([...data]);
+          } else {
+            setDidiName([]);
+          }
+        })
+        .catch((e) => {
+          console.log("error in getting didi thela", e);
+        });
+    } catch (error) {
+      console.log("error in getting didi thela", error);
+    }
+  };
+
+  useEffect(() => {
+    getFoodItem();
+    getDidiName();
   }, []);
 
   return (
@@ -128,7 +227,7 @@ const IssueFood = () => {
                     className="p-2 hover:bg-blue-100 cursor-pointer"
                     onClick={() => handleSelectDidi(name)}
                   >
-                    {name}
+                    {name.didi_name_and_thela_code}
                   </li>
                 ))
               ) : (
@@ -145,22 +244,25 @@ const IssueFood = () => {
           {selectedDidi && (
             <div className="mt-3 bg-white shadow rounded-lg p-2 w-full max-w-md">
               <h3 className="text-xl font-semibold text-gray-800 mb-1">
-                Submit Items for {selectedDidi}
+                Add Items for {selectedDidi}
               </h3>
               {userWiseData[selectedDidi]?.items &&
               Object.entries(userWiseData[selectedDidi]).length > 0 ? (
-                <div className="border py-2 px-4 rounded-lg">
+                <div className="border py-2 px-1 rounded-lg">
                   {Object.entries(userWiseData[selectedDidi].items).map(
                     ([item, info]) => (
                       <div
                         key={item}
-                        className="text-gray-700 flex justify-between items-center"
+                        className="text-gray-700 flex justify-between items-center border-b-2 mb-2"
                       >
-                        <span>{item}</span>
-                        <span className="flex items-center space-x-2">
+                        <span style={{ width: "230px" }}>{item}</span>
+                        <span
+                          style={{ width: "100px" }}
+                          className="flex justify-between items-center space-x-2"
+                        >
                           <span>{info.weight} kg</span>
                           <button
-                            className="text-red-500 hover:text-red-700"
+                            className="text-red-500 hover:text-red-700 p-0 m-0"
                             onClick={() => handleDeleteItem(item)}
                           >
                             <FiX size={24} />
@@ -171,7 +273,9 @@ const IssueFood = () => {
                   )}
                 </div>
               ) : (
-                <></>
+                <>
+                  <div className="flex justify-center">No items selected</div>
+                </>
               )}
               {Object.keys(userWiseData[selectedDidi]?.items || {}).length >
                 0 && (
@@ -187,29 +291,26 @@ const IssueFood = () => {
             </div>
           )}
         </div>
-        <div className="w-full max-w-4xl px-4 mt-10 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            "Chawal (चावल)",
-            "Beans (बीन्स)",
-            "Gehu (गेहूं)",
-            "Daal (दाल)",
-            "Makka (मक्का)",
-            "Bajra (बाजरा)",
-            "Rajma (राजमा)",
-          ].map((item, index) => (
-            <div
-              key={index}
-              className="flex justify-between items-center p-2 bg-gray-100 rounded hover:bg-gray-200"
-            >
-              <span className="text-lg font-medium text-gray-800">{item}</span>
-              <button
-                className="bg-btn-primary hover:bg-btn-hoverPrimary text-white px-3 py-1 rounded-lg"
-                onClick={() => handleAddItem(item)}
-              >
-                +
-              </button>
-            </div>
-          ))}
+        <div className="flex justify-center items-center">
+          <div className="w-full max-w-4xl px-2 mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {foodItem.length > 0 &&
+              foodItem.map((item) => (
+                <div
+                  key={item.food_id}
+                  className="flex justify-between items-center p-2 bg-gray-100 rounded hover:bg-gray-200"
+                >
+                  <span className="text-lg font-medium text-gray-800">
+                    {item.food_name}
+                  </span>
+                  <button
+                    className="bg-btn-primary hover:bg-btn-hoverPrimary text-white px-3 py-1 rounded-lg"
+                    onClick={() => handleAddItem(item)}
+                  >
+                    +
+                  </button>
+                </div>
+              ))}
+          </div>
         </div>
 
         {showModal && (

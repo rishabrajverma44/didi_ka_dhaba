@@ -1,25 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FaCamera } from "react-icons/fa";
+import { FiX } from "react-icons/fi";
+import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
 
 const ReceivedFood = () => {
-  const [namesDidi] = useState([
-    "Didi_1",
-    "Didi_2",
-    "Didi_3",
-    "Didi_4",
-    "Didi_5",
-    "Didi_6",
-  ]);
+  const [namesDidi, setDidiName] = useState([]);
   const [currentDate, setCurrentDate] = useState("");
-  const [namesThela] = useState([
-    "GR034",
-    "ND89",
-    "GR84",
-    "GR76",
-    "ND52",
-    "GR94",
-  ]);
+  const [namesThela, setThelaName] = useState([]);
   const [searchTermDidi, setSearchTermDidi] = useState("");
   const [selectedDidi, setSelectedDidi] = useState(null);
   const [isDropdownOpenDidi, setIsDropdownOpenDidi] = useState(false);
@@ -28,14 +17,17 @@ const ReceivedFood = () => {
   const [isDropdownOpenThela, setIsDropdownOpenThela] = useState(false);
   const dropdownRefDidi = useRef(null);
   const dropdownRefThela = useRef(null);
+  const [finalData, setFinalData] = useState({});
 
-  const filteredDidiNames = namesDidi.filter((name) =>
-    name.toLowerCase().includes(searchTermDidi.toLowerCase())
-  );
-  const filteredThelaNames = namesThela.filter((name) =>
-    name.toLowerCase().includes(searchTermThela.toLowerCase())
-  );
+  const filteredDidiNames = namesDidi.filter((item) => {
+    const search = String(searchTermDidi || "").toLowerCase();
+    return item.full_name.toLowerCase().includes(search);
+  });
 
+  const filteredThelaNames = namesThela.filter((item) => {
+    const search = String(searchTermThela || "").toLowerCase();
+    return item.thela_code.toLowerCase().includes(search);
+  });
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -57,10 +49,10 @@ const ReceivedFood = () => {
   }, []);
 
   const [foodData, setFoodData] = useState([
-    { item: "Rice", assigned: 5 },
-    { item: "Dal", assigned: 10 },
-    { item: "Paneer Matter", assigned: 10 },
-    { item: "Roti", assigned: 10 },
+    { item: "Rice", assigned: 5, image: null },
+    { item: "Dal", assigned: 10, image: null },
+    { item: "Paneer Matter", assigned: 10, image: null },
+    { item: "Roti", assigned: 10, image: null },
   ]);
 
   useEffect(() => {
@@ -73,8 +65,37 @@ const ReceivedFood = () => {
     setCurrentDate(formattedDate);
   }, []);
 
-  const [showModal, setShowModal] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(null);
+  const getDidi = () => {
+    axios
+      .get("https://didikadhababackend.indevconsultancy.in/dhaba/didi/")
+      .then((res) => {
+        if (res.status === 200) {
+          const data = [...res.data];
+          setDidiName([...data]);
+        }
+      })
+      .catch((e) => {
+        console.log("error in get didi", e);
+      });
+  };
+
+  const getThela = () => {
+    axios
+      .get("https://didikadhababackend.indevconsultancy.in/dhaba/thelas/")
+      .then((res) => {
+        if (res.status === 200) {
+          const data = [...res.data];
+          setThelaName([...data]);
+        }
+      })
+      .catch((e) => {
+        console.log("error in geting Thela", e);
+      });
+  };
+  useEffect(() => {
+    getDidi();
+    getThela();
+  }, []);
 
   const handleReceivedChange = (index, value) => {
     const updatedFoodData = [...foodData];
@@ -82,23 +103,52 @@ const ReceivedFood = () => {
     setFoodData(updatedFoodData);
   };
 
-  const handleImageUpload = (index) => {
-    setSelectedIndex(index);
-    setShowModal(true);
-  };
-
-  const handleFileChange = (event) => {
+  const handleFileChange = (event, index) => {
     const file = event.target.files[0];
-    if (file && selectedIndex !== null) {
+    if (file) {
       const updatedFoodData = [...foodData];
-      updatedFoodData[selectedIndex].image = file.name;
+      updatedFoodData[index].image = URL.createObjectURL(file);
       setFoodData(updatedFoodData);
     }
-    setShowModal(false);
+  };
+  const handleRemoveImage = (index) => {
+    const updatedFoodData = [...foodData];
+    updatedFoodData[index].image = null;
+    setFoodData(updatedFoodData);
   };
 
-  const handleSubmit = () => {
-    console.log("Submitted Data:", foodData);
+  const handleSubmit = async () => {
+    const selectedDidiData = namesDidi.find(
+      (item) => item.didi_id === selectedDidi
+    );
+    if (!selectedDidi || !selectedDidiData) {
+      toast.error("Please select a valid Didi from the dropdown!");
+      return;
+    }
+
+    const selectedThelaData = namesThela.find(
+      (item) => item.thela_id === selectedThela
+    );
+    if (!selectedThela || !selectedThelaData) {
+      toast.error("Please select a valid Thela from the dropdown!");
+      return;
+    }
+
+    const did_id = selectedDidiData.didi_id;
+    const thela_id = selectedThela;
+
+    const payload = {
+      didi_id: did_id,
+      thela_id: thela_id,
+      food_data: foodData.map(({ item, assigned, received, image }) => ({
+        item,
+        assigned,
+        received,
+        image,
+      })),
+    };
+    toast.success("Data submitted successfully!");
+    console.log(payload);
   };
 
   return (
@@ -117,23 +167,30 @@ const ReceivedFood = () => {
             onChange={(e) => {
               setSearchTermDidi(e.target.value);
               setIsDropdownOpenDidi(true);
+              setSelectedDidi(null);
             }}
-            onClick={() => setIsDropdownOpenDidi(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsDropdownOpenDidi(true);
+            }}
           />
           {isDropdownOpenDidi && (
-            <ul className="absolute z-20 bg-white border border-gray-300 shadow-lg rounded-lg mt-2 max-h-40 w-full overflow-y-auto">
+            <ul
+              className="absolute z-20 bg-white border border-gray-300 shadow-lg rounded-lg mt-2 max-h-40 w-full overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
               {filteredDidiNames.length > 0 ? (
                 filteredDidiNames.map((name, index) => (
                   <li
                     key={index}
                     className="p-2 hover:bg-blue-100 cursor-pointer"
                     onClick={() => {
-                      setSelectedDidi(name);
-                      setSearchTermDidi(name);
+                      setSelectedDidi(name.didi_id);
+                      setSearchTermDidi(name.full_name);
                       setIsDropdownOpenDidi(false);
                     }}
                   >
-                    {name}
+                    {name.full_name}
                   </li>
                 ))
               ) : (
@@ -156,6 +213,7 @@ const ReceivedFood = () => {
             onChange={(e) => {
               setSearchTermThela(e.target.value);
               setIsDropdownOpenThela(true);
+              setSelectedThela(null);
             }}
             onClick={() => setIsDropdownOpenThela(true)}
           />
@@ -167,12 +225,12 @@ const ReceivedFood = () => {
                     key={index}
                     className="p-2 hover:bg-blue-100 cursor-pointer"
                     onClick={() => {
-                      setSelectedThela(name);
-                      setSearchTermThela(name);
+                      setSelectedThela(name.thela_id);
+                      setSearchTermThela(name.thela_code);
                       setIsDropdownOpenThela(false);
                     }}
                   >
-                    {name}
+                    {name.thela_code}
                   </li>
                 ))
               ) : (
@@ -193,10 +251,15 @@ const ReceivedFood = () => {
             <table className="table table-bordered">
               <thead className="table-light">
                 <tr>
-                  <th>Item</th>
-                  <th>Assigned Food (kg)</th>
-                  <th>Received Food (kg)</th>
-                  <th>Image</th>
+                  <th className="text-center">Item</th>
+                  <th className="text-center" style={{ minWidth: "100px" }}>
+                    Assigned Food (kg)
+                  </th>
+                  <th className="text-center" style={{ minWidth: "150px" }}>
+                    Received Food (kg)
+                  </th>
+                  <th className="text-center">Image</th>
+                  <th className="text-center">Uploaded Image</th>
                 </tr>
               </thead>
               <tbody>
@@ -212,7 +275,7 @@ const ReceivedFood = () => {
                           handleReceivedChange(index, e.target.value)
                         }
                         className="form-control"
-                        placeholder="Enter received food in Kg"
+                        placeholder="food in Kg"
                       />
                     </td>
                     <td className="text-center">
@@ -221,12 +284,32 @@ const ReceivedFood = () => {
                         <input
                           type="file"
                           accept="image/*"
-                          capture="environment"
-                          onChange={handleFileChange}
+                          onChange={(e) => handleFileChange(e, index)}
                           style={{ display: "none" }}
                         />
                       </label>
-                      {item.image && <span className="ms-2">{item.image}</span>}
+                    </td>
+                    <td className="text-center">
+                      {item.image && (
+                        <>
+                          <div className="relative">
+                            <img
+                              src={item.image}
+                              alt="Uploaded"
+                              className="img-fluid"
+                              style={{ maxHeight: "100px", objectFit: "cover" }}
+                            />
+                            <span className="absolute top-0 right-0 p-1">
+                              <button
+                                className="text-red-500 hover:text-red-700"
+                                onClick={() => handleRemoveImage(index)}
+                              >
+                                <FiX size={24} />
+                              </button>
+                            </span>
+                          </div>
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -239,12 +322,13 @@ const ReceivedFood = () => {
           <button
             className="mt-2 border-[#A24C4A] text-[#A24C4A] rounded border-1 px-4 py-1 mt-4 rounded-lg cursor-pointer"
             onClick={handleSubmit}
-            disabled={foodData.some((item) => !item.received)}
+            disabled={foodData.some((item) => item.received === "")}
           >
             Submit
           </button>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };
