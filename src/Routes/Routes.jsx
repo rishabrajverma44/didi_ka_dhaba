@@ -1,5 +1,5 @@
 import Home from "../Home";
-import PrivateRoute from "./PrivateRoutes";
+import PrivateRoute from "./PrivateRoute";
 import NotFound from "../Components/prebuiltComponent/NotFound";
 import Layout from "../Components/navBar/Layout";
 import Login from "../Components/Login/Login";
