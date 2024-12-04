@@ -6,6 +6,7 @@ import axios from "axios";
 const IssueFood = () => {
   const [namesDidi, setDidiName] = useState([]);
   const [foodItem, setFoodItem] = useState([]);
+  const [foodData, setFoodData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDidi, setSelectedDidi] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -27,28 +28,41 @@ const IssueFood = () => {
     setIsDropdownOpen(false);
   };
 
-  const handleAddItem = (item) => {
-    if (selectedDidi) {
-      setSelectedItem(item.food_name);
-      setShowModal(true);
-    } else {
-      toast.warning("Please select Didi");
-    }
+  const restoreFoodItem = (itemName) => {
+    setFoodItem((prev) => {
+      const itemExists = prev.some((item) => item.food_name === itemName);
+      if (!itemExists) {
+        const restoredItem = {
+          food_name: itemName,
+          food_id: Object.keys(userWiseData[selectedDidi]?.items || {}).find(
+            (key) => key === itemName
+          ),
+        };
+        return [...prev, restoredItem];
+      }
+      return prev;
+    });
   };
 
   const handleDeleteItem = (item) => {
     if (selectedDidi) {
       setUserWiseData((prevData) => {
         const updatedData = { ...prevData };
-        if (updatedData[selectedDidi]?.items[item]) {
-          delete updatedData[selectedDidi].items[item];
-          if (Object.keys(updatedData[selectedDidi].items).length === 0) {
+        const selectedDidiData = updatedData[selectedDidi]?.items;
+
+        if (selectedDidiData && selectedDidiData[item]) {
+          delete selectedDidiData[item];
+          if (Object.keys(selectedDidiData).length === 0) {
             delete updatedData[selectedDidi];
           }
         }
         return updatedData;
       });
+
+      restoreFoodItem(item);
       toast.success(`${item} removed.`);
+    } else {
+      toast.warning("Please select Didi");
     }
   };
 
@@ -67,11 +81,23 @@ const IssueFood = () => {
       return updatedData;
     });
 
+    const foodItemToRemove = foodItem.find(
+      (item) => item.food_name === selectedItem
+    );
+    if (foodItemToRemove) {
+      setFoodItem((prev) =>
+        prev.filter(
+          (food) =>
+            food.food_id !== foodItemToRemove.food_id &&
+            food.food_name !== foodItemToRemove.food_name
+        )
+      );
+    }
     setShowModal(false);
     setWeight("");
   };
 
-  const issueFood = (payload) => {
+  const issueFood = async (payload) => {
     axios
       .post(
         "https://didikadhababackend.indevconsultancy.in/dhaba/issue-food/",
@@ -86,12 +112,20 @@ const IssueFood = () => {
           setSelectedDidi(null);
           setSearchTerm("");
         } else {
-          toast.error("somthing went wrong !");
+          toast.error("Something went wrong!");
         }
       })
       .catch((err) => {
-        console.log("error in sendind issue food", err);
+        console.log("Error in sending issue food:", err);
       });
+  };
+  const handleAddItem = (item) => {
+    if (selectedDidi) {
+      setSelectedItem(item.food_name);
+      setShowModal(true);
+    } else {
+      toast.warning("Please select Didi");
+    }
   };
 
   const finalSubmit = async () => {
@@ -99,6 +133,7 @@ const IssueFood = () => {
       toast.warning("Please select a Didi!");
       return;
     }
+
     const selectedDidiData = namesDidi.find(
       (item) => item.didi_name_and_thela_code === selectedDidi
     );
@@ -109,7 +144,6 @@ const IssueFood = () => {
     }
 
     const didiThelaId = selectedDidiData.didi_thela_id;
-
     const items = userWiseData[selectedDidi]?.items || {};
 
     if (Object.keys(items).length === 0) {
@@ -117,22 +151,38 @@ const IssueFood = () => {
       return;
     }
 
+    const foodItems = Object.entries(items)
+      .map(([foodName, info]) => {
+        const newFoodData = foodData.find(
+          (item) => item.food_name.toLowerCase() === foodName.toLowerCase()
+        );
+        if (!newFoodData) {
+          toast.error(`Food item "${foodName}" is not valid!`);
+          return null;
+        }
+
+        if (!info?.weight || isNaN(info.weight) || info.weight <= 0) {
+          toast.warning(`Invalid weight for "${foodName}". Please check!`);
+          return null;
+        }
+
+        return {
+          food_id: newFoodData.food_id,
+          quantity: parseFloat(info.weight),
+        };
+      })
+      .filter(Boolean);
+
+    if (foodItems.length === 0) {
+      toast.warning("No valid food items to submit!");
+      return;
+    }
+
     const payload = {
       didi_thela_id: didiThelaId,
-      food_items: Object.entries(items)
-        .map(([foodName, info]) => {
-          const foodData = foodItem.find((item) => item.food_name === foodName);
-          if (!foodData) {
-            toast.error(`Food item "${foodName}" is not valid!`);
-            return null;
-          }
-          return {
-            food_id: foodData.food_id,
-            quantity: info.weight,
-          };
-        })
-        .filter((item) => item !== null),
+      food_items: foodItems,
     };
+
     issueFood(payload);
   };
 
@@ -146,6 +196,7 @@ const IssueFood = () => {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
+
   useEffect(() => {
     const today = new Date();
     const formattedDate = today.toLocaleDateString("en-US", {
@@ -162,16 +213,16 @@ const IssueFood = () => {
         .get("https://didikadhababackend.indevconsultancy.in/dhaba/foods/")
         .then((res) => {
           if (res.status === 200) {
-            setFoodItem(res.data);
+            setFoodData(res.data);
           } else {
-            setFoodItem([]);
+            setFoodData([]);
           }
         })
         .catch((e) => {
-          console.log("error in food item", e);
+          console.log("Error in food item:", e);
         });
     } catch (error) {
-      console.log("error in getting food items", error);
+      console.log("Error in getting food items:", error);
     }
   };
 
@@ -181,17 +232,16 @@ const IssueFood = () => {
         .get("https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/")
         .then((res) => {
           if (res.status === 200) {
-            const data = [...res.data];
-            setDidiName([...data]);
+            setDidiName(res.data);
           } else {
             setDidiName([]);
           }
         })
         .catch((e) => {
-          console.log("error in getting didi thela", e);
+          console.log("Error in getting didi thela:", e);
         });
     } catch (error) {
-      console.log("error in getting didi thela", error);
+      console.log("Error in getting didi thela:", error);
     }
   };
 
@@ -199,6 +249,10 @@ const IssueFood = () => {
     getFoodItem();
     getDidiName();
   }, []);
+
+  useEffect(() => {
+    setFoodItem(foodData);
+  }, [foodData]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center">
@@ -236,7 +290,7 @@ const IssueFood = () => {
             </ul>
           )}
         </div>
-        <div className="mb-3 text-center">
+        <div className="mb-3">
           <p className="mt-2 text-lg text-[#A24C4A] font-bold">{currentDate}</p>
         </div>
 

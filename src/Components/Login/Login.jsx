@@ -37,11 +37,6 @@ const Login = () => {
                   <img src={logo} alt="LOGO" width="160" />
                 </a>
               </div>
-              <div className="text-center">
-                <h2 className="mt-2 text-lg font-medium text-dark">
-                  Didi Ka Dhaba
-                </h2>
-              </div>
 
               <div className="mt-4">
                 <div className="form-group mb-4">

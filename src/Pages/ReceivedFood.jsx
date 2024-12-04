@@ -15,9 +15,9 @@ const ReceivedFood = () => {
   const [searchTermThela, setSearchTermThela] = useState("");
   const [selectedThela, setSelectedThela] = useState(null);
   const [isDropdownOpenThela, setIsDropdownOpenThela] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({});
   const dropdownRefDidi = useRef(null);
   const dropdownRefThela = useRef(null);
-  const [finalData, setFinalData] = useState({});
 
   const filteredDidiNames = namesDidi.filter((item) => {
     const search = String(searchTermDidi || "").toLowerCase();
@@ -48,12 +48,7 @@ const ReceivedFood = () => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  const [foodData, setFoodData] = useState([
-    { item: "Rice", assigned: 5, image: null },
-    { item: "Dal", assigned: 10, image: null },
-    { item: "Paneer Matter", assigned: 10, image: null },
-    { item: "Roti", assigned: 10, image: null },
-  ]);
+  const [foodData, setFoodData] = useState([]);
 
   useEffect(() => {
     const today = new Date();
@@ -97,27 +92,107 @@ const ReceivedFood = () => {
     getThela();
   }, []);
 
-  const handleReceivedChange = (index, value) => {
-    const updatedFoodData = [...foodData];
-    updatedFoodData[index].received = value;
-    setFoodData(updatedFoodData);
-  };
-
-  const handleFileChange = (event, index) => {
-    const file = event.target.files[0];
-    if (file) {
-      const updatedFoodData = [...foodData];
-      updatedFoodData[index].image = URL.createObjectURL(file);
-      setFoodData(updatedFoodData);
-    }
-  };
   const handleRemoveImage = (index) => {
     const updatedFoodData = [...foodData];
     updatedFoodData[index].image = null;
     setFoodData(updatedFoodData);
   };
 
+  const getAssignedFoods = async (selectedDidi, date) => {
+    const payload = {
+      didi_id: selectedDidi,
+      issue_date: date,
+    };
+    try {
+      const res = await axios.post(
+        "https://didikadhababackend.indevconsultancy.in/dhaba/filter-issue-food/",
+        payload
+      );
+      if (res.status === 200) {
+        setFoodData(res.data);
+      }
+    } catch (e) {
+      console.log("Error in food:", e);
+    }
+  };
+
+  const getDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  useEffect(() => {
+    const date = getDate();
+    if (selectedDidi != null && getDate) {
+      setFoodData([]);
+      getAssignedFoods(selectedDidi, date);
+    }
+  }, [selectedDidi]);
+
+  const sendRecivedFood = async (payload) => {
+    // console.log(payload);
+    await axios
+      .post(
+        "https://didikadhababackend.indevconsultancy.in/dhaba/received-return-food-list/",
+        payload
+      )
+      .then((res) => console.log(res))
+      .catch((e) => console.log("error in sending recived food", e));
+  };
+  const handleReceivedChange = (index, value) => {
+    const updatedFoodData = [...foodData];
+    const numericValue = value === "" ? "" : parseFloat(value);
+    console.log(value);
+    if (
+      numericValue === "" ||
+      numericValue <= updatedFoodData[index].quantity
+    ) {
+      updatedFoodData[index].received_quantity = numericValue;
+    } else if (numericValue > updatedFoodData[index].quantity) {
+      toast.error("Quantity cannot be greater than Assigned Food.");
+      updatedFoodData[index].received_quantity = "";
+    }
+
+    setFoodData(updatedFoodData);
+  };
+
+  const convertBlobToBase64 = (image) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        console.log("Base64 Image:", reader.result);
+        resolve(reader.result);
+      };
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(image);
+    });
+  };
+
+  const handleFileChange = async (event, index) => {
+    const file = event.target.files[0];
+    if (file) {
+      const updatedFoodData = [...foodData];
+      try {
+        const base64Image = await convertBlobToBase64(file);
+        updatedFoodData[index].image = base64Image;
+        setFoodData(updatedFoodData);
+      } catch (error) {
+        console.error("Error converting image to Base64:", error);
+      }
+    }
+  };
+
   const handleSubmit = async () => {
+    // if (!validateFields()) {
+    //   toast.error("Validate all fields");
+    //   return;
+    // }
+
+    // Validate Didi and Thela selection
     const selectedDidiData = namesDidi.find(
       (item) => item.didi_id === selectedDidi
     );
@@ -140,15 +215,25 @@ const ReceivedFood = () => {
     const payload = {
       didi_id: did_id,
       thela_id: thela_id,
-      food_data: foodData.map(({ item, assigned, received, image }) => ({
-        item,
-        assigned,
-        received,
-        image,
-      })),
+      food_data: foodData.map(
+        ({ food_id, issue_food_id, quantity, received_quantity, image }) => ({
+          food_id,
+          issue_food_id,
+          quantity,
+          received_quantity,
+          image,
+        })
+      ),
     };
-    toast.success("Data submitted successfully!");
-    console.log(payload);
+
+    console.log("Payload to submit:", payload);
+
+    try {
+      await sendRecivedFood(payload);
+    } catch (error) {
+      toast.error("Failed to submit food data!");
+      console.error("Error sending food data:", error);
+    }
   };
 
   return (
@@ -242,91 +327,106 @@ const ReceivedFood = () => {
           )}
         </div>
 
-        <div className="mb-3 text-center">
+        <div className="mb-3">
           <p className="mt-2 text-lg text-[#A24C4A] font-bold">{currentDate}</p>
         </div>
 
-        <div className="">
-          <div className="table-responsive mt-2">
-            <table className="table table-bordered">
-              <thead className="table-light">
-                <tr>
-                  <th className="text-center">Item</th>
-                  <th className="text-center" style={{ minWidth: "100px" }}>
-                    Assigned Food (kg)
-                  </th>
-                  <th className="text-center" style={{ minWidth: "150px" }}>
-                    Received Food (kg)
-                  </th>
-                  <th className="text-center">Image</th>
-                  <th className="text-center">Uploaded Image</th>
-                </tr>
-              </thead>
-              <tbody>
-                {foodData.map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.item}</td>
-                    <td>{item.assigned} kg</td>
-                    <td>
-                      <input
-                        type="number"
-                        value={item.received}
-                        onChange={(e) =>
-                          handleReceivedChange(index, e.target.value)
-                        }
-                        className="form-control"
-                        placeholder="food in Kg"
-                      />
-                    </td>
-                    <td className="text-center">
-                      <label className="btn btn-link text-primary p-0">
-                        <FaCamera color="#A24C4A" size={20} />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleFileChange(e, index)}
-                          style={{ display: "none" }}
-                        />
-                      </label>
-                    </td>
-                    <td className="text-center">
-                      {item.image && (
-                        <>
-                          <div className="relative">
-                            <img
-                              src={item.image}
-                              alt="Uploaded"
-                              className="img-fluid"
-                              style={{ maxHeight: "100px", objectFit: "cover" }}
-                            />
-                            <span className="absolute top-0 right-0 p-1">
-                              <button
-                                className="text-red-500 hover:text-red-700"
-                                onClick={() => handleRemoveImage(index)}
-                              >
-                                <FiX size={24} />
-                              </button>
-                            </span>
-                          </div>
-                        </>
-                      )}
-                    </td>
+        {foodData.length > 0 ? (
+          <div className="">
+            <div className="table-responsive mt-2">
+              <table className="table table-bordered">
+                <thead className="table-light">
+                  <tr>
+                    <th className="text-center">Item</th>
+                    <th className="text-center" style={{ minWidth: "100px" }}>
+                      Assigned Food (kg)
+                    </th>
+                    <th className="text-center" style={{ minWidth: "150px" }}>
+                      Received Food (kg)
+                    </th>
+                    <th className="text-center">Image</th>
+                    <th className="text-center">Uploaded Image</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {foodData.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.food_id}</td>
+                      <td>{item.quantity} kg</td>
+                      <td>
+                        <input
+                          type="number"
+                          value={foodData[index].received_quantity || ""}
+                          onChange={(e) =>
+                            handleReceivedChange(index, e.target.value)
+                          }
+                          className={`form-control ${
+                            validationErrors[`receivedQuantity${index}`]
+                              ? "is-invalid"
+                              : ""
+                          }`}
+                        />
+                        {validationErrors[`receivedQuantity${index}`] && (
+                          <div className="invalid-feedback">
+                            {validationErrors[`receivedQuantity${index}`]}
+                          </div>
+                        )}
+                      </td>
+                      <td className="text-center">
+                        <label className="btn btn-link text-primary p-0">
+                          <FaCamera color="#A24C4A" size={20} />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleFileChange(e, index)}
+                            style={{ display: "none" }}
+                          />
+                        </label>
+                      </td>
+                      <td className="text-center">
+                        {item.image && (
+                          <>
+                            <div className="relative">
+                              <img
+                                src={item.image}
+                                alt="Uploaded"
+                                className="img-fluid"
+                                style={{
+                                  maxHeight: "100px",
+                                  objectFit: "cover",
+                                }}
+                              />
+                              <span className="absolute top-0 right-0 p-1">
+                                <button
+                                  className="text-red-500 hover:text-red-700"
+                                  onClick={() => handleRemoveImage(index)}
+                                >
+                                  <FiX size={24} />
+                                </button>
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex justify-center">
+              <button
+                className="mt-2 border-[#A24C4A] text-[#A24C4A] rounded border-1 px-4 py-1 mt-4 rounded-lg cursor-pointer"
+                onClick={handleSubmit}
+              >
+                Submit
+              </button>
+            </div>
           </div>
-        </div>
-
-        <div className="flex justify-center">
-          <button
-            className="mt-2 border-[#A24C4A] text-[#A24C4A] rounded border-1 px-4 py-1 mt-4 rounded-lg cursor-pointer"
-            onClick={handleSubmit}
-            disabled={foodData.some((item) => item.received === "")}
-          >
-            Submit
-          </button>
-        </div>
+        ) : (
+          <p className="text-center mt-4">
+            Please select any Didi to get food details
+          </p>
+        )}
       </div>
       <ToastContainer />
     </div>
