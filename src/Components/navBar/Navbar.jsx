@@ -84,7 +84,7 @@ const Navbar = () => {
               isSideMenuOpen ? "translate-y-0" : "translate-x-full"
             )}
           >
-            <section className="text-black bg-white flex-col absolute right-0 top-0 h-screen py-8 gap-8 z-50 w-80">
+            <section className="text-black bg-white flex-col absolute right-0 top-0 h-screen py-8 gap-8 z-50 w-70">
               <IoCloseOutline
                 onClick={() => setMenu(false)}
                 className="mt-0 mx-3 mb-12 text-3xl cursor-pointer text-6xl"

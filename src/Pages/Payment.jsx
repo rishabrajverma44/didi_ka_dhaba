@@ -91,6 +91,7 @@ const Payment = () => {
         <div className="mb-3">
           <p className="mt-2 text-lg text-[#A24C4A] font-bold">{currentDate}</p>
         </div>
+        <div></div>
       </div>
     </div>
   );

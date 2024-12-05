@@ -4,6 +4,7 @@ import { FaCamera } from "react-icons/fa";
 import { FiX } from "react-icons/fi";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 const ReceivedFood = () => {
   const [namesDidi, setDidiName] = useState([]);
@@ -18,6 +19,7 @@ const ReceivedFood = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const dropdownRefDidi = useRef(null);
   const dropdownRefThela = useRef(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const filteredDidiNames = namesDidi.filter((item) => {
     const search = String(searchTermDidi || "").toLowerCase();
@@ -60,18 +62,27 @@ const ReceivedFood = () => {
     setCurrentDate(formattedDate);
   }, []);
 
-  const getDidi = () => {
-    axios
-      .get("https://didikadhababackend.indevconsultancy.in/dhaba/didi/")
-      .then((res) => {
-        if (res.status === 200) {
-          const data = [...res.data];
-          setDidiName([...data]);
-        }
-      })
-      .catch((e) => {
-        console.log("error in get didi", e);
+  const getDidi = async () => {
+    const actualStatus = await checkInternetConnection();
+    if (actualStatus) {
+      axios
+        .get("https://didikadhababackend.indevconsultancy.in/dhaba/didi/")
+        .then((res) => {
+          if (res.status === 200) {
+            const data = [...res.data];
+            setDidiName([...data]);
+          }
+        })
+        .catch((e) => {
+          console.log("error in get didi", e);
+        });
+    } else {
+      Swal.fire({
+        html: `<b>Check Internet connection!</b>`,
+        allowOutsideClick: false,
+        confirmButtonColor: "#A24C4A",
       });
+    }
   };
 
   const getThela = () => {
@@ -90,7 +101,7 @@ const ReceivedFood = () => {
   useEffect(() => {
     getDidi();
     getThela();
-  }, []);
+  }, [searchTermDidi]);
 
   const handleRemoveImage = (index) => {
     const updatedFoodData = [...foodData];
@@ -112,6 +123,9 @@ const ReceivedFood = () => {
         setFoodData(res.data);
       }
     } catch (e) {
+      if (e.status === 404) {
+        toast.warn(`Food not assigned to ${searchTermDidi} on ${currentDate}`);
+      }
       console.log("Error in food:", e);
     }
   };
@@ -134,29 +148,57 @@ const ReceivedFood = () => {
   }, [selectedDidi]);
 
   const sendRecivedFood = async (payload) => {
-    // console.log(payload);
-    await axios
-      .post(
+    try {
+      setIsLoading(true);
+      const res = await axios.post(
         "https://didikadhababackend.indevconsultancy.in/dhaba/received-return-food-list/",
         payload
-      )
-      .then((res) => console.log(res))
-      .catch((e) => console.log("error in sending recived food", e));
+      );
+      if (res.status === 201) {
+        toast.success(`Food Received by ${searchTermDidi}`);
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        setSearchTermDidi("");
+        setSearchTermThela("");
+        setSelectedDidi(null);
+        setSelectedThela(null);
+        setFoodData([]);
+        setIsLoading(false);
+      }
+    } catch (e) {
+      console.log("Error in sending received food:", e);
+      toast.error("Something went wrong");
+      setIsLoading(false);
+    }
   };
+
+  const validateFields = () => {
+    let isValid = true;
+    const errors = {};
+    foodData.forEach((foodItem, index) => {
+      if (!foodItem.received_quantity) {
+        errors[`receivedQuantity${index}`] = "required";
+        isValid = false;
+      } else {
+        delete errors[`receivedQuantity${index}`];
+      }
+    });
+
+    setValidationErrors(errors);
+    return isValid;
+  };
+
   const handleReceivedChange = (index, value) => {
     const updatedFoodData = [...foodData];
-    const numericValue = value === "" ? "" : parseFloat(value);
-    console.log(value);
-    if (
-      numericValue === "" ||
-      numericValue <= updatedFoodData[index].quantity
-    ) {
+    const numericValue = parseFloat(value);
+    if (isNaN(numericValue)) {
+      toast.error("Invalid quantity.");
+      updatedFoodData[index].received_quantity = "";
+    } else if (numericValue <= updatedFoodData[index].quantity) {
       updatedFoodData[index].received_quantity = numericValue;
-    } else if (numericValue > updatedFoodData[index].quantity) {
+    } else {
       toast.error("Quantity cannot be greater than Assigned Food.");
       updatedFoodData[index].received_quantity = "";
     }
-
     setFoodData(updatedFoodData);
   };
 
@@ -186,13 +228,27 @@ const ReceivedFood = () => {
     }
   };
 
-  const handleSubmit = async () => {
-    // if (!validateFields()) {
-    //   toast.error("Validate all fields");
-    //   return;
-    // }
+  const checkInternetConnection = async () => {
+    try {
+      const response = await fetch(
+        "https://api.allorigins.win/raw?url=https://www.google.com",
+        {
+          method: "HEAD",
+          cache: "no-cache",
+        }
+      );
+      return response.ok;
+    } catch (error) {
+      return false;
+    }
+  };
 
-    // Validate Didi and Thela selection
+  const handleSubmit = async () => {
+    if (!validateFields()) {
+      toast.error("Validate all fields");
+      return;
+    }
+
     const selectedDidiData = namesDidi.find(
       (item) => item.didi_id === selectedDidi
     );
@@ -200,7 +256,6 @@ const ReceivedFood = () => {
       toast.error("Please select a valid Didi from the dropdown!");
       return;
     }
-
     const selectedThelaData = namesThela.find(
       (item) => item.thela_id === selectedThela
     );
@@ -211,7 +266,6 @@ const ReceivedFood = () => {
 
     const did_id = selectedDidiData.didi_id;
     const thela_id = selectedThela;
-
     const payload = {
       didi_id: did_id,
       thela_id: thela_id,
@@ -221,18 +275,26 @@ const ReceivedFood = () => {
           issue_food_id,
           quantity,
           received_quantity,
-          image,
+          image: image || null,
         })
       ),
     };
 
-    console.log("Payload to submit:", payload);
-
-    try {
-      await sendRecivedFood(payload);
-    } catch (error) {
-      toast.error("Failed to submit food data!");
-      console.error("Error sending food data:", error);
+    const actualStatus = await checkInternetConnection();
+    if (actualStatus) {
+      setIsLoading(true);
+      try {
+        await sendRecivedFood(payload);
+      } catch (error) {
+        toast.error("Failed to submit food data!");
+        console.error("Error sending food data:", error);
+      }
+    } else {
+      Swal.fire({
+        html: `<b>Check Internet connection!</b>`,
+        allowOutsideClick: false,
+        confirmButtonColor: "#A24C4A",
+      });
     }
   };
 
@@ -261,7 +323,7 @@ const ReceivedFood = () => {
           />
           {isDropdownOpenDidi && (
             <ul
-              className="absolute z-20 bg-white border border-gray-300 shadow-lg rounded-lg mt-2 max-h-40 w-full overflow-y-auto"
+              className="absolute z-20 bg-white border border-gray-300 shadow-lg rounded-lg mt-2 max-h-80 w-full overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {filteredDidiNames.length > 0 ? (
@@ -303,7 +365,7 @@ const ReceivedFood = () => {
             onClick={() => setIsDropdownOpenThela(true)}
           />
           {isDropdownOpenThela && (
-            <ul className="absolute z-20 bg-white border border-gray-300 shadow-lg rounded-lg mt-2 max-h-40 w-full overflow-y-auto">
+            <ul className="absolute z-20 bg-white border border-gray-300 shadow-lg rounded-lg mt-2 max-h-80 w-full overflow-y-auto">
               {filteredThelaNames.length > 0 ? (
                 filteredThelaNames.map((name, index) => (
                   <li
@@ -355,8 +417,8 @@ const ReceivedFood = () => {
                       <td>{item.quantity} kg</td>
                       <td>
                         <input
-                          type="number"
-                          value={foodData[index].received_quantity || ""}
+                          type="text"
+                          value={foodData[index].received_quantity}
                           onChange={(e) =>
                             handleReceivedChange(index, e.target.value)
                           }
@@ -415,10 +477,14 @@ const ReceivedFood = () => {
             </div>
             <div className="flex justify-center">
               <button
-                className="mt-2 border-[#A24C4A] text-[#A24C4A] rounded border-1 px-4 py-1 mt-4 rounded-lg cursor-pointer"
+                type="button"
+                className={`mt-2 border-[#A24C4A] text-[#A24C4A] rounded border-1 px-4 py-1 mt-4 rounded-lg cursor-pointer ${
+                  isLoading ? "cursor-not-allowed opacity-50" : ""
+                }`}
                 onClick={handleSubmit}
+                disabled={isLoading}
               >
-                Submit
+                {isLoading ? "Submitting..." : "Submit"}
               </button>
             </div>
           </div>

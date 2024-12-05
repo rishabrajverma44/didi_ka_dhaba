@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { FiX } from "react-icons/fi";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const IssueFood = () => {
   const [namesDidi, setDidiName] = useState([]);
@@ -127,7 +128,20 @@ const IssueFood = () => {
       toast.warning("Please select Didi");
     }
   };
-
+  const checkInternetConnection = async () => {
+    try {
+      const response = await fetch(
+        "https://api.allorigins.win/raw?url=https://www.google.com",
+        {
+          method: "HEAD",
+          cache: "no-cache",
+        }
+      );
+      return response.ok;
+    } catch (error) {
+      return false;
+    }
+  };
   const finalSubmit = async () => {
     if (!selectedDidi) {
       toast.warning("Please select a Didi!");
@@ -183,7 +197,16 @@ const IssueFood = () => {
       food_items: foodItems,
     };
 
-    issueFood(payload);
+    const actualStatus = await checkInternetConnection();
+    if (actualStatus) {
+      issueFood(payload);
+    } else {
+      Swal.fire({
+        html: `<b>Check Internet connection!</b>`,
+        allowOutsideClick: false,
+        confirmButtonColor: "#A24C4A",
+      });
+    }
   };
 
   useEffect(() => {

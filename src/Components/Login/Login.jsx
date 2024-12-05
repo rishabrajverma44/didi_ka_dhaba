@@ -17,41 +17,10 @@ const Login = () => {
       .required("Password is required"),
   });
 
-  const formik = useFormik({
-    initialValues: {
-      email: "",
-      password: "",
-    },
-    validationSchema,
-    onSubmit: async (values) => {
-      const actualStatus = await checkInternetConnection();
-      if (!actualStatus) {
-        Swal.fire({
-          html: `<b>Check Internet connection !</b>`,
-          allowOutsideClick: false,
-          confirmButtonColor: "#A24C4A",
-        });
-      } else {
-        if (
-          values.email === "rishab@gmail.com" &&
-          values.password === "Rishab@123"
-        ) {
-          toast.success("Login success");
-          localStorage.setItem("jwt", "password");
-          navigate("/");
-        } else {
-          toast.error("Wrong credentials");
-          values.email = "";
-          values.password = "";
-        }
-      }
-    },
-  });
-
   const checkInternetConnection = async () => {
     try {
       const response = await fetch(
-        "https://api.allorigins.win/get?url=https://www.google.com/favicon.ico",
+        "https://api.allorigins.win/raw?url=https://www.google.com",
         {
           method: "HEAD",
           cache: "no-cache",
@@ -62,6 +31,39 @@ const Login = () => {
       return false;
     }
   };
+
+  const handleSubmit = async (values, { resetForm }) => {
+    const actualStatus = await checkInternetConnection();
+
+    if (actualStatus) {
+      if (
+        values.email === "rishab@gmail.com" &&
+        values.password === "Rishab@123"
+      ) {
+        toast.success("Login success");
+        localStorage.setItem("jwt", "password");
+        navigate("/");
+      } else {
+        toast.error("Wrong credentials");
+        resetForm();
+      }
+    } else {
+      Swal.fire({
+        html: `<b>Check Internet connection!</b>`,
+        allowOutsideClick: false,
+        confirmButtonColor: "#A24C4A",
+      });
+    }
+  };
+
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validationSchema,
+    onSubmit: handleSubmit,
+  });
 
   return (
     <>
