@@ -87,7 +87,7 @@ const Navbar = () => {
             <section className="text-black bg-white flex-col absolute right-0 top-0 h-screen py-8 gap-8 z-50 w-80">
               <IoCloseOutline
                 onClick={() => setMenu(false)}
-                className="mt-0 mx-3 mb-8 text-3xl cursor-pointer"
+                className="mt-0 mx-3 mb-12 text-3xl cursor-pointer text-6xl"
               />
               <div className="mx-1">
                 <Link
