@@ -17,15 +17,6 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  const navlinks = [
-    // { label: "Dashboard", link: "" },
-    // { label: "Reports", link: "" },
-    // { label: "Users", link: "" },
-    // { label: "Setting", link: "" },
-    // { label: "Notification", link: "" },
-    // { label: "Logout", link: "" },
-  ];
-
   useEffect(() => {
     const now = new Date();
     const year = now.getFullYear();
@@ -61,28 +52,6 @@ const Navbar = () => {
               />
               <div className="d-none d-md-block">
                 <div className="flex items-center gap-2">
-                  {/* <div className="dropdown topbar-head-dropdown ms-1 header-item mt-2">
-                    <button
-                      type="button"
-                      className="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle"
-                      id="page-header-notifications-dropdown"
-                      data-bs-toggle="dropdown"
-                      data-bs-auto-close="outside"
-                      aria-haspopup="true"
-                      aria-expanded="false"
-                    >
-                      <i className="fa-solid fa-bell fa-lg"></i>
-                      <span
-                        className="position-absolute topbar-badge translate-middle badge rounded-pill bg-[#A24C4A]"
-                        style={{
-                          fontSize: "10px",
-                        }}
-                      >
-                        3
-                      </span>
-                    </button>
-                  </div> */}
-
                   <span className="bg-gray-100 p-2">
                     <button onClick={toggleDropdown}>
                       <img
@@ -117,24 +86,43 @@ const Navbar = () => {
               isSideMenuOpen ? "translate-y-0" : "translate-x-full"
             )}
           >
-            <section className="text-black bg-white flex-col absolute right-0 top-0 h-screen p-8 gap-8 z-50 w-56">
+            <section className="text-black bg-white flex-col absolute right-0 top-0 h-screen py-8 gap-8 z-50 w-70">
               <IoCloseOutline
                 onClick={() => setMenu(false)}
-                className="mt-0 mb-8 text-3xl cursor-pointer"
+                className="mt-0 mx-3 mb-8 text-3xl cursor-pointer"
               />
-              <div className="mx-4">
+              <div className="mx-1">
+                <Link
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline"
+                  to="/"
+                >
+                  Home
+                </Link>
+                <Link
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline"
+                  to="/receivedfood"
+                >
+                  Issue Food
+                </Link>
+                <Link
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline"
+                  to="/issuefood"
+                >
+                  Received Returned Food
+                </Link>
+                <Link
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline"
+                  to="/payment"
+                >
+                  Payment Details
+                </Link>
                 <button
                   type="submit"
-                  className="block w-full px-4 py-2 text-left text-sm text-gray-700"
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold"
                   onClick={handleLogout}
                 >
                   Sign out
                 </button>
-                {navlinks.map((d, i) => (
-                  <Link key={i} className="font-bold" to={d.link}>
-                    {d.label}
-                  </Link>
-                ))}
               </div>
             </section>
           </div>

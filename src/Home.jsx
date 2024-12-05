@@ -17,6 +17,11 @@ const Home = () => {
                 Received Returned Food
               </button>
             </Link>
+            <Link to="/payment">
+              <button className="tracking-wide font-semibold bg-[#E24138] hover:bg-btn-hoverPrimary text-white py-2 px-4 h-12 w-60 rounded border-1 border-[#A24C4A]">
+                Payment Details
+              </button>
+            </Link>
           </div>
         </div>
       </div>

@@ -237,7 +237,7 @@ const ReceivedFood = () => {
   };
 
   return (
-    <div className="bg-gray-50">
+    <div className="bg-gray-50" style={{ minHeight: "100vh" }}>
       <div className="container py-4">
         <h3 className="text-center mb-4">Received Return Food</h3>
 

@@ -5,6 +5,7 @@ import Layout from "../Components/navBar/Layout";
 import Login from "../Components/Login/Login";
 import ReceivedFood from "../Pages/ReceivedFood";
 import IssueFood from "../Pages/IssueFood";
+import Payment from "../Pages/Payment";
 
 const routes = [
   {
@@ -38,6 +39,15 @@ const routes = [
         element: (
           <PrivateRoute>
             <IssueFood />
+          </PrivateRoute>
+        ),
+      },
+      {
+        index: true,
+        path: "payment",
+        element: (
+          <PrivateRoute>
+            <Payment />
           </PrivateRoute>
         ),
       },
