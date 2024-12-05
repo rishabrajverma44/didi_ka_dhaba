@@ -62,7 +62,7 @@ function App() {
 
             <div className="text-center">
               <button
-                className="tracking-wide font-semibold bg-white text-[#A24C4A] py-1  px-4 rounded border-1 border-[#A24C4A]"
+                className="tracking-wide font-semibold bg-white text-[#A24C4A] py-1  px-3 rounded border-1 border-[#A24C4A]"
                 onClick={handleInstall}
               >
                 Install

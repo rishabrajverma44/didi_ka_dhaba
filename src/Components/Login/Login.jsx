@@ -81,7 +81,7 @@ const Login = () => {
           className="d-flex justify-content-center align-items-center"
           style={{ height: "100vh" }}
         >
-          <div className="p-2 w-full md:w-3/4 lg:w-1/2">
+          <div className="px-2 w-full md:w-3/4 lg:w-1/2">
             <form
               id="login-form"
               className="bg-white p-6 rounded-2xl border-2"
@@ -89,12 +89,12 @@ const Login = () => {
             >
               <div className="text-center">
                 <a className="inline-block rounded-xl" href="" alt="">
-                  <img src="/images/logo.png" alt="LOGO" width="160" />
+                  <img src="/images/logo.png" alt="LOGO" width="120" />
                 </a>
               </div>
 
-              <div className="mt-4">
-                <div className="form-group mb-4">
+              <div className="mt-1">
+                <div className="form-group mb-2">
                   <label
                     htmlFor="email"
                     className="mb-2 block text-sm text-dark"
@@ -151,7 +151,24 @@ const Login = () => {
                   </button>
                 </div>
               </div>
+              <div className="place-items-center">
+                <img src="/images/Ekta.png" alt="jbf" width="140" height="60" />
+              </div>
+              <div>
+                <p className="text-center text-[#A24C4A] text-xl my-2">
+                  Supported by
+                </p>
+              </div>
+              <div className="flex justify-center space-x-12">
+                <img src="/images/logo.png" alt="jbf" width="60" />
+
+                <img src="/images/m3m.png" alt="m3m" width="60" />
+                <img src="/images/sidbi.png" alt="sidbi" width="60" />
+              </div>
             </form>
+          </div>
+          <div className="fixed bottom-0 right-0 z-[200] text-[#2C8D26] p-2 text-2xl">
+            <p>indevconsultancy</p>
           </div>
         </div>
         <ToastContainer />

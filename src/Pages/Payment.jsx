@@ -1,37 +1,36 @@
-import React, { useEffect, useRef, useState } from "react";
+import axios from "axios";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import Webcam from "react-webcam";
 
 const Payment = () => {
-  const [namesDidi, setDidiName] = useState([
-    { full_name: "ram", didi_id: 9 },
-    { full_name: "kiran", didi_id: 39 },
-    { full_name: "hema", didi_id: 2 },
-    { full_name: "ramvati", didi_id: 29 },
-  ]);
+  const [namesDidi, setNamesDidi] = useState([]);
   const [searchTermDidi, setSearchTermDidi] = useState("");
   const [selectedDidi, setSelectedDidi] = useState(null);
   const [isDropdownOpenDidi, setIsDropdownOpenDidi] = useState(false);
   const dropdownRefDidi = useRef(null);
   const [currentDate, setCurrentDate] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [finalData, setFinalData] = useState({});
 
-  const filteredDidiNames = namesDidi.filter((item) => {
-    const search = String(searchTermDidi || "").toLowerCase();
-    return item.full_name.toLowerCase().includes(search);
-  });
+  const webcamRef = useRef(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoFile, setPhotoFile] = useState(null);
+  const [isCameraOn, setIsCameraOn] = useState(true);
+  const [isUsingFrontCamera, setIsUsingFrontCamera] = useState(true);
+
+  const getDidi = async () => {
+    try {
+      const response = await axios.get(
+        "https://didikadhababackend.indevconsultancy.in/dhaba/didi/"
+      );
+      setNamesDidi(response.data);
+    } catch (error) {
+      console.error("Error fetching didi data", error);
+    }
+  };
+
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        dropdownRefDidi.current &&
-        !dropdownRefDidi.current.contains(event.target)
-      ) {
-        setIsDropdownOpenDidi(false);
-      }
-    };
-
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
+    getDidi();
     const today = new Date();
     const formattedDate = today.toLocaleDateString("en-US", {
       year: "numeric",
@@ -40,6 +39,51 @@ const Payment = () => {
     });
     setCurrentDate(formattedDate);
   }, []);
+
+  const filteredDidiNames = namesDidi.filter((item) =>
+    item.full_name.toLowerCase().includes(searchTermDidi.toLowerCase())
+  );
+
+  const videoConstraints = {
+    facingMode: isUsingFrontCamera ? "user" : "environment",
+  };
+
+  const capture = useCallback(() => {
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
+      setPhotoPreview(imageSrc);
+      setPhotoFile(imageSrc);
+      setIsCameraOn(false);
+    } else {
+      alert("Webcam is not initialized!");
+    }
+  }, [webcamRef]);
+
+  const turnOnCamera = () => {
+    setPhotoPreview(null);
+    setPhotoFile(null);
+    setIsCameraOn(true);
+  };
+
+  const toggleCamera = () => {
+    setIsUsingFrontCamera((prev) => !prev);
+  };
+
+  const submitFinal = async () => {
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("didi_id", selectedDidi);
+    formData.append("photo", photoFile);
+    const payload = {
+      didi: formData.get("didi_id"),
+      photo: formData.get("photo"),
+    };
+
+    console.log(payload);
+    setPhotoFile(null);
+    setIsLoading(false);
+  };
+
   return (
     <div className="bg-gray-50" style={{ minHeight: "100vh" }}>
       <div className="container py-4">
@@ -88,10 +132,85 @@ const Payment = () => {
             </ul>
           )}
         </div>
+
         <div className="mb-3">
           <p className="mt-2 text-lg text-[#A24C4A] font-bold">{currentDate}</p>
         </div>
-        <div></div>
+
+        <h4 className="text-xl font-semibold text-gray-800">Received Money</h4>
+        <div>
+          <div className="mb-2">
+            <label className="text-gray-700">Online</label>
+            <input type="text" className="w-full p-2 border rounded" />
+          </div>
+          <div className="mb-2">
+            <label className="text-gray-700">Cash</label>
+            <input type="text" className="w-full p-2 border rounded" />
+          </div>
+
+          <div className="mb-4">
+            <label className="text-gray-700">Add Photo</label>
+            {isCameraOn ? (
+              <>
+                <Webcam
+                  audio={false}
+                  ref={webcamRef}
+                  screenshotFormat="image/jpeg"
+                  width="100%"
+                  className="rounded shadow-md"
+                  videoConstraints={videoConstraints}
+                />
+                <div className="mt-2 flex justify-between">
+                  <button
+                    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition"
+                    onClick={capture}
+                  >
+                    Capture Photo
+                  </button>
+                  <button
+                    className="bg-gray-500 text-white p-2 rounded hover:bg-gray-600 transition"
+                    onClick={toggleCamera}
+                  >
+                    {isUsingFrontCamera
+                      ? "Switch to Back Camera"
+                      : "Switch to Front Camera"}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="text-gray-500 italic">Camera is off</div>
+            )}
+            {!isCameraOn && (
+              <button
+                className="bg-green-500 text-white p-2 rounded mt-2 hover:bg-green-600 transition"
+                onClick={turnOnCamera}
+              >
+                Retake Photo
+              </button>
+            )}
+            {photoPreview && (
+              <div className="mt-2">
+                <img
+                  src={photoPreview}
+                  alt="Captured Preview"
+                  className="w-32 h-32 rounded shadow-lg"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex justify-between">
+          <button
+            className={`p-2 rounded-lg ${
+              isLoading ? "bg-gray-300" : "bg-[#A24C4A] text-white"
+            }`}
+            onClick={submitFinal}
+            disabled={isLoading}
+          >
+            {isLoading ? "Submitting..." : "Submit"}
+          </button>
+        </div>
       </div>
     </div>
   );

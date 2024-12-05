@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 const Home = () => {
   return (
     <>
-      <div className="bg-gray-50" style={{ height: "89vh" }}>
+      <div className="bg-gray-50" style={{ height: "99vh" }}>
         <div className="min-h-80 flex justify-center">
           <div className="flex flex-col sm:flex-row justify-between self-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Link to="/issuefood">

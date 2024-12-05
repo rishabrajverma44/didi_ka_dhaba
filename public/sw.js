@@ -9,38 +9,48 @@ const CACHE_ASSETS = [
   "/bootstrap.min.css",
   "/index.html",
   "/",
-  "/login",
-  "/issuefood",
-  "/receivedfood",
-  "/payment",
+  "/images/logo.png",
+  "/images/BG.png",
+  "/images/avatar-1.jpg",
+  "/images/img.jpg",
+  "/images/m3m.png",
+  "/images/sidbi.png",
+  "/images/Ekta.png",
 ];
 
+// Install Event
 self.addEventListener("install", (event) => {
   console.log("Service Worker: Installed");
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log("Caching files...");
-      return cache.addAll(CACHE_ASSETS);
-    })
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      try {
+        console.log("Caching files...");
+        await cache.addAll(CACHE_ASSETS);
+      } catch (error) {
+        console.error("Failed to cache assets:", error);
+      }
+    })()
   );
   self.skipWaiting();
 });
 
+// Activate Event
 self.addEventListener("activate", (event) => {
   console.log("Service Worker: Activated");
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
+    caches.keys().then((cacheNames) =>
+      Promise.all(
         cacheNames.map((cache) => {
           if (cache !== CACHE_NAME) {
             console.log("Removing old cache:", cache);
             return caches.delete(cache);
           }
         })
-      );
-    })
+      )
+    )
   );
-  return self.clients.claim();
+  self.clients.claim();
 });
 
 self.addEventListener("fetch", (event) => {
@@ -58,7 +68,6 @@ self.addEventListener("fetch", (event) => {
           const cache = await caches.open(CACHE_NAME);
           cache.put(event.request, networkResponse.clone());
         }
-
         return networkResponse;
       } catch (error) {
         console.error(
@@ -71,7 +80,7 @@ self.addEventListener("fetch", (event) => {
         }
 
         if (event.request.destination === "document") {
-          return caches.match("/offline.html");
+          return caches.match("/index.html");
         }
 
         return new Response("Network error and no cache available.", {

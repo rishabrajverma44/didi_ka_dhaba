@@ -20,6 +20,7 @@ const ReceivedFood = () => {
   const dropdownRefDidi = useRef(null);
   const dropdownRefThela = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState(null);
 
   const filteredDidiNames = namesDidi.filter((item) => {
     const search = String(searchTermDidi || "").toLowerCase();
@@ -50,7 +51,11 @@ const ReceivedFood = () => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  const [foodData, setFoodData] = useState([]);
+  const [foodData, setFoodData] = useState([
+    { food_id: 1 },
+    { food_id: 2 },
+    { food_id: 3 },
+  ]);
 
   useEffect(() => {
     const today = new Date();
@@ -63,26 +68,17 @@ const ReceivedFood = () => {
   }, []);
 
   const getDidi = async () => {
-    const actualStatus = await checkInternetConnection();
-    if (actualStatus) {
-      axios
-        .get("https://didikadhababackend.indevconsultancy.in/dhaba/didi/")
-        .then((res) => {
-          if (res.status === 200) {
-            const data = [...res.data];
-            setDidiName([...data]);
-          }
-        })
-        .catch((e) => {
-          console.log("error in get didi", e);
-        });
-    } else {
-      Swal.fire({
-        html: `<b>Check Internet connection!</b>`,
-        allowOutsideClick: false,
-        confirmButtonColor: "#A24C4A",
+    axios
+      .get("https://didikadhababackend.indevconsultancy.in/dhaba/didi/")
+      .then((res) => {
+        if (res.status === 200) {
+          const data = [...res.data];
+          setDidiName([...data]);
+        }
+      })
+      .catch((e) => {
+        console.log("error in get didi", e);
       });
-    }
   };
 
   const getThela = () => {
@@ -98,10 +94,11 @@ const ReceivedFood = () => {
         console.log("error in geting Thela", e);
       });
   };
+
   useEffect(() => {
     getDidi();
     getThela();
-  }, [searchTermDidi]);
+  }, []);
 
   const handleRemoveImage = (index) => {
     const updatedFoodData = [...foodData];
@@ -155,14 +152,12 @@ const ReceivedFood = () => {
         payload
       );
       if (res.status === 201) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         toast.success(`Food Received by ${searchTermDidi}`);
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        setIsLoading(false);
         setSearchTermDidi("");
         setSearchTermThela("");
-        setSelectedDidi(null);
-        setSelectedThela(null);
         setFoodData([]);
-        setIsLoading(false);
       }
     } catch (e) {
       console.log("Error in sending received food:", e);
@@ -242,7 +237,23 @@ const ReceivedFood = () => {
       return false;
     }
   };
-
+  const checkConnectionStatus = async () => {
+    const actualStatus = await checkInternetConnection();
+    setStatus(actualStatus);
+  };
+  useEffect(() => {
+    checkConnectionStatus();
+  }, []);
+  useEffect(() => {
+    console.log(status);
+    if (status === false) {
+      Swal.fire({
+        html: `<b>Check Internet connection!</b>`,
+        allowOutsideClick: false,
+        confirmButtonColor: "#A24C4A",
+      });
+    }
+  }, [status]);
   const handleSubmit = async () => {
     if (!validateFields()) {
       toast.error("Validate all fields");

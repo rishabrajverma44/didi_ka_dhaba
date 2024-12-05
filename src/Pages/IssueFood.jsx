@@ -98,36 +98,6 @@ const IssueFood = () => {
     setWeight("");
   };
 
-  const issueFood = async (payload) => {
-    axios
-      .post(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/issue-food/",
-        payload
-      )
-      .then((res) => {
-        if (res.status === 201) {
-          toast.success(
-            `Issued ${payload.food_items.length} Items to ${selectedDidi}`
-          );
-          setUserWiseData({});
-          setSelectedDidi(null);
-          setSearchTerm("");
-        } else {
-          toast.error("Something went wrong!");
-        }
-      })
-      .catch((err) => {
-        console.log("Error in sending issue food:", err);
-      });
-  };
-  const handleAddItem = (item) => {
-    if (selectedDidi) {
-      setSelectedItem(item.food_name);
-      setShowModal(true);
-    } else {
-      toast.warning("Please select Didi");
-    }
-  };
   const checkInternetConnection = async () => {
     try {
       const response = await fetch(
@@ -142,6 +112,47 @@ const IssueFood = () => {
       return false;
     }
   };
+
+  const issueFood = async (payload) => {
+    const actualStatus = await checkInternetConnection();
+    if (actualStatus) {
+      axios
+        .post(
+          "https://didikadhababackend.indevconsultancy.in/dhaba/issue-food/",
+          payload
+        )
+        .then((res) => {
+          if (res.status === 201) {
+            toast.success(
+              `Issued ${payload.food_items.length} Items to ${selectedDidi}`
+            );
+            setUserWiseData({});
+            setSelectedDidi(null);
+            setSearchTerm("");
+          } else {
+            toast.error("Something went wrong!");
+          }
+        })
+        .catch((err) => {
+          console.log("Error in sending issue food:", err);
+        });
+    } else {
+      Swal.fire({
+        html: `<b>Check Internet connection!</b>`,
+        allowOutsideClick: false,
+        confirmButtonColor: "#A24C4A",
+      });
+    }
+  };
+  const handleAddItem = (item) => {
+    if (selectedDidi) {
+      setSelectedItem(item.food_name);
+      setShowModal(true);
+    } else {
+      toast.warning("Please select Didi");
+    }
+  };
+
   const finalSubmit = async () => {
     if (!selectedDidi) {
       toast.warning("Please select a Didi!");
