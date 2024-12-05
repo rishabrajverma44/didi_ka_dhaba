@@ -1,6 +1,8 @@
 import axios from "axios";
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import Webcam from "react-webcam";
+import { FaCamera } from "react-icons/fa";
+import { FiX, FiRefreshCcw } from "react-icons/fi";
 
 const Payment = () => {
   const [namesDidi, setNamesDidi] = useState([]);
@@ -11,12 +13,41 @@ const Payment = () => {
   const [currentDate, setCurrentDate] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [finalData, setFinalData] = useState({});
-
+  const [isCameraOn, setIsCameraOn] = useState(false); // Track camera state
+  const [photoPreview, setPhotoPreview] = useState(null); // Store photo preview
+  const [photoFile, setPhotoFile] = useState(null); // Store photo file
+  const [isUsingFrontCamera, setIsUsingFrontCamera] = useState(true); // Track which camera is being used
   const webcamRef = useRef(null);
-  const [photoPreview, setPhotoPreview] = useState(null);
-  const [photoFile, setPhotoFile] = useState(null);
-  const [isCameraOn, setIsCameraOn] = useState(true);
-  const [isUsingFrontCamera, setIsUsingFrontCamera] = useState(true);
+
+  // Set video constraints based on which camera (front/back) is being used
+  const videoConstraints = useMemo(
+    () => ({
+      facingMode: isUsingFrontCamera ? "user" : "environment", // Toggle between front and back cameras
+    }),
+    [isUsingFrontCamera]
+  );
+
+  const handleCapture = () => {
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
+      setPhotoPreview(imageSrc);
+      setPhotoFile(imageSrc);
+      setIsCameraOn(false);
+    }
+  };
+
+  const toggleCamera = () => {
+    setIsCameraOn((prevState) => !prevState);
+  };
+
+  const toggleCameraType = () => {
+    setIsUsingFrontCamera((prevState) => !prevState);
+  };
+
+  const handleRemoveImage = () => {
+    setPhotoPreview(null);
+    setPhotoFile(null);
+  };
 
   const getDidi = async () => {
     try {
@@ -43,31 +74,6 @@ const Payment = () => {
   const filteredDidiNames = namesDidi.filter((item) =>
     item.full_name.toLowerCase().includes(searchTermDidi.toLowerCase())
   );
-
-  const videoConstraints = {
-    facingMode: isUsingFrontCamera ? "user" : "environment",
-  };
-
-  const capture = useCallback(() => {
-    if (webcamRef.current) {
-      const imageSrc = webcamRef.current.getScreenshot();
-      setPhotoPreview(imageSrc);
-      setPhotoFile(imageSrc);
-      setIsCameraOn(false);
-    } else {
-      alert("Webcam is not initialized!");
-    }
-  }, [webcamRef]);
-
-  const turnOnCamera = () => {
-    setPhotoPreview(null);
-    setPhotoFile(null);
-    setIsCameraOn(true);
-  };
-
-  const toggleCamera = () => {
-    setIsUsingFrontCamera((prev) => !prev);
-  };
 
   const submitFinal = async () => {
     setIsLoading(true);
@@ -141,62 +147,70 @@ const Payment = () => {
         <div>
           <div className="mb-2">
             <label className="text-gray-700">Online</label>
-            <input type="text" className="w-full p-2 border rounded" />
+            <input type="number" className="w-full p-2 border rounded" />
           </div>
           <div className="mb-2">
             <label className="text-gray-700">Cash</label>
-            <input type="text" className="w-full p-2 border rounded" />
+            <input type="number" className="w-full p-2 border rounded" />
           </div>
 
           <div className="mb-4">
             <label className="text-gray-700">Add Photo</label>
-            {isCameraOn ? (
-              <>
-                <Webcam
-                  audio={false}
-                  ref={webcamRef}
-                  screenshotFormat="image/jpeg"
-                  width="100%"
-                  className="rounded shadow-md"
-                  videoConstraints={videoConstraints}
-                />
-                <div className="mt-2 flex justify-between">
-                  <button
-                    className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition"
-                    onClick={capture}
-                  >
-                    Capture Photo
-                  </button>
-                  <button
-                    className="bg-gray-500 text-white p-2 rounded hover:bg-gray-600 transition"
-                    onClick={toggleCamera}
-                  >
-                    {isUsingFrontCamera
-                      ? "Switch to Back Camera"
-                      : "Switch to Front Camera"}
-                  </button>
+            <div className="border border-gray-300 px-4 py-2 text-center">
+              {isCameraOn ? (
+                <div className="relative">
+                  <Webcam
+                    audio={false}
+                    ref={webcamRef}
+                    screenshotFormat="image/jpeg"
+                    width="100%"
+                    className="rounded shadow-md"
+                    videoConstraints={videoConstraints}
+                    style={{ minWidth: "200px" }}
+                  />
+                  <div className="absolute bottom-3 flex space-x-8 z-10 w-full items-center justify-center">
+                    <button onClick={handleCapture}>
+                      <FaCamera color="#A24C4A" size={30} />
+                    </button>
+                    <button
+                      className="text-red-500 hover:text-red-700"
+                      onClick={toggleCamera}
+                    >
+                      <FiX size={30} />
+                    </button>
+                    <button onClick={toggleCameraType}>
+                      <FiRefreshCcw color="#A24C4A" size={30} />
+                    </button>
+                  </div>
                 </div>
-              </>
-            ) : (
-              <div className="text-gray-500 italic">Camera is off</div>
-            )}
-            {!isCameraOn && (
-              <button
-                className="bg-green-500 text-white p-2 rounded mt-2 hover:bg-green-600 transition"
-                onClick={turnOnCamera}
-              >
-                Retake Photo
-              </button>
-            )}
-            {photoPreview && (
-              <div className="mt-2">
-                <img
-                  src={photoPreview}
-                  alt="Captured Preview"
-                  className="w-32 h-32 rounded shadow-lg"
-                />
-              </div>
-            )}
+              ) : (
+                <button onClick={toggleCamera}>
+                  <FaCamera color="#A24C4A" size={20} />
+                </button>
+              )}
+            </div>
+
+            <div className="border border-gray-300 px-4 py-2 text-center">
+              {photoPreview ? (
+                <div className="relative">
+                  <img
+                    src={photoPreview}
+                    alt="Captured"
+                    className="w-32 h-32 rounded shadow-lg"
+                  />
+                  <span className="absolute top-0 right-0 p-1">
+                    <button
+                      className="text-red-500 hover:text-red-700"
+                      onClick={handleRemoveImage}
+                    >
+                      <FiX size={24} />
+                    </button>
+                  </span>
+                </div>
+              ) : (
+                <span className="text-gray-500 italic">No photo captured</span>
+              )}
+            </div>
           </div>
         </div>
 

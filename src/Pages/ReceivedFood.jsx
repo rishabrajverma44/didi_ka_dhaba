@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FaCamera } from "react-icons/fa";
-import { FiX } from "react-icons/fi";
+import { FaCamera, FaToggleOn } from "react-icons/fa";
+import { FiX, FiRefreshCcw } from "react-icons/fi";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
+import Webcam from "react-webcam";
 
 const ReceivedFood = () => {
   const [namesDidi, setDidiName] = useState([]);
@@ -21,6 +22,46 @@ const ReceivedFood = () => {
   const dropdownRefThela = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState(null);
+  const [foodData, setFoodData] = useState([]);
+
+  const [isCameraOn, setIsCameraOn] = useState(
+    Array(foodData.length).fill(false)
+  );
+  const [isUsingFrontCamera, setIsUsingFrontCamera] = useState(true);
+  const webcamRef = useRef(null);
+
+  const toggleCameraFacingMode = () => {
+    setIsUsingFrontCamera((prev) => !prev);
+  };
+
+  const videoConstraints = useMemo(
+    () => ({
+      facingMode: isUsingFrontCamera ? "user" : "environment",
+    }),
+    [isUsingFrontCamera]
+  );
+
+  const toggleCamera = (index) => {
+    setIsCameraOn((prev) =>
+      prev.map((state, idx) => (idx === index ? !state : state))
+    );
+  };
+
+  const handleCapture = (index) => {
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
+      const updatedFoodData = [...foodData];
+      updatedFoodData[index].image = imageSrc;
+      setFoodData(updatedFoodData);
+      toggleCamera(index);
+    }
+  };
+
+  const handleRemoveImage = (index) => {
+    const updatedFoodData = [...foodData];
+    updatedFoodData[index].image = null;
+    setFoodData(updatedFoodData);
+  };
 
   const filteredDidiNames = namesDidi.filter((item) => {
     const search = String(searchTermDidi || "").toLowerCase();
@@ -50,12 +91,6 @@ const ReceivedFood = () => {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
-
-  const [foodData, setFoodData] = useState([
-    { food_id: 1 },
-    { food_id: 2 },
-    { food_id: 3 },
-  ]);
 
   useEffect(() => {
     const today = new Date();
@@ -99,12 +134,6 @@ const ReceivedFood = () => {
     getDidi();
     getThela();
   }, []);
-
-  const handleRemoveImage = (index) => {
-    const updatedFoodData = [...foodData];
-    updatedFoodData[index].image = null;
-    setFoodData(updatedFoodData);
-  };
 
   const getAssignedFoods = async (selectedDidi, date) => {
     const payload = {
@@ -197,32 +226,6 @@ const ReceivedFood = () => {
     setFoodData(updatedFoodData);
   };
 
-  const convertBlobToBase64 = (image) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        console.log("Base64 Image:", reader.result);
-        resolve(reader.result);
-      };
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(image);
-    });
-  };
-
-  const handleFileChange = async (event, index) => {
-    const file = event.target.files[0];
-    if (file) {
-      const updatedFoodData = [...foodData];
-      try {
-        const base64Image = await convertBlobToBase64(file);
-        updatedFoodData[index].image = base64Image;
-        setFoodData(updatedFoodData);
-      } catch (error) {
-        console.error("Error converting image to Base64:", error);
-      }
-    }
-  };
-
   const checkInternetConnection = async () => {
     try {
       const response = await fetch(
@@ -290,6 +293,8 @@ const ReceivedFood = () => {
         })
       ),
     };
+
+    console.log(payload);
 
     const actualStatus = await checkInternetConnection();
     if (actualStatus) {
@@ -418,7 +423,9 @@ const ReceivedFood = () => {
                       Received Food (kg)
                     </th>
                     <th className="text-center">Image</th>
-                    <th className="text-center">Uploaded Image</th>
+                    <th className="text-center" style={{ minWidth: "200px" }}>
+                      Uploaded Image
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -445,40 +452,63 @@ const ReceivedFood = () => {
                           </div>
                         )}
                       </td>
-                      <td className="text-center">
-                        <label className="btn btn-link text-primary p-0">
-                          <FaCamera color="#A24C4A" size={20} />
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleFileChange(e, index)}
-                            style={{ display: "none" }}
-                          />
-                        </label>
-                      </td>
-                      <td className="text-center">
-                        {item.image && (
+                      <td className="border border-gray-300 px-4 py-2 text-center">
+                        {isCameraOn[index] ? (
                           <>
                             <div className="relative">
-                              <img
-                                src={item.image}
-                                alt="Uploaded"
-                                className="img-fluid"
-                                style={{
-                                  maxHeight: "100px",
-                                  objectFit: "cover",
-                                }}
+                              <Webcam
+                                audio={false}
+                                ref={webcamRef}
+                                screenshotFormat="image/jpeg"
+                                width="100%"
+                                className="rounded shadow-md"
+                                videoConstraints={videoConstraints}
+                                style={{ minWidth: "200px" }}
                               />
-                              <span className="absolute top-0 right-0 p-1">
+                              <div className="absolute bottom-3 flex space-x-8 z-10 w-100 items-center justify-center">
+                                <button onClick={() => handleCapture(index)}>
+                                  <FaCamera color="#A24C4A" size={30} />
+                                </button>
                                 <button
                                   className="text-red-500 hover:text-red-700"
-                                  onClick={() => handleRemoveImage(index)}
+                                  onClick={() => toggleCamera(index)}
                                 >
-                                  <FiX size={24} />
+                                  <FiX size={30} />
                                 </button>
-                              </span>
+                                <button onClick={toggleCameraFacingMode}>
+                                  <FiRefreshCcw color="#A24C4A" size={30} />
+                                </button>
+                              </div>
                             </div>
                           </>
+                        ) : (
+                          <button onClick={() => toggleCamera(index)}>
+                            <FaCamera color="#A24C4A" size={20} />
+                          </button>
+                        )}
+                      </td>
+
+                      <td className="border border-gray-300 px-4 py-2 text-center">
+                        {item.image ? (
+                          <div className="relative">
+                            <img
+                              src={item.image}
+                              alt="Uploaded"
+                              className="w-32 h-32 rounded shadow-lg"
+                            />
+                            <span className="absolute top-0 right-0 p-1">
+                              <button
+                                className="text-red-500 hover:text-red-700"
+                                onClick={() => handleRemoveImage(index)}
+                              >
+                                <FiX size={24} />
+                              </button>
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-500 italic">
+                            No photo captured
+                          </span>
                         )}
                       </td>
                     </tr>
