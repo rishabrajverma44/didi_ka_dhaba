@@ -1,5 +1,4 @@
 import React from "react";
-import logo from "../../../src/Assets/Images/logo.png";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
@@ -34,7 +33,7 @@ const Login = () => {
             >
               <div className="text-center">
                 <a className="inline-block rounded-xl" href="" alt="">
-                  <img src={logo} alt="LOGO" width="160" />
+                  <img src="/images/logo.png" alt="LOGO" width="160" />
                 </a>
               </div>
 

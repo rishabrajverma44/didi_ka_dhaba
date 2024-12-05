@@ -1,6 +1,7 @@
 const CACHE_VERSION = "v2";
 const CACHE_NAME = `PWA-${CACHE_VERSION}`;
 const CACHE_ASSETS = [
+  "https://cdn.jsdelivr.net/npm/tailwindcss@3.2.7/dist/tailwind.min.css",
   "/static/js/main.chunk.js",
   "/static/js/0.chunk.js",
   "/static/js/bundle.js",
@@ -8,6 +9,7 @@ const CACHE_ASSETS = [
   "/bootstrap.min.css",
   "/index.html",
   "/",
+  "/login",
   "/issuefood",
   "/receivedfood",
   "/payment",

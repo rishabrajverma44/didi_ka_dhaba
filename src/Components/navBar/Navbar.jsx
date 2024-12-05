@@ -3,8 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { FiMenu } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import clsx from "clsx";
-import logo from "../../Assets/Images/logo.png";
-import profile from "../../Assets/Images/avatar-1.jpg";
 
 const Navbar = () => {
   const [isSideMenuOpen, setMenu] = useState(false);
@@ -39,7 +37,7 @@ const Navbar = () => {
             <section className="flex justify-between items-center w-full">
               <div className="flex items-center justify-center">
                 <Link to="/">
-                  <img src={logo} alt="logo" width="70" />
+                  <img src="/images/logo.png" alt="logo" width="70" />
                 </Link>
               </div>
               <h5 className="tracking-wide text-2xl md:text-4xl mt-2 text-center font-sans flex-1">
@@ -56,7 +54,7 @@ const Navbar = () => {
                     <button onClick={toggleDropdown}>
                       <img
                         className="rounded-circle header-profile-user h-9"
-                        src={profile}
+                        src="/images/avatar-1.jpg"
                         alt="Header Avatar"
                       />
                     </button>
@@ -86,39 +84,39 @@ const Navbar = () => {
               isSideMenuOpen ? "translate-y-0" : "translate-x-full"
             )}
           >
-            <section className="text-black bg-white flex-col absolute right-0 top-0 h-screen py-8 gap-8 z-50 w-70">
+            <section className="text-black bg-white flex-col absolute right-0 top-0 h-screen py-8 gap-8 z-50 w-80">
               <IoCloseOutline
                 onClick={() => setMenu(false)}
                 className="mt-0 mx-3 mb-8 text-3xl cursor-pointer"
               />
               <div className="mx-1">
                 <Link
-                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline"
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
                   to="/"
                 >
                   Home
                 </Link>
                 <Link
-                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline"
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
                   to="/receivedfood"
                 >
                   Issue Food
                 </Link>
                 <Link
-                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline"
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
                   to="/issuefood"
                 >
                   Received Returned Food
                 </Link>
                 <Link
-                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline"
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
                   to="/payment"
                 >
                   Payment Details
                 </Link>
                 <button
                   type="submit"
-                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold"
+                  className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold text-xl"
                   onClick={handleLogout}
                 >
                   Sign out
