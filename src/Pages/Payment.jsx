@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import Webcam from "react-webcam";
 import { FaCamera } from "react-icons/fa";
 import { FiX, FiRefreshCcw } from "react-icons/fi";
+import { ToastContainer, toast } from "react-toastify";
 
 const Payment = () => {
   const [namesDidi, setNamesDidi] = useState([]);
@@ -11,18 +12,17 @@ const Payment = () => {
   const [isDropdownOpenDidi, setIsDropdownOpenDidi] = useState(false);
   const dropdownRefDidi = useRef(null);
   const [currentDate, setCurrentDate] = useState("");
+  const [photos, setPhotos] = useState([]);
+  const [online, setOnline] = useState("");
+  const [cash, setCash] = useState("");
+  const [isCameraOn, setIsCameraOn] = useState(false);
+  const [isUsingFrontCamera, setIsUsingFrontCamera] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [finalData, setFinalData] = useState({});
-  const [isCameraOn, setIsCameraOn] = useState(false); // Track camera state
-  const [photoPreview, setPhotoPreview] = useState(null); // Store photo preview
-  const [photoFile, setPhotoFile] = useState(null); // Store photo file
-  const [isUsingFrontCamera, setIsUsingFrontCamera] = useState(true); // Track which camera is being used
   const webcamRef = useRef(null);
 
-  // Set video constraints based on which camera (front/back) is being used
   const videoConstraints = useMemo(
     () => ({
-      facingMode: isUsingFrontCamera ? "user" : "environment", // Toggle between front and back cameras
+      facingMode: isUsingFrontCamera ? "user" : "environment",
     }),
     [isUsingFrontCamera]
   );
@@ -30,8 +30,12 @@ const Payment = () => {
   const handleCapture = () => {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
-      setPhotoPreview(imageSrc);
-      setPhotoFile(imageSrc);
+      if (photos.length < 5) {
+        setPhotos((prev) => [...prev, imageSrc]);
+        toast.success("Photo added successfully!");
+      } else {
+        toast.error("You can only add up to 5 photos.");
+      }
       setIsCameraOn(false);
     }
   };
@@ -44,9 +48,9 @@ const Payment = () => {
     setIsUsingFrontCamera((prevState) => !prevState);
   };
 
-  const handleRemoveImage = () => {
-    setPhotoPreview(null);
-    setPhotoFile(null);
+  const handleRemoveImage = (index) => {
+    setPhotos((prev) => prev.filter((_, i) => i !== index));
+    toast.info("Photo removed.");
   };
 
   const getDidi = async () => {
@@ -76,17 +80,29 @@ const Payment = () => {
   );
 
   const submitFinal = async () => {
+    if (!selectedDidi) {
+      toast.warning("Please select Didi");
+      return;
+    }
     setIsLoading(true);
     const formData = new FormData();
     formData.append("didi_id", selectedDidi);
-    formData.append("photo", photoFile);
+    photos.forEach((photo, index) => {
+      formData.append(`photo${index + 1}`, photo);
+    });
+
     const payload = {
       didi: formData.get("didi_id"),
-      photo: formData.get("photo"),
+      Online: online,
+      Cash: cash,
+      photos: Array.from({ length: photos.length }).map((_, i) =>
+        formData.get(`photo${i + 1}`)
+      ),
     };
 
     console.log(payload);
-    setPhotoFile(null);
+    toast.success("Submitted successfully!");
+    setPhotos([]);
     setIsLoading(false);
   };
 
@@ -146,16 +162,26 @@ const Payment = () => {
         <h4 className="text-xl font-semibold text-gray-800">Received Money</h4>
         <div>
           <div className="mb-2">
-            <label className="text-gray-700">Online</label>
-            <input type="number" className="w-full p-2 border rounded" />
+            <label className="text-gray-700">Online Recived Money</label>
+            <input
+              type="number"
+              placeholder="Enter Online Payment"
+              onChange={(e) => setOnline(e.target.value)}
+              className="w-full p-2 border rounded"
+            />
           </div>
           <div className="mb-2">
-            <label className="text-gray-700">Cash</label>
-            <input type="number" className="w-full p-2 border rounded" />
+            <label className="text-gray-700">Cash Recived Money</label>
+            <input
+              type="number"
+              placeholder="Enter Cash Payment"
+              onChange={(e) => setCash(e.target.value)}
+              className="w-full p-2 border rounded"
+            />
           </div>
 
           <div className="mb-4">
-            <label className="text-gray-700">Add Photo</label>
+            <label className="text-gray-700">Add Photos</label>
             <div className="border border-gray-300 px-4 py-2 text-center">
               {isCameraOn ? (
                 <div className="relative">
@@ -190,31 +216,29 @@ const Payment = () => {
               )}
             </div>
 
-            <div className="border border-gray-300 px-4 py-2 text-center">
-              {photoPreview ? (
-                <div className="relative">
+            <div className="grid grid-cols-3 gap-4 mt-4">
+              {photos.map((photo, index) => (
+                <div key={index} className="relative">
                   <img
-                    src={photoPreview}
-                    alt="Captured"
-                    className="w-32 h-32 rounded shadow-lg"
+                    src={photo}
+                    alt={`Captured ${index + 1}`}
+                    className="w-24 h-24 rounded shadow-lg"
                   />
                   <span className="absolute top-0 right-0 p-1">
                     <button
                       className="text-red-500 hover:text-red-700"
-                      onClick={handleRemoveImage}
+                      onClick={() => handleRemoveImage(index)}
                     >
                       <FiX size={24} />
                     </button>
                   </span>
                 </div>
-              ) : (
-                <span className="text-gray-500 italic">No photo captured</span>
-              )}
+              ))}
             </div>
           </div>
         </div>
 
-        <div className="flex justify-between">
+        <div className="flex justify-between place-self-center">
           <button
             className={`p-2 rounded-lg ${
               isLoading ? "bg-gray-300" : "bg-[#A24C4A] text-white"
@@ -226,6 +250,7 @@ const Payment = () => {
           </button>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

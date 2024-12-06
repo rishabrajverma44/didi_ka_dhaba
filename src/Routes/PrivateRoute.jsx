@@ -10,6 +10,9 @@ const PrivateRoute = ({ children }) => {
     if (!token) {
       navigate("/login");
     }
+    if (token === "password_jwt") {
+      console.log(token);
+    }
   }, [navigate, token]);
 
   return (

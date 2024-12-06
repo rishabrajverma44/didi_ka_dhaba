@@ -10,16 +10,12 @@ import Webcam from "react-webcam";
 const ReceivedFood = () => {
   const [namesDidi, setDidiName] = useState([]);
   const [currentDate, setCurrentDate] = useState("");
-  const [namesThela, setThelaName] = useState([]);
   const [searchTermDidi, setSearchTermDidi] = useState("");
   const [selectedDidi, setSelectedDidi] = useState(null);
   const [isDropdownOpenDidi, setIsDropdownOpenDidi] = useState(false);
-  const [searchTermThela, setSearchTermThela] = useState("");
-  const [selectedThela, setSelectedThela] = useState(null);
-  const [isDropdownOpenThela, setIsDropdownOpenThela] = useState(false);
+  const [selectedThela, setSelectedThela] = useState("GR23");
   const [validationErrors, setValidationErrors] = useState({});
   const dropdownRefDidi = useRef(null);
-  const dropdownRefThela = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState(null);
   const [foodData, setFoodData] = useState([]);
@@ -27,8 +23,13 @@ const ReceivedFood = () => {
   const [isCameraOn, setIsCameraOn] = useState(
     Array(foodData.length).fill(false)
   );
+  useEffect(() => {
+    setIsCameraOn(Array(foodData.length).fill(false));
+  }, [foodData]);
+
   const [isUsingFrontCamera, setIsUsingFrontCamera] = useState(true);
-  const webcamRef = useRef(null);
+
+  const webcamRefs = useRef([]);
 
   const toggleCameraFacingMode = () => {
     setIsUsingFrontCamera((prev) => !prev);
@@ -48,8 +49,8 @@ const ReceivedFood = () => {
   };
 
   const handleCapture = (index) => {
-    if (webcamRef.current) {
-      const imageSrc = webcamRef.current.getScreenshot();
+    if (webcamRefs.current[index]) {
+      const imageSrc = webcamRefs.current[index].getScreenshot();
       const updatedFoodData = [...foodData];
       updatedFoodData[index].image = imageSrc;
       setFoodData(updatedFoodData);
@@ -68,10 +69,6 @@ const ReceivedFood = () => {
     return item.full_name.toLowerCase().includes(search);
   });
 
-  const filteredThelaNames = namesThela.filter((item) => {
-    const search = String(searchTermThela || "").toLowerCase();
-    return item.thela_code.toLowerCase().includes(search);
-  });
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -79,12 +76,6 @@ const ReceivedFood = () => {
         !dropdownRefDidi.current.contains(event.target)
       ) {
         setIsDropdownOpenDidi(false);
-      }
-      if (
-        dropdownRefThela.current &&
-        !dropdownRefThela.current.contains(event.target)
-      ) {
-        setIsDropdownOpenThela(false);
       }
     };
 
@@ -116,23 +107,8 @@ const ReceivedFood = () => {
       });
   };
 
-  const getThela = () => {
-    axios
-      .get("https://didikadhababackend.indevconsultancy.in/dhaba/thelas/")
-      .then((res) => {
-        if (res.status === 200) {
-          const data = [...res.data];
-          setThelaName([...data]);
-        }
-      })
-      .catch((e) => {
-        console.log("error in geting Thela", e);
-      });
-  };
-
   useEffect(() => {
     getDidi();
-    getThela();
   }, []);
 
   const getAssignedFoods = async (selectedDidi, date) => {
@@ -185,7 +161,6 @@ const ReceivedFood = () => {
         toast.success(`Food Received by ${searchTermDidi}`);
         setIsLoading(false);
         setSearchTermDidi("");
-        setSearchTermThela("");
         setFoodData([]);
       }
     } catch (e) {
@@ -257,6 +232,7 @@ const ReceivedFood = () => {
       });
     }
   }, [status]);
+
   const handleSubmit = async () => {
     if (!validateFields()) {
       toast.error("Validate all fields");
@@ -268,13 +244,6 @@ const ReceivedFood = () => {
     );
     if (!selectedDidi || !selectedDidiData) {
       toast.error("Please select a valid Didi from the dropdown!");
-      return;
-    }
-    const selectedThelaData = namesThela.find(
-      (item) => item.thela_id === selectedThela
-    );
-    if (!selectedThela || !selectedThelaData) {
-      toast.error("Please select a valid Thela from the dropdown!");
       return;
     }
 
@@ -363,47 +332,12 @@ const ReceivedFood = () => {
           )}
         </div>
 
-        <h4 className="text-xl font-semibold text-gray-800 mt-2">
-          Select Thela
+        <h4 className="text-xl font-semibold text-gray-800 mt-3">
+          Stall Name :{" "}
+          <span className=" border-b border-gray-200 rounded-lg  bg-white px-2">
+            {selectedThela}
+          </span>
         </h4>
-
-        <div ref={dropdownRefThela} className="relative">
-          <input
-            type="text"
-            placeholder="Search Name..."
-            className="cursor-pointer w-full p-2 border-b border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
-            value={searchTermThela}
-            onChange={(e) => {
-              setSearchTermThela(e.target.value);
-              setIsDropdownOpenThela(true);
-              setSelectedThela(null);
-            }}
-            onClick={() => setIsDropdownOpenThela(true)}
-          />
-          {isDropdownOpenThela && (
-            <ul className="absolute z-20 bg-white border border-gray-300 shadow-lg rounded-lg mt-2 max-h-80 w-full overflow-y-auto">
-              {filteredThelaNames.length > 0 ? (
-                filteredThelaNames.map((name, index) => (
-                  <li
-                    key={index}
-                    className="p-2 hover:bg-blue-100 cursor-pointer"
-                    onClick={() => {
-                      setSelectedThela(name.thela_id);
-                      setSearchTermThela(name.thela_code);
-                      setIsDropdownOpenThela(false);
-                    }}
-                  >
-                    {name.thela_code}
-                  </li>
-                ))
-              ) : (
-                <li className="p-2 text-gray-500 text-center">
-                  No thela found
-                </li>
-              )}
-            </ul>
-          )}
-        </div>
 
         <div className="mb-3">
           <p className="mt-2 text-lg text-[#A24C4A] font-bold">{currentDate}</p>
@@ -454,56 +388,50 @@ const ReceivedFood = () => {
                       </td>
                       <td className="border border-gray-300 px-4 py-2 text-center">
                         {isCameraOn[index] ? (
-                          <>
-                            <div className="relative">
-                              <Webcam
-                                audio={false}
-                                ref={webcamRef}
-                                screenshotFormat="image/jpeg"
-                                width="100%"
-                                className="rounded shadow-md"
-                                videoConstraints={videoConstraints}
-                                style={{ minWidth: "200px" }}
-                              />
-                              <div className="absolute bottom-3 flex space-x-8 z-10 w-100 items-center justify-center">
-                                <button onClick={() => handleCapture(index)}>
-                                  <FaCamera color="#A24C4A" size={30} />
-                                </button>
-                                <button
-                                  className="text-red-500 hover:text-red-700"
-                                  onClick={() => toggleCamera(index)}
-                                >
-                                  <FiX size={30} />
-                                </button>
-                                <button onClick={toggleCameraFacingMode}>
-                                  <FiRefreshCcw color="#A24C4A" size={30} />
-                                </button>
-                              </div>
+                          <div className="relative">
+                            <Webcam
+                              audio={false}
+                              ref={(el) => (webcamRefs.current[index] = el)}
+                              screenshotFormat="image/jpeg"
+                              className="rounded shadow-md"
+                              videoConstraints={videoConstraints}
+                              style={{ minWidth: "200px" }}
+                            />
+                            <div className="absolute bottom-3 flex space-x-8 z-10 w-100 items-center justify-center">
+                              <button onClick={() => handleCapture(index)}>
+                                <FaCamera color="#A24C4A" size={30} />
+                              </button>
+                              <button
+                                className="text-red-500 hover:text-red-700"
+                                onClick={() => toggleCamera(index)}
+                              >
+                                <FiX size={30} />
+                              </button>
+                              <button onClick={toggleCameraFacingMode}>
+                                <FiRefreshCcw color="#A24C4A" size={30} />
+                              </button>
                             </div>
-                          </>
+                          </div>
                         ) : (
                           <button onClick={() => toggleCamera(index)}>
                             <FaCamera color="#A24C4A" size={20} />
                           </button>
                         )}
                       </td>
-
                       <td className="border border-gray-300 px-4 py-2 text-center">
                         {item.image ? (
                           <div className="relative">
                             <img
                               src={item.image}
-                              alt="Uploaded"
+                              alt="Captured"
                               className="w-32 h-32 rounded shadow-lg"
                             />
-                            <span className="absolute top-0 right-0 p-1">
-                              <button
-                                className="text-red-500 hover:text-red-700"
-                                onClick={() => handleRemoveImage(index)}
-                              >
-                                <FiX size={24} />
-                              </button>
-                            </span>
+                            <button
+                              className="absolute top-0 right-0 p-1 text-red-500 hover:text-red-700"
+                              onClick={() => handleRemoveImage(index)}
+                            >
+                              <FiX size={24} />
+                            </button>
                           </div>
                         ) : (
                           <span className="text-gray-500 italic">

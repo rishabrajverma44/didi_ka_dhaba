@@ -41,7 +41,7 @@ const Login = () => {
         values.password === "Rishab@123"
       ) {
         toast.success("Login success");
-        localStorage.setItem("jwt", "password");
+        localStorage.setItem("jwt", "password_jwt");
         navigate("/");
       } else {
         toast.error("Wrong credentials");
@@ -79,7 +79,7 @@ const Login = () => {
       >
         <div
           className="d-flex justify-content-center align-items-center"
-          style={{ height: "100vh" }}
+          style={{ height: "100vh", padding: "2px" }}
         >
           <div className="px-2 w-full md:w-3/4 lg:w-1/2">
             <form
@@ -159,16 +159,26 @@ const Login = () => {
                   Supported by
                 </p>
               </div>
-              <div className="flex justify-center space-x-12">
-                <img src="/images/logo.png" alt="jbf" width="60" />
+              <div className="flex justify-between" style={{ height: "90px" }}>
+                <img src="/images/jbf.jpg" alt="jbf" width="25%" />
 
-                <img src="/images/m3m.png" alt="m3m" width="60" />
-                <img src="/images/sidbi.png" alt="sidbi" width="60" />
+                <img src="/images/m3m.png" alt="m3m" width="40%" />
+                <img src="/images/sidbi.png" alt="sidbi" width="25%" />
               </div>
             </form>
           </div>
-          <div className="fixed bottom-0 right-0 z-[200] text-[#2C8D26] p-2 text-2xl">
-            <p>indevconsultancy</p>
+          <div className="fixed bottom-0 right-1 z-50 text-sm sm:text-base py-2 px-4">
+            <p className="flex items-center space-x-1">
+              <span>Powered by</span>
+              <a
+                href="https://indevconsultancy.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-red-600 font-semibold underline hover:no-underline hover:text-red-800 transition duration-300"
+              >
+                IndevConsultancy
+              </a>
+            </p>
           </div>
         </div>
         <ToastContainer />

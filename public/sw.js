@@ -16,6 +16,7 @@ const CACHE_ASSETS = [
   "/images/m3m.png",
   "/images/sidbi.png",
   "/images/Ekta.png",
+  "/images/jbf.jpg",
 ];
 
 // Install Event

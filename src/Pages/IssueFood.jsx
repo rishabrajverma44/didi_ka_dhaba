@@ -187,7 +187,7 @@ const IssueFood = () => {
         }
 
         if (!info?.weight || isNaN(info.weight) || info.weight <= 0) {
-          toast.warning(`Invalid weight for "${foodName}". Please check!`);
+          toast.warning(`Invalid weight for "${foodName}".`);
           return null;
         }
 
