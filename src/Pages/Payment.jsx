@@ -4,8 +4,10 @@ import Webcam from "react-webcam";
 import { FaCamera } from "react-icons/fa";
 import { FiX, FiRefreshCcw } from "react-icons/fi";
 import { ToastContainer, toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 const Payment = () => {
+  const [status, setStatus] = useState(null);
   const [namesDidi, setNamesDidi] = useState([]);
   const [searchTermDidi, setSearchTermDidi] = useState("");
   const [selectedDidi, setSelectedDidi] = useState(null);
@@ -84,27 +86,93 @@ const Payment = () => {
       toast.warning("Please select Didi");
       return;
     }
-    setIsLoading(true);
-    const formData = new FormData();
-    formData.append("didi_id", selectedDidi);
-    photos.forEach((photo, index) => {
-      formData.append(`photo${index + 1}`, photo);
+
+    Swal.fire({
+      title: "Are you sure?",
+      html: `
+        <p>Do you want to confirm the submission?</p>
+        <p>${currentDate}</p>
+        <ul style="text-align: left; margin-top: 1rem;">
+          <li><strong>Didi Name:</strong> ${searchTermDidi}</li>
+          <li><strong>Online Amount:</strong> ${online || "Not provided"}</li>
+          <li><strong>Cash Amount:</strong> ${cash || "Not provided"}</li>
+        </ul>
+      `,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, submit it!",
+      cancelButtonText: "No, cancel!",
+      confirmButtonColor: "#A24C4A",
+      cancelButtonColor: "#d33",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        setIsLoading(true);
+        const formData = new FormData();
+        formData.append("didi_id", selectedDidi);
+        photos.forEach((photo, index) => {
+          formData.append(`photo${index + 1}`, photo);
+        });
+
+        const payload = {
+          didi_id: formData.get("didi_id"),
+          Online: online,
+          Cash: cash,
+          photos: Array.from({ length: photos.length }).map((_, i) =>
+            formData.get(`photo${i + 1}`)
+          ),
+        };
+
+        try {
+          const response = await axios.post("YOUR_API_ENDPOINT", payload);
+          toast.success("Submitted successfully!");
+          console.log("API Response:", response.data);
+          setPhotos([]);
+          setSelectedDidi(null);
+          setOnline("");
+          setCash("");
+        } catch (error) {
+          toast.error("Submission failed. Please try again.");
+          console.error("Error:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        toast.info("Submission cancelled.");
+      }
     });
-
-    const payload = {
-      didi: formData.get("didi_id"),
-      Online: online,
-      Cash: cash,
-      photos: Array.from({ length: photos.length }).map((_, i) =>
-        formData.get(`photo${i + 1}`)
-      ),
-    };
-
-    console.log(payload);
-    toast.success("Submitted successfully!");
-    setPhotos([]);
-    setIsLoading(false);
   };
+
+  const checkInternetConnection = async () => {
+    try {
+      const response = await fetch(
+        "https://api.allorigins.win/raw?url=https://www.google.com",
+        {
+          method: "HEAD",
+          cache: "no-cache",
+        }
+      );
+      return response.ok;
+    } catch (error) {
+      return false;
+    }
+  };
+  const checkConnectionStatus = async () => {
+    const actualStatus = await checkInternetConnection();
+    setStatus(actualStatus);
+  };
+  useEffect(() => {
+    checkConnectionStatus();
+  }, []);
+  useEffect(() => {
+    console.log(status);
+    if (status === false) {
+      Swal.fire({
+        html: `<b>Check Internet connection!</b>`,
+        allowOutsideClick: false,
+        confirmButtonColor: "#A24C4A",
+      });
+    }
+  }, [status]);
 
   return (
     <div className="bg-gray-50" style={{ minHeight: "100vh" }}>

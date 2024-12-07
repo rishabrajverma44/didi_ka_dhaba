@@ -152,18 +152,41 @@ const Login = () => {
                 </div>
               </div>
               <div className="place-items-center">
-                <img src="/images/Ekta.png" alt="jbf" width="140" height="60" />
+                <img src="/images/Ekta.png" alt="jbf" width="110" />
               </div>
               <div>
                 <p className="text-center text-[#A24C4A] text-xl my-2">
                   Supported by
                 </p>
               </div>
-              <div className="flex justify-between" style={{ height: "90px" }}>
-                <img src="/images/jbf.jpg" alt="jbf" width="25%" />
-
-                <img src="/images/m3m.png" alt="m3m" width="40%" />
-                <img src="/images/sidbi.png" alt="sidbi" width="25%" />
+              <div className="flex justify-between">
+                <img
+                  src="/images/jbf.jpg"
+                  alt="jbf"
+                  style={{
+                    width: "15%",
+                    height: "auto",
+                    objectFit: "contain",
+                  }}
+                />
+                <img
+                  src="/images/m3m.png"
+                  alt="m3m"
+                  style={{
+                    width: "30%",
+                    height: "auto",
+                    objectFit: "contain",
+                  }}
+                />
+                <img
+                  src="/images/sidbi.png"
+                  alt="sidbi"
+                  style={{
+                    width: "30%",
+                    height: "auto",
+                    objectFit: "contain",
+                  }}
+                />
               </div>
             </form>
           </div>

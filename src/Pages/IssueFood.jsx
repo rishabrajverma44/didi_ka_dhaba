@@ -5,17 +5,26 @@ import axios from "axios";
 import Swal from "sweetalert2";
 
 const IssueFood = () => {
+  const [status, setStatus] = useState(null);
   const [namesDidi, setDidiName] = useState([]);
-  const [foodItem, setFoodItem] = useState([]);
-  const [foodData, setFoodData] = useState([]);
+  const [currentFoodData, setCurrentFoodData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedDidi, setSelectedDidi] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState("");
-  const [weight, setWeight] = useState("");
-  const [foodList, setFoodList] = useState({});
+  const [value, setValue] = useState("");
   const [currentDate, setCurrentDate] = useState("");
+  const [mealType, setMealType] = useState("");
+  const [breakfast, setBreakFast] = useState([]);
+  const [lunch, setLunch] = useState([]);
+  const [dinner, setDinner] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [finalData, setFinalData] = useState({});
+
+  const handleMealChange = (e) => {
+    setMealType(e.target.value);
+  };
 
   const dropdownRef = useRef(null);
   const filteredNames = namesDidi.filter((item) => {
@@ -23,200 +32,100 @@ const IssueFood = () => {
     return item.didi_name_and_thela_code.toLowerCase().includes(search);
   });
 
+  const getFoodItem = async () => {
+    try {
+      axios
+        .get(
+          `https://didikadhababackend.indevconsultancy.in/dhaba/foodmaster/category/${mealType}`
+        )
+        .then((res) => {
+          if (res.status === 200) {
+            setCurrentFoodData(res.data.data);
+          } else {
+            setCurrentFoodData([]);
+          }
+        })
+        .catch((e) => {
+          console.log("Error in food item:", e);
+        });
+    } catch (error) {
+      console.log("Error in getting food items:", error);
+    }
+  };
+
+  useEffect(() => {
+    getFoodItem();
+  }, [mealType]);
+
   const handleSelectDidi = (name) => {
     setSelectedDidi(name.didi_name_and_thela_code);
     setSearchTerm(name.didi_name_and_thela_code);
     setIsDropdownOpen(false);
   };
 
-  const restoreFoodItem = (itemName) => {
-    setFoodItem((prev) => {
-      const itemExists = prev.some((item) => item.food_name === itemName);
-      if (!itemExists) {
-        const restoredItem = {
-          food_name: itemName,
-          food_id: Object.keys(foodList[selectedDidi]?.items || {}).find(
-            (key) => key === itemName
-          ),
-        };
-        return [...prev, restoredItem];
-      }
-      return prev;
-    });
-  };
-
-  const handleDeleteItem = (item) => {
-    if (selectedDidi) {
-      setFoodList((prevData) => {
-        const updatedData = { ...prevData };
-        const selectedDidiData = updatedData[selectedDidi]?.items;
-
-        if (selectedDidiData && selectedDidiData[item]) {
-          delete selectedDidiData[item];
-          if (Object.keys(selectedDidiData).length === 0) {
-            delete updatedData[selectedDidi];
-          }
-        }
-        return updatedData;
-      });
-
-      restoreFoodItem(item);
-      toast.success(`${item} removed.`);
-    } else {
-      toast.warning("Please select Didi");
+  const handleRemoveItem = (item, meal) => {
+    if (meal === "1") {
+      setBreakFast((prev) =>
+        prev.filter((food) => food.food_id !== item.food_id)
+      );
+    }
+    if (meal === "2") {
+      setLunch((prev) => prev.filter((food) => food.food_id !== item.food_id));
+    }
+    if (meal === "3") {
+      setDinner((prev) => prev.filter((food) => food.food_id !== item.food_id));
     }
   };
 
-  const handleConfirm = () => {
-    if (!weight) {
-      toast.warning("Please fill out the weight!");
+  const handleConfirm = (item) => {
+    if (!value) {
+      toast.warning("Please fill out the value!");
       return;
     }
 
-    setFoodList((prevData) => {
-      const updatedData = { ...prevData };
-      if (!updatedData[selectedDidi]) {
-        updatedData[selectedDidi] = { items: {} };
-      }
-      updatedData[selectedDidi].items[selectedItem] = { weight };
-      return updatedData;
-    });
+    const newItem = {
+      food_id: item.food_id,
+      food_name: item.food_name,
+      unit_name: item.unit_name,
+      quantity: value,
+    };
 
-    const foodItemToRemove = foodItem.find(
-      (item) => item.food_name === selectedItem
-    );
-    if (foodItemToRemove) {
-      setFoodItem((prev) =>
-        prev.filter(
-          (food) =>
-            food.food_id !== foodItemToRemove.food_id &&
-            food.food_name !== foodItemToRemove.food_name
-        )
-      );
-    }
-    setShowModal(false);
-    setWeight("");
-  };
-
-  const checkInternetConnection = async () => {
-    try {
-      const response = await fetch(
-        "https://api.allorigins.win/raw?url=https://www.google.com",
-        {
-          method: "HEAD",
-          cache: "no-cache",
+    const updateMealList = (mealListSetter) => {
+      mealListSetter((prev) => {
+        const existingIndex = prev.findIndex(
+          (food) => food.food_id === newItem.food_id
+        );
+        if (existingIndex !== -1) {
+          const updatedList = [...prev];
+          updatedList[existingIndex] = newItem;
+          return updatedList;
         }
-      );
-      return response.ok;
-    } catch (error) {
-      return false;
+        return [...prev, newItem];
+      });
+    };
+
+    if (mealType === "1") {
+      updateMealList(setBreakFast);
     }
+
+    if (mealType === "2") {
+      updateMealList(setLunch);
+    }
+
+    if (mealType === "3") {
+      updateMealList(setDinner);
+    }
+
+    setValue("");
+    setShowModal(false);
   };
 
-  const issueFood = async (payload) => {
-    const actualStatus = await checkInternetConnection();
-    if (actualStatus) {
-      axios
-        .post(
-          "https://didikadhababackend.indevconsultancy.in/dhaba/issue-food/",
-          payload
-        )
-        .then((res) => {
-          if (res.status === 201) {
-            toast.success(
-              `Issued ${payload.food_items.length} Items to ${selectedDidi}`
-            );
-            setFoodList({});
-            setSelectedDidi(null);
-            setSearchTerm("");
-          } else {
-            toast.error("Something went wrong!");
-          }
-        })
-        .catch((err) => {
-          console.log("Error in sending issue food:", err);
-        });
-    } else {
-      Swal.fire({
-        html: `<b>Check Internet connection!</b>`,
-        allowOutsideClick: false,
-        confirmButtonColor: "#A24C4A",
-      });
-    }
-  };
   const handleAddItem = (item) => {
     if (selectedDidi) {
-      setSelectedItem(item.food_name);
+      setSelectedItem(item);
       setShowModal(true);
     } else {
       toast.warning("Please select Didi");
-    }
-  };
-
-  const finalSubmit = async () => {
-    if (!selectedDidi) {
-      toast.warning("Please select a Didi!");
-      return;
-    }
-
-    const selectedDidiData = namesDidi.find(
-      (item) => item.didi_name_and_thela_code === selectedDidi
-    );
-
-    if (!selectedDidiData) {
-      toast.error("Invalid Didi selected!");
-      return;
-    }
-
-    const didiThelaId = selectedDidiData.didi_thela_id;
-    const items = foodList[selectedDidi]?.items || {};
-
-    if (Object.keys(items).length === 0) {
-      toast.warning("No items to submit!");
-      return;
-    }
-
-    const foodItems = Object.entries(items)
-      .map(([foodName, info]) => {
-        const newFoodData = foodData.find(
-          (item) => item.food_name.toLowerCase() === foodName.toLowerCase()
-        );
-        if (!newFoodData) {
-          toast.error(`Food item "${foodName}" is not valid!`);
-          return null;
-        }
-
-        if (!info?.weight || isNaN(info.weight) || info.weight <= 0) {
-          toast.warning(`Invalid weight for "${foodName}".`);
-          return null;
-        }
-
-        return {
-          food_id: newFoodData.food_id,
-          quantity: parseFloat(info.weight),
-        };
-      })
-      .filter(Boolean);
-
-    if (foodItems.length === 0) {
-      toast.warning("No valid food items to submit!");
-      return;
-    }
-
-    const payload = {
-      didi_thela_id: didiThelaId,
-      food_items: foodItems,
-    };
-
-    const actualStatus = await checkInternetConnection();
-    if (actualStatus) {
-      issueFood(payload);
-    } else {
-      Swal.fire({
-        html: `<b>Check Internet connection!</b>`,
-        allowOutsideClick: false,
-        confirmButtonColor: "#A24C4A",
-      });
     }
   };
 
@@ -241,25 +150,6 @@ const IssueFood = () => {
     setCurrentDate(formattedDate);
   }, []);
 
-  const getFoodItem = async () => {
-    try {
-      axios
-        .get("https://didikadhababackend.indevconsultancy.in/dhaba/foods/")
-        .then((res) => {
-          if (res.status === 200) {
-            setFoodData(res.data);
-          } else {
-            setFoodData([]);
-          }
-        })
-        .catch((e) => {
-          console.log("Error in food item:", e);
-        });
-    } catch (error) {
-      console.log("Error in getting food items:", error);
-    }
-  };
-
   const getDidiName = async () => {
     try {
       axios
@@ -280,108 +170,223 @@ const IssueFood = () => {
   };
 
   useEffect(() => {
-    getFoodItem();
     getDidiName();
   }, []);
 
+  const checkInternetConnection = async () => {
+    try {
+      const response = await fetch(
+        "https://api.allorigins.win/raw?url=https://www.google.com",
+        {
+          method: "HEAD",
+          cache: "no-cache",
+        }
+      );
+      return response.ok;
+    } catch (error) {
+      return false;
+    }
+  };
+  const checkConnectionStatus = async () => {
+    const actualStatus = await checkInternetConnection();
+    setStatus(actualStatus);
+  };
   useEffect(() => {
-    setFoodItem(foodData);
-  }, [foodData]);
+    checkConnectionStatus();
+  }, []);
+  useEffect(() => {
+    console.log(status);
+    if (status === false) {
+      Swal.fire({
+        html: `<b>Check Internet connection!</b>`,
+        allowOutsideClick: false,
+        confirmButtonColor: "#A24C4A",
+      });
+    }
+  }, [status]);
+
+  const MealSection = ({ title, items, handleRemoveItem, mealType }) => (
+    <>
+      {items && items.length > 0 ? (
+        <>
+          <h5 className="text-center mt-2 text-lg text-[#A24C4A] font-bold">
+            {title}:
+          </h5>
+          {items.map((item, index) => (
+            <div
+              key={index}
+              className="border py-1 px-1 rounded-lg flex justify-between items-center my-2"
+            >
+              <div className="flex flex-col">
+                <span className="text-2xl font-medium">{item.food_name}</span>
+                <span className="text-sm text-gray-600">
+                  {item.quantity} - {item.unit_name}
+                </span>
+              </div>
+              <button
+                onClick={() => handleRemoveItem(item, mealType)}
+                className="text-red-500 hover:text-red-700"
+              >
+                <FiX size={24} />
+              </button>
+            </div>
+          ))}
+        </>
+      ) : (
+        <div className="flex justify-center items-center text-gray-500 mt-4">
+          No {title.toLowerCase()} items selected
+        </div>
+      )}
+    </>
+  );
+
+  const handleSubmit = async () => {
+    if (!selectedDidi) {
+      toast.error("Please select didi");
+      return;
+    }
+    if (!mealType) {
+      toast.error("Please select category");
+      return;
+    }
+    console.log(breakfast.length);
+    if (breakfast.length === 0 && lunch.length === 0 && dinner.length === 0) {
+      toast.error("Please select any Food");
+      return;
+    }
+    const payload = {
+      didi_name_and_thela_code: selectedDidi,
+      food_items: [
+        { 1: { ...breakfast } },
+        { 2: { ...lunch } },
+        { 3: { ...dinner } },
+      ],
+    };
+    console.log(payload);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center">
       <div className="container py-4">
-        <h3 className="text-center mb-4">Issue Food</h3>
-        <h4 className="text-xl font-semibold text-gray-800">Select Didi</h4>
+        <div>
+          <h3 className="text-center mb-4">Issue Food</h3>
+          <h4 className="text-xl font-semibold text-gray-800">Select Didi</h4>
 
-        <div ref={dropdownRef} className="relative">
-          <input
-            type="text"
-            placeholder="Search Name..."
-            className="cursor-pointer w-full p-2 border-b border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setIsDropdownOpen(true);
-            }}
-            onClick={() => setIsDropdownOpen((x) => !x)}
-          />
-          {isDropdownOpen && (
-            <ul className="absolute z-20 bg-white border border-gray-300 shadow-lg rounded-lg mt-2 max-h-40 w-full overflow-y-auto">
-              {filteredNames.length > 0 ? (
-                filteredNames.map((name, index) => (
-                  <li
-                    key={index}
-                    className="p-2 hover:bg-blue-100 cursor-pointer"
-                    onClick={() => handleSelectDidi(name)}
-                  >
-                    {name.didi_name_and_thela_code}
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search Name..."
+              className="cursor-pointer w-full p-2 border-b border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setIsDropdownOpen(true);
+              }}
+              onClick={() => setIsDropdownOpen((x) => !x)}
+            />
+            {isDropdownOpen && (
+              <ul className="absolute z-20 bg-white border border-gray-300 shadow-lg rounded-lg mt-2 max-h-40 w-full overflow-y-auto">
+                {filteredNames.length > 0 ? (
+                  filteredNames.map((name, index) => (
+                    <li
+                      key={index}
+                      className="p-2 hover:bg-blue-100 cursor-pointer"
+                      onClick={() => handleSelectDidi(name)}
+                    >
+                      {name.didi_name_and_thela_code}
+                    </li>
+                  ))
+                ) : (
+                  <li className="p-2 text-gray-500 text-center">
+                    No didi found
                   </li>
-                ))
-              ) : (
-                <li className="p-2 text-gray-500 text-center">No didi found</li>
-              )}
-            </ul>
-          )}
+                )}
+              </ul>
+            )}
+          </div>
+
+          <div className="mb-3">
+            <p className="mt-2 text-lg text-[#A24C4A] font-bold">
+              {currentDate}
+            </p>
+          </div>
         </div>
-        <div className="mb-3">
-          <p className="mt-2 text-lg text-[#A24C4A] font-bold">{currentDate}</p>
+
+        <div className="mb-6">
+          <h4 className="text-xl font-semibold text-gray-800">
+            Select Category
+          </h4>
+          <div className="relative">
+            <select
+              id="meal"
+              name="meal"
+              value={mealType}
+              onChange={handleMealChange}
+              className="cursor-pointer w-full p-2 border-b border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200 bg-white text-gray-900 appearance-none"
+            >
+              <option
+                value=""
+                className="cursor-pointer w-full p-2 border-b border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
+                disabled
+              >
+                Select Meal
+              </option>
+              <option value="1">Breakfast</option>
+              <option value="2">Lunch</option>
+              <option value="3">Dinner</option>
+            </select>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none z-20"></div>
+          </div>
         </div>
 
         <div className="flex justify-center">
           {selectedDidi && (
             <div className="mt-3 bg-white shadow rounded-lg p-2 w-full max-w-md">
-              <h3 className="text-xl font-semibold text-gray-800 mb-1">
-                Add Items for {selectedDidi}
+              <h3 className="text-xl flex items-center justify-between font-semibold text-gray-800 mb-1">
+                <span>Add Items for {selectedDidi}</span>
+                <button
+                  className="text-red-500 hover:text-red-700"
+                  onClick={() => {
+                    setDinner([]);
+                    setBreakFast([]);
+                    setLunch([]);
+                  }}
+                >
+                  <FiX size={30} />
+                </button>
               </h3>
-              {foodList[selectedDidi]?.items &&
-              Object.entries(foodList[selectedDidi]).length > 0 ? (
-                <div className="border py-2 px-1 rounded-lg">
-                  {Object.entries(foodList[selectedDidi].items).map(
-                    ([item, info]) => (
-                      <div
-                        key={item}
-                        className="text-gray-700 flex justify-between items-center border-b-2 mb-2"
-                      >
-                        <span style={{ width: "230px" }}>{item}</span>
-                        <span
-                          style={{ width: "100px" }}
-                          className="flex justify-between items-center space-x-2"
-                        >
-                          <span>{info.weight} kg</span>
-                          <button
-                            className="text-red-500 hover:text-red-700 p-0 m-0"
-                            onClick={() => handleDeleteItem(item)}
-                          >
-                            <FiX size={24} />
-                          </button>
-                        </span>
-                      </div>
-                    )
-                  )}
+
+              <div>
+                {" "}
+                <div>
+                  <MealSection
+                    title="Breakfast Items"
+                    items={breakfast}
+                    handleRemoveItem={handleRemoveItem}
+                    mealType="1"
+                  />
+                  <MealSection
+                    title="Lunch Items"
+                    items={lunch}
+                    handleRemoveItem={handleRemoveItem}
+                    mealType="2"
+                  />
+                  <MealSection
+                    title="Dinner Items"
+                    items={dinner}
+                    handleRemoveItem={handleRemoveItem}
+                    mealType="3"
+                  />
                 </div>
-              ) : (
-                <>
-                  <div className="flex justify-center">No items selected</div>
-                </>
-              )}
-              {Object.keys(foodList[selectedDidi]?.items || {}).length > 0 && (
-                <div className="flex justify-end">
-                  <button
-                    className="mt-2 border-[#A24C4A] text-[#A24C4A] rounded border-1 px-4 py-1 mt-4 rounded-lg"
-                    onClick={finalSubmit}
-                  >
-                    Submit
-                  </button>
-                </div>
-              )}
+              </div>
             </div>
           )}
         </div>
+
         <div className="flex justify-center items-center">
           <div className="w-full max-w-4xl px-2 mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {foodItem.length > 0 &&
-              foodItem.map((item) => (
+            {currentFoodData.length > 0 &&
+              currentFoodData.map((item) => (
                 <div
                   key={item.food_id}
                   className="flex justify-between items-center p-2 bg-gray-100 rounded hover:bg-gray-200"
@@ -400,17 +405,30 @@ const IssueFood = () => {
           </div>
         </div>
 
+        <div className="flex justify-between place-self-center">
+          <button
+            className={`p-2 rounded-lg ${
+              isLoading ? "bg-gray-300" : "bg-[#A24C4A] text-white"
+            }`}
+            onClick={handleSubmit}
+            disabled={isLoading}
+          >
+            {isLoading ? "Submitting..." : "Submit"}
+          </button>
+        </div>
+
         {showModal && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-white w-full max-w-md p-6 rounded-lg shadow-lg">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Add Weight for {selectedItem}
+                Add Weight for {selectedItem.food_name} in{" "}
+                {selectedItem.unit_name}
               </h3>
               <input
                 type="number"
-                placeholder="Enter Weight (kg)"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
+                placeholder={`Enter ${selectedItem.unit_name}`}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
               />
               <div className="flex justify-end space-x-4">
@@ -423,7 +441,7 @@ const IssueFood = () => {
 
                 <button
                   className="px-4 py-2 rounded-lg bg-btn-primary hover:bg-btn-hoverPrimary text-white"
-                  onClick={handleConfirm}
+                  onClick={() => handleConfirm(selectedItem)}
                 >
                   Confirm
                 </button>
@@ -432,6 +450,7 @@ const IssueFood = () => {
           </div>
         )}
       </div>
+
       <ToastContainer />
     </div>
   );

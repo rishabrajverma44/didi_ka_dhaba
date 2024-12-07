@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FaCamera, FaToggleOn } from "react-icons/fa";
+import { FaCamera } from "react-icons/fa";
 import { FiX, FiRefreshCcw } from "react-icons/fi";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -13,7 +13,6 @@ const ReceivedFood = () => {
   const [searchTermDidi, setSearchTermDidi] = useState("");
   const [selectedDidi, setSelectedDidi] = useState(null);
   const [isDropdownOpenDidi, setIsDropdownOpenDidi] = useState(false);
-  const [selectedThela, setSelectedThela] = useState("GR23");
   const [validationErrors, setValidationErrors] = useState({});
   const dropdownRefDidi = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -248,10 +247,8 @@ const ReceivedFood = () => {
     }
 
     const did_id = selectedDidiData.didi_id;
-    const thela_id = selectedThela;
     const payload = {
       didi_id: did_id,
-      thela_id: thela_id,
       food_data: foodData.map(
         ({ food_id, issue_food_id, quantity, received_quantity, image }) => ({
           food_id,
@@ -331,13 +328,6 @@ const ReceivedFood = () => {
             </ul>
           )}
         </div>
-
-        <h4 className="text-xl font-semibold text-gray-800 mt-3">
-          Stall Name :{" "}
-          <span className=" border-b border-gray-200 rounded-lg  bg-white px-2">
-            {selectedThela}
-          </span>
-        </h4>
 
         <div className="mb-3">
           <p className="mt-2 text-lg text-[#A24C4A] font-bold">{currentDate}</p>
