@@ -256,11 +256,7 @@ const IssueFood = () => {
     }
     const payload = {
       didi_name_and_thela_code: selectedDidi,
-      food_items: [
-        { 1: { ...breakfast } },
-        { 2: { ...lunch } },
-        { 3: { ...dinner } },
-      ],
+      food_items: [{ ...breakfast }, { ...lunch }, { ...dinner }],
     };
     console.log(payload);
   };
@@ -405,7 +401,7 @@ const IssueFood = () => {
           </div>
         </div>
 
-        <div className="flex justify-between place-self-center">
+        <div className="flex justify-between place-self-center my-4">
           <button
             className={`p-2 rounded-lg ${
               isLoading ? "bg-gray-300" : "bg-[#A24C4A] text-white"
