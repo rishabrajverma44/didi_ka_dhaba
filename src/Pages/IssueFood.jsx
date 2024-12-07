@@ -14,7 +14,7 @@ const IssueFood = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState("");
   const [weight, setWeight] = useState("");
-  const [userWiseData, setUserWiseData] = useState({});
+  const [foodList, setFoodList] = useState({});
   const [currentDate, setCurrentDate] = useState("");
 
   const dropdownRef = useRef(null);
@@ -35,7 +35,7 @@ const IssueFood = () => {
       if (!itemExists) {
         const restoredItem = {
           food_name: itemName,
-          food_id: Object.keys(userWiseData[selectedDidi]?.items || {}).find(
+          food_id: Object.keys(foodList[selectedDidi]?.items || {}).find(
             (key) => key === itemName
           ),
         };
@@ -47,7 +47,7 @@ const IssueFood = () => {
 
   const handleDeleteItem = (item) => {
     if (selectedDidi) {
-      setUserWiseData((prevData) => {
+      setFoodList((prevData) => {
         const updatedData = { ...prevData };
         const selectedDidiData = updatedData[selectedDidi]?.items;
 
@@ -73,7 +73,7 @@ const IssueFood = () => {
       return;
     }
 
-    setUserWiseData((prevData) => {
+    setFoodList((prevData) => {
       const updatedData = { ...prevData };
       if (!updatedData[selectedDidi]) {
         updatedData[selectedDidi] = { items: {} };
@@ -126,7 +126,7 @@ const IssueFood = () => {
             toast.success(
               `Issued ${payload.food_items.length} Items to ${selectedDidi}`
             );
-            setUserWiseData({});
+            setFoodList({});
             setSelectedDidi(null);
             setSearchTerm("");
           } else {
@@ -169,7 +169,7 @@ const IssueFood = () => {
     }
 
     const didiThelaId = selectedDidiData.didi_thela_id;
-    const items = userWiseData[selectedDidi]?.items || {};
+    const items = foodList[selectedDidi]?.items || {};
 
     if (Object.keys(items).length === 0) {
       toast.warning("No items to submit!");
@@ -334,10 +334,10 @@ const IssueFood = () => {
               <h3 className="text-xl font-semibold text-gray-800 mb-1">
                 Add Items for {selectedDidi}
               </h3>
-              {userWiseData[selectedDidi]?.items &&
-              Object.entries(userWiseData[selectedDidi]).length > 0 ? (
+              {foodList[selectedDidi]?.items &&
+              Object.entries(foodList[selectedDidi]).length > 0 ? (
                 <div className="border py-2 px-1 rounded-lg">
-                  {Object.entries(userWiseData[selectedDidi].items).map(
+                  {Object.entries(foodList[selectedDidi].items).map(
                     ([item, info]) => (
                       <div
                         key={item}
@@ -365,8 +365,7 @@ const IssueFood = () => {
                   <div className="flex justify-center">No items selected</div>
                 </>
               )}
-              {Object.keys(userWiseData[selectedDidi]?.items || {}).length >
-                0 && (
+              {Object.keys(foodList[selectedDidi]?.items || {}).length > 0 && (
                 <div className="flex justify-end">
                   <button
                     className="mt-2 border-[#A24C4A] text-[#A24C4A] rounded border-1 px-4 py-1 mt-4 rounded-lg"
