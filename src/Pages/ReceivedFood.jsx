@@ -21,30 +21,114 @@ const ReceivedFood = () => {
   const [lunch, setLunch] = useState([]);
   const [dinner, setDinner] = useState([]);
   const [finalData, setFinalData] = useState([]);
+  const [capturedImages, setCapturedImages] = useState({
+    Breakfast: {},
+    Lunch: {},
+    Dinner: {},
+  });
+  const [showWebcamIndex, setShowWebcamIndex] = useState(null);
+  const webcamRef = useRef(null);
 
-  const [isUsingFrontCamera, setIsUsingFrontCamera] = useState(true);
-
-  const webcamRefs = useRef([]);
-
-  const toggleCameraFacingMode = () => {
-    setIsUsingFrontCamera((prev) => !prev);
+  const captureImage = (mealType, itemIndex) => {
+    const image = webcamRef.current.getScreenshot();
+    setCapturedImages((prevImages) => ({
+      ...prevImages,
+      [mealType]: {
+        ...prevImages[mealType],
+        [itemIndex]: image,
+      },
+    }));
+    setShowWebcamIndex(null);
   };
 
-  const toggleCamera = (index) => {
-    // setIsCameraOn((prev) =>
-    //   prev.map((state, idx) => (idx === index ? !state : state))
-    // );
+  const handleRemoveImage = (mealType, itemIndex) => {
+    setCapturedImages((prevImages) => ({
+      ...prevImages,
+      [mealType]: {
+        ...prevImages[mealType],
+        [itemIndex]: null,
+      },
+    }));
   };
 
-  const handleCapture = (index) => {
-    if (webcamRefs.current[index]) {
-      const imageSrc = webcamRefs.current[index].getScreenshot();
+  const handleReceivedChange = (mealType, itemIndex, value, image = null) => {
+    const parsedValue = value === "" ? 0 : parseFloat(value);
+    let errorMessage = "";
 
-      toggleCamera(index);
+    const currentItem =
+      mealType === "Breakfast"
+        ? breakfast[itemIndex]
+        : mealType === "Lunch"
+        ? lunch[itemIndex]
+        : dinner[itemIndex];
+
+    if (isNaN(parsedValue)) {
+      errorMessage = "Not valid";
+    } else if (parsedValue < 0) {
+      errorMessage = "Received quantity cannot be negative";
+    } else if (parsedValue > currentItem.quantity) {
+      errorMessage = `Received quantity cannot exceed ${currentItem.quantity}`;
+    }
+
+    if (!errorMessage) {
+      const updatedItem = { ...currentItem, received_quantity: parsedValue };
+
+      if (image) {
+        setCapturedImages((prevImages) => ({
+          ...prevImages,
+          [mealType]: {
+            ...prevImages[mealType],
+            [itemIndex]: image,
+          },
+        }));
+      }
+
+      if (mealType === "Breakfast") {
+        setBreakfast((prevBreakfast) =>
+          prevBreakfast.map((item, index) =>
+            index === itemIndex ? updatedItem : item
+          )
+        );
+      } else if (mealType === "Lunch") {
+        setLunch((prevLunch) =>
+          prevLunch.map((item, index) =>
+            index === itemIndex ? updatedItem : item
+          )
+        );
+      } else if (mealType === "Dinner") {
+        setDinner((prevDinner) =>
+          prevDinner.map((item, index) =>
+            index === itemIndex ? updatedItem : item
+          )
+        );
+      }
     }
   };
 
-  const handleRemoveImage = (index) => {};
+  useEffect(() => {
+    const updatedData = [
+      ...breakfast.map((item, index) => ({
+        received_quantity: item.received_quantity,
+        food_id: item.food_id,
+        meal_type: "Breakfast",
+        image: capturedImages.Breakfast[index] || null,
+      })),
+      ...lunch.map((item, index) => ({
+        received_quantity: item.received_quantity,
+        food_id: item.food_id,
+        meal_type: "Lunch",
+        image: capturedImages.Lunch[index] || null,
+      })),
+      ...dinner.map((item, index) => ({
+        received_quantity: item.received_quantity,
+        food_id: item.food_id,
+        meal_type: "Dinner",
+        image: capturedImages.Dinner[index] || null,
+      })),
+    ];
+
+    setFinalData(updatedData);
+  }, [breakfast, lunch, dinner, capturedImages]);
 
   const filteredDidiNames = namesDidi.filter((item) => {
     const search = String(searchTermDidi || "").toLowerCase();
@@ -172,80 +256,6 @@ const ReceivedFood = () => {
       setIsLoading(false);
     }
   };
-  const handleReceivedChange = (mealType, itemIndex, value) => {
-    const parsedValue = value === "" ? 0 : parseFloat(value);
-    let errorMessage = "";
-
-    const currentItem =
-      mealType === "Breakfast"
-        ? breakfast[itemIndex]
-        : mealType === "Lunch"
-        ? lunch[itemIndex]
-        : dinner[itemIndex];
-
-    if (isNaN(parsedValue)) {
-      errorMessage = "Not valid";
-    } else if (parsedValue < 0) {
-      errorMessage = "Received quantity cannot be negative";
-    } else if (parsedValue > currentItem.quantity) {
-      errorMessage = `Received quantity cannot exceed ${currentItem.quantity}`;
-    }
-
-    setValidationErrors((prevErrors) => ({
-      ...prevErrors,
-      [`receivedQuantity${mealType}-${itemIndex}`]: errorMessage,
-    }));
-
-    if (!errorMessage) {
-      if (mealType === "Breakfast") {
-        setBreakfast((prevBreakfast) =>
-          prevBreakfast.map((item, index) =>
-            index === itemIndex
-              ? { ...item, received_quantity: parsedValue }
-              : item
-          )
-        );
-      } else if (mealType === "Lunch") {
-        setLunch((prevLunch) =>
-          prevLunch.map((item, index) =>
-            index === itemIndex
-              ? { ...item, received_quantity: parsedValue }
-              : item
-          )
-        );
-      } else if (mealType === "Dinner") {
-        setDinner((prevDinner) =>
-          prevDinner.map((item, index) =>
-            index === itemIndex
-              ? { ...item, received_quantity: parsedValue }
-              : item
-          )
-        );
-      }
-    }
-  };
-
-  useEffect(() => {
-    const updatedData = [
-      ...breakfast.map((item) => ({
-        received_quantity: item.received_quantity,
-        food_id: item.food_id,
-        meal_type: "Breakfast",
-      })),
-      ...lunch.map((item) => ({
-        received_quantity: item.received_quantity,
-        food_id: item.food_id,
-        meal_type: "Lunch",
-      })),
-      ...dinner.map((item) => ({
-        received_quantity: item.received_quantity,
-        food_id: item.food_id,
-        meal_type: "Dinner",
-      })),
-    ];
-
-    setFinalData(updatedData);
-  }, [breakfast, lunch, dinner]);
 
   const validateFields = () => {
     let isValid = true;
@@ -324,10 +334,10 @@ const ReceivedFood = () => {
   }, [status]);
 
   const handleSubmit = async () => {
-    if (!validateFields()) {
-      toast.error("Validate all fields");
-      return;
-    }
+    // if (!validateFields()) {
+    //   toast.error("Validate all fields");
+    //   return;
+    // }
     console.log(finalData);
     // const selectedDidiData = namesDidi.find(
     //   (item) => item.didi_id === selectedDidi
@@ -499,30 +509,55 @@ const ReceivedFood = () => {
                                 </div>
                               )}
                             </td>
-                            <td className="border border-gray-300 px-4 py-2 text-center">
-                              {/* Webcam or Camera Handling */}
+                            <td className="border p-2 text-center">
+                              {capturedImages.Breakfast[itemIndex] ||
+                              showWebcamIndex === itemIndex ? (
+                                <button
+                                  className="btn btn-success"
+                                  onClick={() =>
+                                    captureImage("Breakfast", itemIndex)
+                                  }
+                                >
+                                  Capture Image
+                                </button>
+                              ) : (
+                                <button
+                                  className="btn btn-primary"
+                                  onClick={() => setShowWebcamIndex(itemIndex)}
+                                >
+                                  Capture Image
+                                </button>
+                              )}
                             </td>
-                            <td className="border border-gray-300 px-4 py-2 text-center">
-                              {item.image ? (
+
+                            <td className="border p-2 text-center">
+                              {capturedImages.Breakfast[itemIndex] ? (
                                 <div className="relative">
                                   <img
-                                    src={item.image}
+                                    src={capturedImages.Breakfast[itemIndex]}
                                     alt="Captured"
                                     className="w-32 h-32 rounded shadow-lg"
                                   />
                                   <button
                                     className="absolute top-0 right-0 p-1 text-red-500 hover:text-red-700"
                                     onClick={() =>
-                                      handleRemoveImage(uniqueIndex)
+                                      handleRemoveImage("Breakfast", itemIndex)
                                     }
                                   >
                                     <FiX size={24} />
                                   </button>
                                 </div>
+                              ) : showWebcamIndex === itemIndex ? (
+                                <div>
+                                  <Webcam
+                                    audio={false}
+                                    ref={webcamRef}
+                                    screenshotFormat="image/jpeg"
+                                    width="100%"
+                                  />
+                                </div>
                               ) : (
-                                <span className="text-gray-500 italic">
-                                  No photo captured
-                                </span>
+                                <span>No image captured</span>
                               )}
                             </td>
                           </tr>
@@ -609,30 +644,55 @@ const ReceivedFood = () => {
                                 </div>
                               )}
                             </td>
-                            <td className="border border-gray-300 px-4 py-2 text-center">
-                              {/* Webcam or Camera Handling */}
+                            <td className="border p-2 text-center">
+                              {capturedImages.Lunch[itemIndex] ||
+                              showWebcamIndex === itemIndex ? (
+                                <button
+                                  className="btn btn-success"
+                                  onClick={() =>
+                                    captureImage("Lunch", itemIndex)
+                                  }
+                                >
+                                  Capture Image
+                                </button>
+                              ) : (
+                                <button
+                                  className="btn btn-primary"
+                                  onClick={() => setShowWebcamIndex(itemIndex)}
+                                >
+                                  Capture Image
+                                </button>
+                              )}
                             </td>
-                            <td className="border border-gray-300 px-4 py-2 text-center">
-                              {item.image ? (
+
+                            <td className="border p-2 text-center">
+                              {capturedImages.Lunch[itemIndex] ? (
                                 <div className="relative">
                                   <img
-                                    src={item.image}
+                                    src={capturedImages.Lunch[itemIndex]}
                                     alt="Captured"
                                     className="w-32 h-32 rounded shadow-lg"
                                   />
                                   <button
                                     className="absolute top-0 right-0 p-1 text-red-500 hover:text-red-700"
                                     onClick={() =>
-                                      handleRemoveImage(uniqueIndex)
+                                      handleRemoveImage("Lunch", itemIndex)
                                     }
                                   >
                                     <FiX size={24} />
                                   </button>
                                 </div>
+                              ) : showWebcamIndex === itemIndex ? (
+                                <div>
+                                  <Webcam
+                                    audio={false}
+                                    ref={webcamRef}
+                                    screenshotFormat="image/jpeg"
+                                    width="100%"
+                                  />
+                                </div>
                               ) : (
-                                <span className="text-gray-500 italic">
-                                  No photo captured
-                                </span>
+                                <span>No image captured</span>
                               )}
                             </td>
                           </tr>
@@ -719,30 +779,55 @@ const ReceivedFood = () => {
                                 </div>
                               )}
                             </td>
-                            <td className="border border-gray-300 px-4 py-2 text-center">
-                              {/* Webcam or Camera Handling */}
+                            <td className="border p-2 text-center">
+                              {capturedImages.Dinner[itemIndex] ||
+                              showWebcamIndex === itemIndex ? (
+                                <button
+                                  className="btn btn-success"
+                                  onClick={() =>
+                                    captureImage("Dinner", itemIndex)
+                                  }
+                                >
+                                  Capture Image
+                                </button>
+                              ) : (
+                                <button
+                                  className="btn btn-primary"
+                                  onClick={() => setShowWebcamIndex(itemIndex)}
+                                >
+                                  Capture Image
+                                </button>
+                              )}
                             </td>
-                            <td className="border border-gray-300 px-4 py-2 text-center">
-                              {item.image ? (
+
+                            <td className="border p-2 text-center">
+                              {capturedImages.Dinner[itemIndex] ? (
                                 <div className="relative">
                                   <img
-                                    src={item.image}
+                                    src={capturedImages.Dinner[itemIndex]}
                                     alt="Captured"
                                     className="w-32 h-32 rounded shadow-lg"
                                   />
                                   <button
                                     className="absolute top-0 right-0 p-1 text-red-500 hover:text-red-700"
                                     onClick={() =>
-                                      handleRemoveImage(uniqueIndex)
+                                      handleRemoveImage("Dinner", itemIndex)
                                     }
                                   >
                                     <FiX size={24} />
                                   </button>
                                 </div>
+                              ) : showWebcamIndex === itemIndex ? (
+                                <div>
+                                  <Webcam
+                                    audio={false}
+                                    ref={webcamRef}
+                                    screenshotFormat="image/jpeg"
+                                    width="100%"
+                                  />
+                                </div>
                               ) : (
-                                <span className="text-gray-500 italic">
-                                  No photo captured
-                                </span>
+                                <span>No image captured</span>
                               )}
                             </td>
                           </tr>
