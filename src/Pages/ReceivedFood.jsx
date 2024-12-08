@@ -17,14 +17,10 @@ const ReceivedFood = () => {
   const dropdownRefDidi = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState(null);
-  const [foodData, setFoodData] = useState([]);
-
-  const [isCameraOn, setIsCameraOn] = useState(
-    Array(foodData.length).fill(false)
-  );
-  useEffect(() => {
-    setIsCameraOn(Array(foodData.length).fill(false));
-  }, [foodData]);
+  const [breakfast, setBreakfast] = useState([]);
+  const [lunch, setLunch] = useState([]);
+  const [dinner, setDinner] = useState([]);
+  const [finalData, setFinalData] = useState([]);
 
   const [isUsingFrontCamera, setIsUsingFrontCamera] = useState(true);
 
@@ -34,34 +30,21 @@ const ReceivedFood = () => {
     setIsUsingFrontCamera((prev) => !prev);
   };
 
-  const videoConstraints = useMemo(
-    () => ({
-      facingMode: isUsingFrontCamera ? "user" : "environment",
-    }),
-    [isUsingFrontCamera]
-  );
-
   const toggleCamera = (index) => {
-    setIsCameraOn((prev) =>
-      prev.map((state, idx) => (idx === index ? !state : state))
-    );
+    // setIsCameraOn((prev) =>
+    //   prev.map((state, idx) => (idx === index ? !state : state))
+    // );
   };
 
   const handleCapture = (index) => {
     if (webcamRefs.current[index]) {
       const imageSrc = webcamRefs.current[index].getScreenshot();
-      const updatedFoodData = [...foodData];
-      updatedFoodData[index].image = imageSrc;
-      setFoodData(updatedFoodData);
+
       toggleCamera(index);
     }
   };
 
-  const handleRemoveImage = (index) => {
-    const updatedFoodData = [...foodData];
-    updatedFoodData[index].image = null;
-    setFoodData(updatedFoodData);
-  };
+  const handleRemoveImage = (index) => {};
 
   const filteredDidiNames = namesDidi.filter((item) => {
     const search = String(searchTermDidi || "").toLowerCase();
@@ -115,19 +98,43 @@ const ReceivedFood = () => {
       didi_id: selectedDidi,
       issue_date: date,
     };
+
+    const meals = ["Break-fast", "Lunch", "Dinner"];
+
     try {
-      const res = await axios.post(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/filter-issue-food/",
-        payload
+      for (const meal of meals) {
+        const res = await axios.post(
+          "https://didikadhababackend.indevconsultancy.in/dhaba/filter-issue-food/",
+          { ...payload, meal }
+        );
+
+        if (res.status === 200 && res.data.length > 0) {
+          const mealData = res.data.map((item) => ({
+            ...item,
+            received_quantity: "",
+          }));
+
+          if (meal === "Break-fast") {
+            setBreakfast(mealData);
+          }
+          if (meal === "Lunch") {
+            setLunch(mealData);
+          }
+          if (meal === "Dinner") {
+            setDinner(mealData);
+          }
+        }
+      }
+
+      toast.info(
+        `Successfully fetched all meals for ${selectedDidi} on ${date}`
       );
-      if (res.status === 200) {
-        setFoodData(res.data);
-      }
     } catch (e) {
-      if (e.status === 404) {
-        toast.warn(`Food not assigned to ${searchTermDidi} on ${currentDate}`);
-      }
-      console.log("Error in food:", e);
+      setBreakfast([]);
+      setDinner([]);
+      setLunch([]);
+      console.error("Error fetching assigned foods:", e);
+      toast.error("An error occurred while fetching assigned foods.");
     }
   };
 
@@ -141,10 +148,8 @@ const ReceivedFood = () => {
   };
 
   useEffect(() => {
-    const date = getDate();
     if (selectedDidi != null && getDate) {
-      setFoodData([]);
-      getAssignedFoods(selectedDidi, date);
+      getAssignedFoods(selectedDidi, "2024-12-07");
     }
   }, [selectedDidi]);
 
@@ -160,7 +165,6 @@ const ReceivedFood = () => {
         toast.success(`Food Received by ${searchTermDidi}`);
         setIsLoading(false);
         setSearchTermDidi("");
-        setFoodData([]);
       }
     } catch (e) {
       console.log("Error in sending received food:", e);
@@ -168,36 +172,124 @@ const ReceivedFood = () => {
       setIsLoading(false);
     }
   };
+  const handleReceivedChange = (mealType, itemIndex, value) => {
+    const parsedValue = value === "" ? 0 : parseFloat(value);
+    let errorMessage = "";
+
+    const currentItem =
+      mealType === "Breakfast"
+        ? breakfast[itemIndex]
+        : mealType === "Lunch"
+        ? lunch[itemIndex]
+        : dinner[itemIndex];
+
+    if (isNaN(parsedValue)) {
+      errorMessage = "Not valid";
+    } else if (parsedValue < 0) {
+      errorMessage = "Received quantity cannot be negative";
+    } else if (parsedValue > currentItem.quantity) {
+      errorMessage = `Received quantity cannot exceed ${currentItem.quantity}`;
+    }
+
+    setValidationErrors((prevErrors) => ({
+      ...prevErrors,
+      [`receivedQuantity${mealType}-${itemIndex}`]: errorMessage,
+    }));
+
+    if (!errorMessage) {
+      if (mealType === "Breakfast") {
+        setBreakfast((prevBreakfast) =>
+          prevBreakfast.map((item, index) =>
+            index === itemIndex
+              ? { ...item, received_quantity: parsedValue }
+              : item
+          )
+        );
+      } else if (mealType === "Lunch") {
+        setLunch((prevLunch) =>
+          prevLunch.map((item, index) =>
+            index === itemIndex
+              ? { ...item, received_quantity: parsedValue }
+              : item
+          )
+        );
+      } else if (mealType === "Dinner") {
+        setDinner((prevDinner) =>
+          prevDinner.map((item, index) =>
+            index === itemIndex
+              ? { ...item, received_quantity: parsedValue }
+              : item
+          )
+        );
+      }
+    }
+  };
+
+  useEffect(() => {
+    const updatedData = [
+      ...breakfast.map((item) => ({
+        received_quantity: item.received_quantity,
+        food_id: item.food_id,
+        meal_type: "Breakfast",
+      })),
+      ...lunch.map((item) => ({
+        received_quantity: item.received_quantity,
+        food_id: item.food_id,
+        meal_type: "Lunch",
+      })),
+      ...dinner.map((item) => ({
+        received_quantity: item.received_quantity,
+        food_id: item.food_id,
+        meal_type: "Dinner",
+      })),
+    ];
+
+    setFinalData(updatedData);
+  }, [breakfast, lunch, dinner]);
 
   const validateFields = () => {
     let isValid = true;
     const errors = {};
-    foodData.forEach((foodItem, index) => {
-      if (!foodItem.received_quantity) {
-        errors[`receivedQuantity${index}`] = "required";
+
+    breakfast.forEach((item, index) => {
+      if (isNaN(item.received_quantity) || item.received_quantity < 0) {
         isValid = false;
-      } else {
-        delete errors[`receivedQuantity${index}`];
+        errors[`receivedQuantityBreakfast-${index}`] =
+          "Received quantity must be a positive number.";
+      }
+      if (item.received_quantity === "") {
+        isValid = false;
+        errors[`receivedQuantityBreakfast-${index}`] = "Required.";
+      }
+    });
+
+    lunch.forEach((item, index) => {
+      if (isNaN(item.received_quantity) || item.received_quantity < 0) {
+        isValid = false;
+        errors[`receivedQuantityLunch-${index}`] =
+          "Received quantity must be a positive number.";
+      }
+      if (item.received_quantity === "") {
+        isValid = false;
+        errors[`receivedQuantityLunch-${index}`] = "Required.";
+      }
+    });
+
+    dinner.forEach((item, index) => {
+      if (isNaN(item.received_quantity) || item.received_quantity < 0) {
+        isValid = false;
+        errors[`receivedQuantityDinner-${index}`] =
+          "Received quantity must be a positive number.";
+      }
+      if (item.received_quantity === "") {
+        isValid = false;
+        errors[`receivedQuantityDinner-${index}`] = "Required.";
       }
     });
 
     setValidationErrors(errors);
-    return isValid;
-  };
 
-  const handleReceivedChange = (index, value) => {
-    const updatedFoodData = [...foodData];
-    const numericValue = parseFloat(value);
-    if (isNaN(numericValue)) {
-      toast.error("Invalid quantity.");
-      updatedFoodData[index].received_quantity = "";
-    } else if (numericValue <= updatedFoodData[index].quantity) {
-      updatedFoodData[index].received_quantity = numericValue;
-    } else {
-      toast.error("Quantity cannot be greater than Assigned Food.");
-      updatedFoodData[index].received_quantity = "";
-    }
-    setFoodData(updatedFoodData);
+    return isValid;
   };
 
   const checkInternetConnection = async () => {
@@ -222,7 +314,6 @@ const ReceivedFood = () => {
     checkConnectionStatus();
   }, []);
   useEffect(() => {
-    console.log(status);
     if (status === false) {
       Swal.fire({
         html: `<b>Check Internet connection!</b>`,
@@ -237,47 +328,46 @@ const ReceivedFood = () => {
       toast.error("Validate all fields");
       return;
     }
+    console.log(finalData);
+    // const selectedDidiData = namesDidi.find(
+    //   (item) => item.didi_id === selectedDidi
+    // );
+    // if (!selectedDidi || !selectedDidiData) {
+    //   toast.error("Please select a valid Didi from the dropdown!");
+    //   return;
+    // }
 
-    const selectedDidiData = namesDidi.find(
-      (item) => item.didi_id === selectedDidi
-    );
-    if (!selectedDidi || !selectedDidiData) {
-      toast.error("Please select a valid Didi from the dropdown!");
-      return;
-    }
+    // const did_id = selectedDidiData.didi_id;
+    // const payload = {
+    //   didi_id: did_id,
+    //   food_data: foodData.map(
+    //     ({ food_id, issue_food_id, quantity, received_quantity, image }) => ({
+    //       food_id,
+    //       issue_food_id,
+    //       quantity,
+    //       received_quantity,
+    //       image: image || null,
+    //     })
+    //   ),
+    // };
 
-    const did_id = selectedDidiData.didi_id;
-    const payload = {
-      didi_id: did_id,
-      food_data: foodData.map(
-        ({ food_id, issue_food_id, quantity, received_quantity, image }) => ({
-          food_id,
-          issue_food_id,
-          quantity,
-          received_quantity,
-          image: image || null,
-        })
-      ),
-    };
-
-    console.log(payload);
-
-    const actualStatus = await checkInternetConnection();
-    if (actualStatus) {
-      setIsLoading(true);
-      try {
-        await sendRecivedFood(payload);
-      } catch (error) {
-        toast.error("Failed to submit food data!");
-        console.error("Error sending food data:", error);
-      }
-    } else {
-      Swal.fire({
-        html: `<b>Check Internet connection!</b>`,
-        allowOutsideClick: false,
-        confirmButtonColor: "#A24C4A",
-      });
-    }
+    // const actualStatus = await checkInternetConnection();
+    // if (actualStatus) {
+    //   setIsLoading(true);
+    //   try {
+    //     await sendRecivedFood(payload);
+    //   } catch (error) {
+    //     toast.error("Failed to submit food data!");
+    //     console.error("Error sending food data:", error);
+    //   }
+    // } else {
+    //   Swal.fire({
+    //     html: `<b>Check Internet connection!</b>`,
+    //     allowOutsideClick: false,
+    //     confirmButtonColor: "#A24C4A",
+    //   });
+    // }
+    // console.log(payload);
   };
 
   return (
@@ -333,107 +423,337 @@ const ReceivedFood = () => {
           <p className="mt-2 text-lg text-[#A24C4A] font-bold">{currentDate}</p>
         </div>
 
-        {foodData.length > 0 ? (
-          <div className="">
-            <div className="table-responsive mt-2">
-              <table className="table table-bordered">
-                <thead className="table-light">
-                  <tr>
-                    <th className="text-center">Item</th>
-                    <th className="text-center" style={{ minWidth: "100px" }}>
-                      Assigned Food (kg)
-                    </th>
-                    <th className="text-center" style={{ minWidth: "150px" }}>
-                      Received Food (kg)
-                    </th>
-                    <th className="text-center">Image</th>
-                    <th className="text-center" style={{ minWidth: "200px" }}>
-                      Uploaded Image
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {foodData.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.food_id}</td>
-                      <td>{item.quantity} kg</td>
-                      <td>
-                        <input
-                          type="text"
-                          value={foodData[index].received_quantity}
-                          onChange={(e) =>
-                            handleReceivedChange(index, e.target.value)
-                          }
-                          className={`form-control ${
-                            validationErrors[`receivedQuantity${index}`]
-                              ? "is-invalid"
-                              : ""
-                          }`}
-                        />
-                        {validationErrors[`receivedQuantity${index}`] && (
-                          <div className="invalid-feedback">
-                            {validationErrors[`receivedQuantity${index}`]}
-                          </div>
-                        )}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">
-                        {isCameraOn[index] ? (
-                          <div className="relative">
-                            <Webcam
-                              audio={false}
-                              ref={(el) => (webcamRefs.current[index] = el)}
-                              screenshotFormat="image/jpeg"
-                              className="rounded shadow-md"
-                              videoConstraints={videoConstraints}
-                              style={{ minWidth: "200px" }}
-                            />
-                            <div className="absolute bottom-3 flex space-x-8 z-10 w-100 items-center justify-center">
-                              <button onClick={() => handleCapture(index)}>
-                                <FaCamera color="#A24C4A" size={30} />
-                              </button>
-                              <button
-                                className="text-red-500 hover:text-red-700"
-                                onClick={() => toggleCamera(index)}
-                              >
-                                <FiX size={30} />
-                              </button>
-                              <button onClick={toggleCameraFacingMode}>
-                                <FiRefreshCcw color="#A24C4A" size={30} />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <button onClick={() => toggleCamera(index)}>
-                            <FaCamera color="#A24C4A" size={20} />
-                          </button>
-                        )}
-                      </td>
-                      <td className="border border-gray-300 px-4 py-2 text-center">
-                        {item.image ? (
-                          <div className="relative">
-                            <img
-                              src={item.image}
-                              alt="Captured"
-                              className="w-32 h-32 rounded shadow-lg"
-                            />
-                            <button
-                              className="absolute top-0 right-0 p-1 text-red-500 hover:text-red-700"
-                              onClick={() => handleRemoveImage(index)}
-                            >
-                              <FiX size={24} />
-                            </button>
-                          </div>
-                        ) : (
-                          <span className="text-gray-500 italic">
-                            No photo captured
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        {breakfast.length > 0 || lunch.length > 0 || dinner.length > 0 ? (
+          <div>
+            {breakfast.length > 0 && (
+              <div key="Break-fast" className="mb-8">
+                <h2 className="text-2xl text-[#A24C4A] font-bold my-4 text-center">
+                  Breakfast
+                </h2>
+                <div className="table-responsive mt-2">
+                  <table className="table table-bordered">
+                    <thead className="table-light">
+                      <tr>
+                        <th className="text-center">Item</th>
+                        <th
+                          className="text-center"
+                          style={{ minWidth: "100px" }}
+                        >
+                          Assigned Food (kg)
+                        </th>
+                        <th
+                          className="text-center"
+                          style={{ minWidth: "150px" }}
+                        >
+                          Received Food (kg)
+                        </th>
+                        <th className="text-center">Image</th>
+                        <th
+                          className="text-center"
+                          style={{ minWidth: "200px" }}
+                        >
+                          Uploaded Image
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {breakfast.map((item, itemIndex) => {
+                        const uniqueIndex = `Break-fast-${itemIndex}`;
+
+                        return (
+                          <tr key={uniqueIndex}>
+                            <td>{item.food_id}</td>
+                            <td>{item.quantity} kg</td>
+                            <td>
+                              <input
+                                type="number"
+                                value={
+                                  item.received_quantity === 0
+                                    ? "0"
+                                    : item.received_quantity || ""
+                                }
+                                onChange={(e) =>
+                                  handleReceivedChange(
+                                    "Breakfast",
+                                    itemIndex,
+                                    e.target.value
+                                  )
+                                }
+                                className={`form-control ${
+                                  validationErrors[
+                                    `receivedQuantityBreakfast-${itemIndex}`
+                                  ]
+                                    ? "is-invalid"
+                                    : ""
+                                }`}
+                              />
+                              {validationErrors[
+                                `receivedQuantityBreakfast-${itemIndex}`
+                              ] && (
+                                <div className="invalid-feedback">
+                                  {
+                                    validationErrors[
+                                      `receivedQuantityBreakfast-${itemIndex}`
+                                    ]
+                                  }
+                                </div>
+                              )}
+                            </td>
+                            <td className="border border-gray-300 px-4 py-2 text-center">
+                              {/* Webcam or Camera Handling */}
+                            </td>
+                            <td className="border border-gray-300 px-4 py-2 text-center">
+                              {item.image ? (
+                                <div className="relative">
+                                  <img
+                                    src={item.image}
+                                    alt="Captured"
+                                    className="w-32 h-32 rounded shadow-lg"
+                                  />
+                                  <button
+                                    className="absolute top-0 right-0 p-1 text-red-500 hover:text-red-700"
+                                    onClick={() =>
+                                      handleRemoveImage(uniqueIndex)
+                                    }
+                                  >
+                                    <FiX size={24} />
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="text-gray-500 italic">
+                                  No photo captured
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Lunch */}
+            {lunch.length > 0 && (
+              <div key="Lunch" className="mb-8">
+                <h2 className="text-2xl text-[#A24C4A] font-bold my-4 text-center">
+                  Lunch
+                </h2>
+                <div className="table-responsive mt-2">
+                  <table className="table table-bordered">
+                    <thead className="table-light">
+                      <tr>
+                        <th className="text-center">Item</th>
+                        <th
+                          className="text-center"
+                          style={{ minWidth: "100px" }}
+                        >
+                          Assigned Food (kg)
+                        </th>
+                        <th
+                          className="text-center"
+                          style={{ minWidth: "150px" }}
+                        >
+                          Received Food (kg)
+                        </th>
+                        <th className="text-center">Image</th>
+                        <th
+                          className="text-center"
+                          style={{ minWidth: "200px" }}
+                        >
+                          Uploaded Image
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {lunch.map((item, itemIndex) => {
+                        const uniqueIndex = `Lunch-${itemIndex}`;
+
+                        return (
+                          <tr key={uniqueIndex}>
+                            <td>{item.food_id}</td>
+                            <td>{item.quantity} kg</td>
+                            <td>
+                              <input
+                                type="number"
+                                value={
+                                  item.received_quantity === 0
+                                    ? "0"
+                                    : item.received_quantity || ""
+                                }
+                                onChange={(e) =>
+                                  handleReceivedChange(
+                                    "Lunch",
+                                    itemIndex,
+                                    e.target.value
+                                  )
+                                }
+                                className={`form-control ${
+                                  validationErrors[
+                                    `receivedQuantityLunch-${itemIndex}`
+                                  ]
+                                    ? "is-invalid"
+                                    : ""
+                                }`}
+                              />
+                              {validationErrors[
+                                `receivedQuantityLunch-${itemIndex}`
+                              ] && (
+                                <div className="invalid-feedback">
+                                  {
+                                    validationErrors[
+                                      `receivedQuantityLunch-${itemIndex}`
+                                    ]
+                                  }
+                                </div>
+                              )}
+                            </td>
+                            <td className="border border-gray-300 px-4 py-2 text-center">
+                              {/* Webcam or Camera Handling */}
+                            </td>
+                            <td className="border border-gray-300 px-4 py-2 text-center">
+                              {item.image ? (
+                                <div className="relative">
+                                  <img
+                                    src={item.image}
+                                    alt="Captured"
+                                    className="w-32 h-32 rounded shadow-lg"
+                                  />
+                                  <button
+                                    className="absolute top-0 right-0 p-1 text-red-500 hover:text-red-700"
+                                    onClick={() =>
+                                      handleRemoveImage(uniqueIndex)
+                                    }
+                                  >
+                                    <FiX size={24} />
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="text-gray-500 italic">
+                                  No photo captured
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Dinner */}
+            {dinner.length > 0 && (
+              <div key="Dinner" className="mb-8">
+                <h2 className="text-2xl text-[#A24C4A] font-bold my-4 text-center">
+                  Dinner
+                </h2>
+                <div className="table-responsive mt-2">
+                  <table className="table table-bordered">
+                    <thead className="table-light">
+                      <tr>
+                        <th className="text-center">Item</th>
+                        <th
+                          className="text-center"
+                          style={{ minWidth: "100px" }}
+                        >
+                          Assigned Food (kg)
+                        </th>
+                        <th
+                          className="text-center"
+                          style={{ minWidth: "150px" }}
+                        >
+                          Received Food (kg)
+                        </th>
+                        <th className="text-center">Image</th>
+                        <th
+                          className="text-center"
+                          style={{ minWidth: "200px" }}
+                        >
+                          Uploaded Image
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dinner.map((item, itemIndex) => {
+                        const uniqueIndex = `Dinner-${itemIndex}`;
+
+                        return (
+                          <tr key={uniqueIndex}>
+                            <td>{item.food_id}</td>
+                            <td>{item.quantity} kg</td>
+                            <td>
+                              <input
+                                type="number"
+                                value={
+                                  item.received_quantity === 0
+                                    ? "0"
+                                    : item.received_quantity || ""
+                                }
+                                onChange={(e) =>
+                                  handleReceivedChange(
+                                    "Dinner",
+                                    itemIndex,
+                                    e.target.value
+                                  )
+                                }
+                                className={`form-control ${
+                                  validationErrors[
+                                    `receivedQuantityDinner-${itemIndex}`
+                                  ]
+                                    ? "is-invalid"
+                                    : ""
+                                }`}
+                              />
+                              {validationErrors[
+                                `receivedQuantityDinner-${itemIndex}`
+                              ] && (
+                                <div className="invalid-feedback">
+                                  {
+                                    validationErrors[
+                                      `receivedQuantityDinner-${itemIndex}`
+                                    ]
+                                  }
+                                </div>
+                              )}
+                            </td>
+                            <td className="border border-gray-300 px-4 py-2 text-center">
+                              {/* Webcam or Camera Handling */}
+                            </td>
+                            <td className="border border-gray-300 px-4 py-2 text-center">
+                              {item.image ? (
+                                <div className="relative">
+                                  <img
+                                    src={item.image}
+                                    alt="Captured"
+                                    className="w-32 h-32 rounded shadow-lg"
+                                  />
+                                  <button
+                                    className="absolute top-0 right-0 p-1 text-red-500 hover:text-red-700"
+                                    onClick={() =>
+                                      handleRemoveImage(uniqueIndex)
+                                    }
+                                  >
+                                    <FiX size={24} />
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="text-gray-500 italic">
+                                  No photo captured
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-center">
               <button
                 type="button"

@@ -20,7 +20,6 @@ const IssueFood = () => {
   const [lunch, setLunch] = useState([]);
   const [dinner, setDinner] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [finalData, setFinalData] = useState({});
 
   const handleMealChange = (e) => {
     setMealType(e.target.value);
@@ -58,7 +57,7 @@ const IssueFood = () => {
   }, [mealType]);
 
   const handleSelectDidi = (name) => {
-    setSelectedDidi(name.didi_name_and_thela_code);
+    setSelectedDidi(name.didi_id);
     setSearchTerm(name.didi_name_and_thela_code);
     setIsDropdownOpen(false);
   };
@@ -240,6 +239,29 @@ const IssueFood = () => {
     </>
   );
 
+  const postFoodItem = async (payload) => {
+    setIsLoading(true);
+    axios
+      .post(
+        "https://didikadhababackend.indevconsultancy.in/dhaba/issue-food/",
+        payload
+      )
+      .then((res) => {
+        console.log(res);
+        if (res.status === 201) {
+          toast.success(res.data.message);
+          setSelectedDidi(null);
+          setMealType("");
+          setSearchTerm("");
+          setCurrentFoodData([]);
+          setIsLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log("reeoe in sending", err);
+      });
+  };
+
   const handleSubmit = async () => {
     if (!selectedDidi) {
       toast.error("Please select didi");
@@ -249,16 +271,30 @@ const IssueFood = () => {
       toast.error("Please select category");
       return;
     }
-    console.log(breakfast.length);
     if (breakfast.length === 0 && lunch.length === 0 && dinner.length === 0) {
       toast.error("Please select any Food");
       return;
     }
     const payload = {
-      didi_name_and_thela_code: selectedDidi,
-      food_items: [{ ...breakfast }, { ...lunch }, { ...dinner }],
+      didi_thela_id: selectedDidi,
+      meals: [
+        {
+          meal_type: "Breakfast",
+          food_items: breakfast.map(
+            ({ food_name, unit_name, ...rest }) => rest
+          ),
+        },
+        {
+          meal_type: "Lunch",
+          food_items: lunch.map(({ food_name, unit_name, ...rest }) => rest),
+        },
+        {
+          meal_type: "Dinner",
+          food_items: dinner.map(({ food_name, unit_name, ...rest }) => rest),
+        },
+      ],
     };
-    console.log(payload);
+    postFoodItem(payload);
   };
 
   return (
@@ -401,17 +437,19 @@ const IssueFood = () => {
           </div>
         </div>
 
-        <div className="flex justify-between place-self-center my-4">
-          <button
-            className={`p-2 rounded-lg ${
-              isLoading ? "bg-gray-300" : "bg-[#A24C4A] text-white"
-            }`}
-            onClick={handleSubmit}
-            disabled={isLoading}
-          >
-            {isLoading ? "Submitting..." : "Submit"}
-          </button>
-        </div>
+        {selectedDidi && (
+          <div className="flex justify-between place-self-center my-4">
+            <button
+              className={`p-2 rounded-lg ${
+                isLoading ? "bg-gray-300" : "bg-[#A24C4A] text-white"
+              }`}
+              onClick={handleSubmit}
+              disabled={isLoading}
+            >
+              {isLoading ? "Submitting..." : "Submit"}
+            </button>
+          </div>
+        )}
 
         {showModal && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -424,7 +462,13 @@ const IssueFood = () => {
                 type="number"
                 placeholder={`Enter ${selectedItem.unit_name}`}
                 value={value}
-                onChange={(e) => setValue(e.target.value)}
+                min="1"
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  if (newValue === "" || Number(newValue) > 0) {
+                    setValue(newValue);
+                  }
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
               />
               <div className="flex justify-end space-x-4">
