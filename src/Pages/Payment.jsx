@@ -5,8 +5,10 @@ import { FaCamera } from "react-icons/fa";
 import { FiX, FiRefreshCcw } from "react-icons/fi";
 import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const Payment = () => {
+  const navigate = useNavigate();
   const [status, setStatus] = useState(null);
   const [namesDidi, setNamesDidi] = useState([]);
   const [searchTermDidi, setSearchTermDidi] = useState("");
@@ -32,13 +34,16 @@ const Payment = () => {
   const handleCapture = () => {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
-      if (photos.length < 5) {
-        setPhotos((prev) => [...prev, imageSrc]);
-        toast.success("Photo added successfully!");
-      } else {
-        toast.error("You can only add up to 5 photos.");
+      if (imageSrc) {
+        if (photos.length < 5) {
+          setPhotos((prev) => [...prev, imageSrc]);
+          toast.success("Photo added successfully!");
+        } else {
+          toast.error("You can only add up to 5 photos.");
+        }
+
+        setIsCameraOn(false);
       }
-      setIsCameraOn(false);
     }
   };
 
@@ -57,12 +62,20 @@ const Payment = () => {
 
   const getDidi = async () => {
     try {
-      const response = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/didi/"
-      );
-      setNamesDidi(response.data);
+      axios
+        .get("https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/")
+        .then((res) => {
+          if (res.status === 200) {
+            setNamesDidi(res.data);
+          } else {
+            setNamesDidi([]);
+          }
+        })
+        .catch((e) => {
+          console.log("Error in getting didi thela:", e);
+        });
     } catch (error) {
-      console.error("Error fetching didi data", error);
+      console.log("Error in getting didi thela:", error);
     }
   };
 
@@ -78,12 +91,22 @@ const Payment = () => {
   }, []);
 
   const filteredDidiNames = namesDidi.filter((item) =>
-    item.full_name.toLowerCase().includes(searchTermDidi.toLowerCase())
+    item.didi_name_and_thela_code
+      .toLowerCase()
+      .includes(searchTermDidi.toLowerCase())
   );
 
   const submitFinal = async () => {
     if (!selectedDidi) {
       toast.warning("Please select Didi");
+      return;
+    }
+    if (!cash) {
+      toast.warning("Please enter cash payment");
+      return;
+    }
+    if (!online) {
+      toast.warning("Please enter online payment");
       return;
     }
 
@@ -93,9 +116,12 @@ const Payment = () => {
         <p>Do you want to confirm the submission?</p>
         <p>${currentDate}</p>
         <ul style="text-align: left; margin-top: 1rem;">
-          <li><strong>Didi Name:</strong> ${searchTermDidi}</li>
-          <li><strong>Online Amount:</strong> ${online || "Not provided"}</li>
-          <li><strong>Cash Amount:</strong> ${cash || "Not provided"}</li>
+          <li>Didi Name:<strong> ${searchTermDidi}</strong></li>
+          <li>Online Amount:<strong> ${online || "Not provided"}</strong></li>
+          <li>Cash Amount:<strong> ${cash || "Not provided"}</strong></li>
+          <li>Total Amount:<strong> ${
+            Number(cash) + Number(online) || "Not provided"
+          }</strong></li>
         </ul>
       `,
       icon: "warning",
@@ -115,21 +141,28 @@ const Payment = () => {
 
         const payload = {
           didi_id: formData.get("didi_id"),
-          Online: online,
-          Cash: cash,
-          photos: Array.from({ length: photos.length }).map((_, i) =>
-            formData.get(`photo${i + 1}`)
-          ),
+          upi: online,
+          cash: cash,
+          image: Array.from({ length: photos.length }).map((_, i) => {
+            const photo = formData.get(`photo${i + 1}`);
+            return photo.replace(/^data:image\/jpeg;base64,\/9j\//, "");
+          }),
         };
 
         try {
-          const response = await axios.post("YOUR_API_ENDPOINT", payload);
+          const response = await axios.post(
+            "https://didikadhababackend.indevconsultancy.in/dhaba/payment-details/",
+            payload
+          );
           toast.success("Submitted successfully!");
-          console.log("API Response:", response.data);
           setPhotos([]);
+          setSearchTermDidi("");
           setSelectedDidi(null);
           setOnline("");
           setCash("");
+          setTimeout(() => {
+            navigate("/");
+          }, 2000);
         } catch (error) {
           toast.error("Submission failed. Please try again.");
           console.error("Error:", error);
@@ -160,19 +193,20 @@ const Payment = () => {
     const actualStatus = await checkInternetConnection();
     setStatus(actualStatus);
   };
-  useEffect(() => {
-    checkConnectionStatus();
-  }, []);
-  useEffect(() => {
-    console.log(status);
-    if (status === false) {
-      Swal.fire({
-        html: `<b>Check Internet connection!</b>`,
-        allowOutsideClick: false,
-        confirmButtonColor: "#A24C4A",
-      });
-    }
-  }, [status]);
+
+  // useEffect(() => {
+  //   checkConnectionStatus();
+  // }, []);
+  // useEffect(() => {
+  //   console.log(status);
+  //   if (status === false) {
+  //     Swal.fire({
+  //       html: `<b>Check Internet connection!</b>`,
+  //       allowOutsideClick: false,
+  //       confirmButtonColor: "#A24C4A",
+  //     });
+  //   }
+  // }, [status]);
 
   return (
     <div className="bg-gray-50" style={{ minHeight: "100vh" }}>
@@ -209,11 +243,11 @@ const Payment = () => {
                     className="p-2 hover:bg-blue-100 cursor-pointer"
                     onClick={() => {
                       setSelectedDidi(name.didi_id);
-                      setSearchTermDidi(name.full_name);
+                      setSearchTermDidi(name.didi_name_and_thela_code);
                       setIsDropdownOpenDidi(false);
                     }}
                   >
-                    {name.full_name}
+                    {name.didi_name_and_thela_code}
                   </li>
                 ))
               ) : (
@@ -234,8 +268,15 @@ const Payment = () => {
             <input
               type="number"
               placeholder="Enter Online Payment"
-              onChange={(e) => setOnline(e.target.value)}
-              className="w-full p-2 border rounded"
+              min="1"
+              value={online}
+              onChange={(e) => {
+                const newValue = e.target.value;
+                if (newValue === "" || Number(newValue) > 0) {
+                  setOnline(newValue);
+                }
+              }}
+              className="w-full p-2 border border-transparent rounded focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
           <div className="mb-2">
@@ -243,8 +284,15 @@ const Payment = () => {
             <input
               type="number"
               placeholder="Enter Cash Payment"
-              onChange={(e) => setCash(e.target.value)}
-              className="w-full p-2 border rounded"
+              min="1"
+              value={cash}
+              onChange={(e) => {
+                const newValue = e.target.value;
+                if (newValue === "" || Number(newValue) > 0) {
+                  setCash(newValue);
+                }
+              }}
+              className="w-full p-2 border border-transparent rounded focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
 
@@ -306,11 +354,11 @@ const Payment = () => {
           </div>
         </div>
 
-        <div className="flex justify-between place-self-center">
+        <div className="flex justify-between my-4">
           <button
             className={`p-2 rounded-lg ${
               isLoading ? "bg-gray-300" : "bg-[#A24C4A] text-white"
-            }`}
+            } ml-auto`}
             onClick={submitFinal}
             disabled={isLoading}
           >
@@ -318,6 +366,7 @@ const Payment = () => {
           </button>
         </div>
       </div>
+
       <ToastContainer />
     </div>
   );

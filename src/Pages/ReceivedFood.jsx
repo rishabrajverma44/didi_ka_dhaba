@@ -6,8 +6,10 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
 import Webcam from "react-webcam";
+import { useNavigate } from "react-router-dom";
 
 const ReceivedFood = () => {
+  const navigate = useNavigate();
   const [namesDidi, setDidiName] = useState([]);
   const [currentDate, setCurrentDate] = useState("");
   const [searchTermDidi, setSearchTermDidi] = useState("");
@@ -21,34 +23,67 @@ const ReceivedFood = () => {
   const [lunch, setLunch] = useState([]);
   const [dinner, setDinner] = useState([]);
   const [finalData, setFinalData] = useState([]);
-  const [capturedImages, setCapturedImages] = useState({
-    Breakfast: {},
-    Lunch: {},
-    Dinner: {},
-  });
-  const [showWebcamIndex, setShowWebcamIndex] = useState(null);
+  const [isFrontCamera, setIsFrontCamera] = useState(true);
+  const [showWebcamBreakfastIndex, setShowWebcamBreakfastIndex] =
+    useState(null);
+  const [showWebcamLunchIndex, setShowWebcamLunchIndex] = useState(null);
+  const [showWebcamDinnerIndex, setShowWebcamDinnerIndex] = useState(null);
   const webcamRef = useRef(null);
-
-  const captureImage = (mealType, itemIndex) => {
-    const image = webcamRef.current.getScreenshot();
-    setCapturedImages((prevImages) => ({
-      ...prevImages,
-      [mealType]: {
-        ...prevImages[mealType],
-        [itemIndex]: image,
-      },
-    }));
-    setShowWebcamIndex(null);
+  const [capturedImages, setCapturedImages] = useState({
+    Breakfast: [],
+    Lunch: [],
+    Dinner: [],
+  });
+  const captureImage = (mealType, index) => {
+    if (webcamRef.current) {
+      const screenshot = webcamRef.current.getScreenshot();
+      setCapturedImages((prev) => ({
+        ...prev,
+        [mealType]: {
+          ...prev[mealType],
+          [index]: screenshot,
+        },
+      }));
+      if (mealType === "Breakfast") {
+        setShowWebcamBreakfastIndex(null);
+      } else if (mealType === "Lunch") {
+        setShowWebcamLunchIndex(null);
+      } else if (mealType === "Dinner") {
+        setShowWebcamDinnerIndex(null);
+      }
+    }
   };
 
-  const handleRemoveImage = (mealType, itemIndex) => {
-    setCapturedImages((prevImages) => ({
-      ...prevImages,
+  const openWebcam = (mealType, index) => {
+    setCapturedImages((prev) => ({
+      ...prev,
       [mealType]: {
-        ...prevImages[mealType],
-        [itemIndex]: null,
+        ...prev[mealType],
+        [index]: null,
       },
     }));
+
+    if (mealType === "Breakfast") {
+      setShowWebcamBreakfastIndex(index);
+    } else if (mealType === "Lunch") {
+      setShowWebcamLunchIndex(index);
+    } else if (mealType === "Dinner") {
+      setShowWebcamDinnerIndex(index);
+    }
+  };
+
+  const handleRemoveImage = (mealType, index) => {
+    const updatedImages = { ...capturedImages };
+    updatedImages[mealType][index] = null;
+    setCapturedImages(updatedImages);
+  };
+
+  const toggleCamera = () => {
+    setIsFrontCamera((prevState) => !prevState);
+  };
+
+  const videoConstraints = {
+    facingMode: isFrontCamera ? "user" : "environment",
   };
 
   const handleReceivedChange = (mealType, itemIndex, value, image = null) => {
@@ -66,8 +101,8 @@ const ReceivedFood = () => {
       errorMessage = "Not valid";
     } else if (parsedValue < 0) {
       errorMessage = "Received quantity cannot be negative";
-    } else if (parsedValue > currentItem.quantity) {
-      errorMessage = `Received quantity cannot exceed ${currentItem.quantity}`;
+    } else if (parsedValue > currentItem.total_quantity) {
+      errorMessage = `Received quantity cannot exceed ${currentItem.total_quantity}`;
     }
 
     if (!errorMessage) {
@@ -108,20 +143,23 @@ const ReceivedFood = () => {
   useEffect(() => {
     const updatedData = [
       ...breakfast.map((item, index) => ({
-        received_quantity: item.received_quantity,
-        food_id: item.food_id,
+        received_quantity: item.received_quantity + "",
+        issue_food_id: item.issue_food_id,
+        total_quantity: item.total_quantity + "",
         meal_type: "Breakfast",
         image: capturedImages.Breakfast[index] || null,
       })),
       ...lunch.map((item, index) => ({
-        received_quantity: item.received_quantity,
-        food_id: item.food_id,
+        received_quantity: item.received_quantity + "",
+        issue_food_id: item.issue_food_id + "",
+        total_quantity: item.total_quantity + "",
         meal_type: "Lunch",
         image: capturedImages.Lunch[index] || null,
       })),
       ...dinner.map((item, index) => ({
-        received_quantity: item.received_quantity,
-        food_id: item.food_id,
+        received_quantity: item.received_quantity + "",
+        issue_food_id: item.issue_food_id + "",
+        total_quantity: item.total_quantity + "",
         meal_type: "Dinner",
         image: capturedImages.Dinner[index] || null,
       })),
@@ -132,7 +170,7 @@ const ReceivedFood = () => {
 
   const filteredDidiNames = namesDidi.filter((item) => {
     const search = String(searchTermDidi || "").toLowerCase();
-    return item.full_name.toLowerCase().includes(search);
+    return item.didi_name_and_thela_code.toLowerCase().includes(search);
   });
 
   useEffect(() => {
@@ -148,7 +186,14 @@ const ReceivedFood = () => {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
+  const getDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
 
+    return `${year}-${month}-${day}`;
+  };
   useEffect(() => {
     const today = new Date();
     const formattedDate = today.toLocaleDateString("en-US", {
@@ -161,7 +206,7 @@ const ReceivedFood = () => {
 
   const getDidi = async () => {
     axios
-      .get("https://didikadhababackend.indevconsultancy.in/dhaba/didi/")
+      .get("https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/")
       .then((res) => {
         if (res.status === 200) {
           const data = [...res.data];
@@ -176,64 +221,59 @@ const ReceivedFood = () => {
   useEffect(() => {
     getDidi();
   }, []);
+  let count = 0;
 
-  const getAssignedFoods = async (selectedDidi, date) => {
-    const payload = {
-      didi_id: selectedDidi,
-      issue_date: date,
-    };
-
-    const meals = ["Break-fast", "Lunch", "Dinner"];
-
+  const getMeal = async (mealType, selectedDidi, date, setMeal) => {
     try {
-      for (const meal of meals) {
-        const res = await axios.post(
-          "https://didikadhababackend.indevconsultancy.in/dhaba/filter-issue-food/",
-          { ...payload, meal }
-        );
+      const payload = {
+        didi_id: selectedDidi,
+        issue_date: date,
+        meal_type: mealType,
+      };
 
-        if (res.status === 200 && res.data.length > 0) {
-          const mealData = res.data.map((item) => ({
-            ...item,
-            received_quantity: "",
-          }));
-
-          if (meal === "Break-fast") {
-            setBreakfast(mealData);
-          }
-          if (meal === "Lunch") {
-            setLunch(mealData);
-          }
-          if (meal === "Dinner") {
-            setDinner(mealData);
-          }
-        }
-      }
-
-      toast.info(
-        `Successfully fetched all meals for ${selectedDidi} on ${date}`
+      const res = await axios.post(
+        "https://didikadhababackend.indevconsultancy.in/dhaba/filter-issue-food/",
+        payload
       );
+
+      if (res.status === 200 && res.data.length > 0) {
+        const mealData = res.data.map((item) => ({
+          ...item,
+          received_quantity: "",
+        }));
+        setMeal(mealData);
+        return true;
+      } else {
+        setMeal([]);
+        count++;
+        return true;
+      }
     } catch (e) {
-      setBreakfast([]);
-      setDinner([]);
-      setLunch([]);
-      console.error("Error fetching assigned foods:", e);
-      toast.error("An error occurred while fetching assigned foods.");
+      setMeal([]);
+
+      count++;
+      return true;
     }
   };
 
-  const getDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
+  const getAssignedFoods = async (selectedDidi, date) => {
+    count = 0;
 
-    return `${year}-${month}-${day}`;
+    await getMeal("Break-fast", selectedDidi, date, setBreakfast);
+    await getMeal("Lunch", selectedDidi, date, setLunch);
+    await getMeal("Dinner", selectedDidi, date, setDinner);
+
+    if (count === 3) {
+      toast.error(`Items returned for ${searchTermDidi}`);
+    } else {
+      toast.success(`Food received ! ${searchTermDidi}`);
+    }
   };
 
   useEffect(() => {
-    if (selectedDidi != null && getDate) {
-      getAssignedFoods(selectedDidi, "2024-12-07");
+    const date = getDate();
+    if (selectedDidi != null && date) {
+      getAssignedFoods(selectedDidi, date);
     }
   }, [selectedDidi]);
 
@@ -249,6 +289,17 @@ const ReceivedFood = () => {
         toast.success(`Food Received by ${searchTermDidi}`);
         setIsLoading(false);
         setSearchTermDidi("");
+        setBreakfast([]);
+        setDinner([]);
+        setLunch([]);
+        setCapturedImages({
+          Breakfast: [],
+          Lunch: [],
+          Dinner: [],
+        });
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
       }
     } catch (e) {
       console.log("Error in sending received food:", e);
@@ -316,13 +367,13 @@ const ReceivedFood = () => {
       return false;
     }
   };
-  const checkConnectionStatus = async () => {
-    const actualStatus = await checkInternetConnection();
-    setStatus(actualStatus);
-  };
-  useEffect(() => {
-    checkConnectionStatus();
-  }, []);
+  // const checkConnectionStatus = async () => {
+  //   const actualStatus = await checkInternetConnection();
+  //   setStatus(actualStatus);
+  // };
+  // useEffect(() => {
+  //   checkConnectionStatus();
+  // }, []);
   useEffect(() => {
     if (status === false) {
       Swal.fire({
@@ -334,50 +385,51 @@ const ReceivedFood = () => {
   }, [status]);
 
   const handleSubmit = async () => {
-    // if (!validateFields()) {
-    //   toast.error("Validate all fields");
-    //   return;
-    // }
-    console.log(finalData);
-    // const selectedDidiData = namesDidi.find(
-    //   (item) => item.didi_id === selectedDidi
-    // );
-    // if (!selectedDidi || !selectedDidiData) {
-    //   toast.error("Please select a valid Didi from the dropdown!");
-    //   return;
-    // }
+    if (!validateFields()) {
+      toast.error("Validate all fields");
+      return;
+    }
+    if (!selectedDidi) {
+      toast.error("Please select a valid Didi from the dropdown!");
+      return;
+    }
+    console.log(selectedDidi);
+    const did_id = selectedDidi;
+    const payload = {
+      didi_id: did_id,
+      food_data: finalData.map(
+        ({
+          issue_food_id,
+          total_quantity,
+          received_quantity,
+          meal_type,
+          image,
+        }) => ({
+          issue_food_id,
+          total_quantity,
+          received_quantity,
+          meal_type,
+          image: image || null,
+        })
+      ),
+    };
 
-    // const did_id = selectedDidiData.didi_id;
-    // const payload = {
-    //   didi_id: did_id,
-    //   food_data: foodData.map(
-    //     ({ food_id, issue_food_id, quantity, received_quantity, image }) => ({
-    //       food_id,
-    //       issue_food_id,
-    //       quantity,
-    //       received_quantity,
-    //       image: image || null,
-    //     })
-    //   ),
-    // };
-
-    // const actualStatus = await checkInternetConnection();
-    // if (actualStatus) {
-    //   setIsLoading(true);
-    //   try {
-    //     await sendRecivedFood(payload);
-    //   } catch (error) {
-    //     toast.error("Failed to submit food data!");
-    //     console.error("Error sending food data:", error);
-    //   }
-    // } else {
-    //   Swal.fire({
-    //     html: `<b>Check Internet connection!</b>`,
-    //     allowOutsideClick: false,
-    //     confirmButtonColor: "#A24C4A",
-    //   });
-    // }
-    // console.log(payload);
+    const actualStatus = await checkInternetConnection();
+    if (actualStatus) {
+      setIsLoading(true);
+      try {
+        await sendRecivedFood(payload);
+      } catch (error) {
+        toast.error("Failed to submit food data!");
+        console.error("Error sending food data:", error);
+      }
+    } else {
+      Swal.fire({
+        html: `<b>Check Internet connection!</b>`,
+        allowOutsideClick: false,
+        confirmButtonColor: "#A24C4A",
+      });
+    }
   };
 
   return (
@@ -415,11 +467,11 @@ const ReceivedFood = () => {
                     className="p-2 hover:bg-blue-100 cursor-pointer"
                     onClick={() => {
                       setSelectedDidi(name.didi_id);
-                      setSearchTermDidi(name.full_name);
+                      setSearchTermDidi(name.didi_name_and_thela_code);
                       setIsDropdownOpenDidi(false);
                     }}
                   >
-                    {name.full_name}
+                    {name.didi_name_and_thela_code}
                   </li>
                 ))
               ) : (
@@ -433,430 +485,536 @@ const ReceivedFood = () => {
           <p className="mt-2 text-lg text-[#A24C4A] font-bold">{currentDate}</p>
         </div>
 
-        {breakfast.length > 0 || lunch.length > 0 || dinner.length > 0 ? (
-          <div>
-            {breakfast.length > 0 && (
-              <div key="Break-fast" className="mb-8">
-                <h2 className="text-2xl text-[#A24C4A] font-bold my-4 text-center">
-                  Breakfast
-                </h2>
-                <div className="table-responsive mt-2">
-                  <table className="table table-bordered">
-                    <thead className="table-light">
-                      <tr>
-                        <th className="text-center">Item</th>
-                        <th
-                          className="text-center"
-                          style={{ minWidth: "100px" }}
-                        >
-                          Assigned Food (kg)
-                        </th>
-                        <th
-                          className="text-center"
-                          style={{ minWidth: "150px" }}
-                        >
-                          Received Food (kg)
-                        </th>
-                        <th className="text-center">Image</th>
-                        <th
-                          className="text-center"
-                          style={{ minWidth: "200px" }}
-                        >
-                          Uploaded Image
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {breakfast.map((item, itemIndex) => {
-                        const uniqueIndex = `Break-fast-${itemIndex}`;
+        <>
+          {breakfast.length > 0 || lunch.length > 0 || dinner.length > 0 ? (
+            <div>
+              {/* Breakfast */}
+              {breakfast.length > 0 && (
+                <div key="Break-fast" className="mb-8">
+                  <h2 className="text-2xl text-[#A24C4A] font-bold my-4 text-center">
+                    Breakfast
+                  </h2>
+                  <div className="table-responsive mt-2">
+                    <table className="table table-bordered">
+                      <thead className="table-light">
+                        <tr>
+                          <th
+                            className="text-center"
+                            style={{ minWidth: "130px" }}
+                          >
+                            Item
+                          </th>
+                          <th
+                            className="text-center"
+                            style={{ minWidth: "100px" }}
+                          >
+                            Assigned Food
+                          </th>
+                          <th
+                            className="text-center"
+                            style={{ minWidth: "150px" }}
+                          >
+                            Received Food
+                          </th>
+                          <th className="text-center">Image</th>
+                          <th
+                            className="text-center"
+                            style={{ minWidth: "200px" }}
+                          >
+                            Uploaded Image
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {breakfast.map((item, itemIndex) => {
+                          const uniqueIndex = `Break-fast-${itemIndex}`;
 
-                        return (
-                          <tr key={uniqueIndex}>
-                            <td>{item.food_id}</td>
-                            <td>{item.quantity} kg</td>
-                            <td>
-                              <input
-                                type="number"
-                                value={
-                                  item.received_quantity === 0
-                                    ? "0"
-                                    : item.received_quantity || ""
-                                }
-                                onChange={(e) =>
-                                  handleReceivedChange(
-                                    "Breakfast",
-                                    itemIndex,
-                                    e.target.value
-                                  )
-                                }
-                                className={`form-control ${
-                                  validationErrors[
-                                    `receivedQuantityBreakfast-${itemIndex}`
-                                  ]
-                                    ? "is-invalid"
-                                    : ""
-                                }`}
-                              />
-                              {validationErrors[
-                                `receivedQuantityBreakfast-${itemIndex}`
-                              ] && (
-                                <div className="invalid-feedback">
-                                  {
+                          return (
+                            <tr key={uniqueIndex}>
+                              <td className="text-center font-bold">
+                                {item.food_name}
+                              </td>
+                              <td className="text-center">
+                                <span className="font-bold">
+                                  {" "}
+                                  {item.total_quantity}
+                                </span>{" "}
+                                {item.unit_name}
+                              </td>
+                              <td>
+                                <input
+                                  type="number"
+                                  value={
+                                    item.received_quantity === 0
+                                      ? "0"
+                                      : item.received_quantity || ""
+                                  }
+                                  onChange={(e) =>
+                                    handleReceivedChange(
+                                      "Breakfast",
+                                      itemIndex,
+                                      e.target.value
+                                    )
+                                  }
+                                  className={`form-control ${
                                     validationErrors[
                                       `receivedQuantityBreakfast-${itemIndex}`
                                     ]
-                                  }
-                                </div>
-                              )}
-                            </td>
-                            <td className="border p-2 text-center">
-                              {capturedImages.Breakfast[itemIndex] ||
-                              showWebcamIndex === itemIndex ? (
-                                <button
-                                  className="btn btn-success"
-                                  onClick={() =>
-                                    captureImage("Breakfast", itemIndex)
-                                  }
-                                >
-                                  Capture Image
-                                </button>
-                              ) : (
-                                <button
-                                  className="btn btn-primary"
-                                  onClick={() => setShowWebcamIndex(itemIndex)}
-                                >
-                                  Capture Image
-                                </button>
-                              )}
-                            </td>
-
-                            <td className="border p-2 text-center">
-                              {capturedImages.Breakfast[itemIndex] ? (
-                                <div className="relative">
-                                  <img
-                                    src={capturedImages.Breakfast[itemIndex]}
-                                    alt="Captured"
-                                    className="w-32 h-32 rounded shadow-lg"
-                                  />
+                                      ? "is-invalid"
+                                      : ""
+                                  }`}
+                                />
+                                {validationErrors[
+                                  `receivedQuantityBreakfast-${itemIndex}`
+                                ] && (
+                                  <div className="invalid-feedback">
+                                    {
+                                      validationErrors[
+                                        `receivedQuantityBreakfast-${itemIndex}`
+                                      ]
+                                    }
+                                  </div>
+                                )}
+                              </td>
+                              <td className="border p-2 text-center">
+                                {capturedImages.Breakfast[itemIndex] ||
+                                showWebcamBreakfastIndex === itemIndex ? (
                                   <button
-                                    className="absolute top-0 right-0 p-1 text-red-500 hover:text-red-700"
                                     onClick={() =>
-                                      handleRemoveImage("Breakfast", itemIndex)
+                                      captureImage("Breakfast", itemIndex)
                                     }
                                   >
-                                    <FiX size={24} />
+                                    <FaCamera color="#A24C4A" size={24} />
                                   </button>
-                                </div>
-                              ) : showWebcamIndex === itemIndex ? (
-                                <div>
-                                  <Webcam
-                                    audio={false}
-                                    ref={webcamRef}
-                                    screenshotFormat="image/jpeg"
-                                    width="100%"
-                                  />
-                                </div>
-                              ) : (
-                                <span>No image captured</span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                                ) : (
+                                  <button
+                                    onClick={() =>
+                                      openWebcam("Breakfast", itemIndex)
+                                    }
+                                  >
+                                    <FaCamera color="#A24C4A" size={24} />
+                                  </button>
+                                )}
+                              </td>
+                              <td className="border p-2 text-center">
+                                {capturedImages.Breakfast[itemIndex] ? (
+                                  <div className="relative">
+                                    <img
+                                      src={capturedImages.Breakfast[itemIndex]}
+                                      alt="Captured"
+                                      className="w-48 h-48 rounded shadow-lg"
+                                    />
+                                    <button
+                                      className="absolute top-0 right-0 p-1 text-red-500 hover:text-red-700"
+                                      onClick={() =>
+                                        handleRemoveImage(
+                                          "Breakfast",
+                                          itemIndex
+                                        )
+                                      }
+                                    >
+                                      <FiX size={24} />
+                                    </button>
+                                  </div>
+                                ) : showWebcamBreakfastIndex === itemIndex ? (
+                                  <div className="">
+                                    <div className="relative rounded shadow-lg">
+                                      <Webcam
+                                        audio={false}
+                                        ref={webcamRef}
+                                        screenshotFormat="image/jpeg"
+                                        className="rounded shadow-md"
+                                        videoConstraints={videoConstraints}
+                                      />
+                                      <div className="absolute bottom-3 flex space-x-8 z-10 w-full items-center justify-center">
+                                        <button
+                                          onClick={() =>
+                                            captureImage("Breakfast", itemIndex)
+                                          }
+                                        >
+                                          <FaCamera color="#A24C4A" size={24} />
+                                        </button>
+
+                                        <button onClick={toggleCamera}>
+                                          <FiRefreshCcw
+                                            color="#A24C4A"
+                                            size={24}
+                                          />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <span className="flex items-center justify-center text-gray-600 text-sm font-medium p-4 border-dashed border-2 border-gray-300 rounded-lg">
+                                    No image captured
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Lunch */}
-            {lunch.length > 0 && (
-              <div key="Lunch" className="mb-8">
-                <h2 className="text-2xl text-[#A24C4A] font-bold my-4 text-center">
-                  Lunch
-                </h2>
-                <div className="table-responsive mt-2">
-                  <table className="table table-bordered">
-                    <thead className="table-light">
-                      <tr>
-                        <th className="text-center">Item</th>
-                        <th
-                          className="text-center"
-                          style={{ minWidth: "100px" }}
-                        >
-                          Assigned Food (kg)
-                        </th>
-                        <th
-                          className="text-center"
-                          style={{ minWidth: "150px" }}
-                        >
-                          Received Food (kg)
-                        </th>
-                        <th className="text-center">Image</th>
-                        <th
-                          className="text-center"
-                          style={{ minWidth: "200px" }}
-                        >
-                          Uploaded Image
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {lunch.map((item, itemIndex) => {
-                        const uniqueIndex = `Lunch-${itemIndex}`;
+              {/* Lunch */}
+              {lunch.length > 0 && (
+                <div key="Lunch" className="mb-8">
+                  <h2 className="text-2xl text-[#A24C4A] font-bold my-4 text-center">
+                    Lunch
+                  </h2>
+                  <div className="table-responsive mt-2">
+                    <table className="table table-bordered">
+                      <thead className="table-light">
+                        <tr>
+                          <th
+                            className="text-center"
+                            style={{ minWidth: "130px" }}
+                          >
+                            Item
+                          </th>
+                          <th
+                            className="text-center"
+                            style={{ minWidth: "100px" }}
+                          >
+                            Assigned Food
+                          </th>
+                          <th
+                            className="text-center"
+                            style={{ minWidth: "150px" }}
+                          >
+                            Received Food
+                          </th>
+                          <th className="text-center">Image</th>
+                          <th
+                            className="text-center"
+                            style={{ minWidth: "200px" }}
+                          >
+                            Uploaded Image
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {lunch.map((item, itemIndex) => {
+                          const uniqueIndex = `Lunch-${itemIndex}`;
 
-                        return (
-                          <tr key={uniqueIndex}>
-                            <td>{item.food_id}</td>
-                            <td>{item.quantity} kg</td>
-                            <td>
-                              <input
-                                type="number"
-                                value={
-                                  item.received_quantity === 0
-                                    ? "0"
-                                    : item.received_quantity || ""
-                                }
-                                onChange={(e) =>
-                                  handleReceivedChange(
-                                    "Lunch",
-                                    itemIndex,
-                                    e.target.value
-                                  )
-                                }
-                                className={`form-control ${
-                                  validationErrors[
-                                    `receivedQuantityLunch-${itemIndex}`
-                                  ]
-                                    ? "is-invalid"
-                                    : ""
-                                }`}
-                              />
-                              {validationErrors[
-                                `receivedQuantityLunch-${itemIndex}`
-                              ] && (
-                                <div className="invalid-feedback">
-                                  {
+                          return (
+                            <tr key={uniqueIndex}>
+                              <td className="text-center font-bold">
+                                {item.food_name}
+                              </td>
+                              <td className="text-center">
+                                <span className="font-bold">
+                                  {" "}
+                                  {item.total_quantity}
+                                </span>{" "}
+                                {item.unit_name}
+                              </td>
+                              <td>
+                                <input
+                                  type="number"
+                                  value={
+                                    item.received_quantity === 0
+                                      ? "0"
+                                      : item.received_quantity || ""
+                                  }
+                                  onChange={(e) =>
+                                    handleReceivedChange(
+                                      "Lunch",
+                                      itemIndex,
+                                      e.target.value
+                                    )
+                                  }
+                                  className={`form-control ${
                                     validationErrors[
                                       `receivedQuantityLunch-${itemIndex}`
                                     ]
-                                  }
-                                </div>
-                              )}
-                            </td>
-                            <td className="border p-2 text-center">
-                              {capturedImages.Lunch[itemIndex] ||
-                              showWebcamIndex === itemIndex ? (
-                                <button
-                                  className="btn btn-success"
-                                  onClick={() =>
-                                    captureImage("Lunch", itemIndex)
-                                  }
-                                >
-                                  Capture Image
-                                </button>
-                              ) : (
-                                <button
-                                  className="btn btn-primary"
-                                  onClick={() => setShowWebcamIndex(itemIndex)}
-                                >
-                                  Capture Image
-                                </button>
-                              )}
-                            </td>
-
-                            <td className="border p-2 text-center">
-                              {capturedImages.Lunch[itemIndex] ? (
-                                <div className="relative">
-                                  <img
-                                    src={capturedImages.Lunch[itemIndex]}
-                                    alt="Captured"
-                                    className="w-32 h-32 rounded shadow-lg"
-                                  />
+                                      ? "is-invalid"
+                                      : ""
+                                  }`}
+                                />
+                                {validationErrors[
+                                  `receivedQuantityLunch-${itemIndex}`
+                                ] && (
+                                  <div className="invalid-feedback">
+                                    {
+                                      validationErrors[
+                                        `receivedQuantityLunch-${itemIndex}`
+                                      ]
+                                    }
+                                  </div>
+                                )}
+                              </td>
+                              <td className="border p-2 text-center">
+                                {capturedImages.Lunch[itemIndex] ||
+                                showWebcamLunchIndex === itemIndex ? (
                                   <button
-                                    className="absolute top-0 right-0 p-1 text-red-500 hover:text-red-700"
                                     onClick={() =>
-                                      handleRemoveImage("Lunch", itemIndex)
+                                      captureImage("Lunch", itemIndex)
                                     }
                                   >
-                                    <FiX size={24} />
+                                    <FaCamera color="#A24C4A" size={24} />
                                   </button>
-                                </div>
-                              ) : showWebcamIndex === itemIndex ? (
-                                <div>
-                                  <Webcam
-                                    audio={false}
-                                    ref={webcamRef}
-                                    screenshotFormat="image/jpeg"
-                                    width="100%"
-                                  />
-                                </div>
-                              ) : (
-                                <span>No image captured</span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                                ) : (
+                                  <button
+                                    onClick={() =>
+                                      openWebcam("Lunch", itemIndex)
+                                    }
+                                  >
+                                    <FaCamera color="#A24C4A" size={24} />
+                                  </button>
+                                )}
+                              </td>
+
+                              <td className="border p-2 text-center">
+                                {capturedImages.Lunch[itemIndex] ? (
+                                  <div className="relative">
+                                    <img
+                                      src={capturedImages.Lunch[itemIndex]}
+                                      alt="Captured"
+                                      className=" rounded shadow-lg"
+                                    />
+                                    <button
+                                      className="absolute top-0 right-0 p-1 text-red-500 hover:text-red-700"
+                                      onClick={() =>
+                                        handleRemoveImage("Lunch", itemIndex)
+                                      }
+                                    >
+                                      <FiX size={24} />
+                                    </button>
+                                  </div>
+                                ) : showWebcamLunchIndex === itemIndex ? (
+                                  <div className="">
+                                    <div className="relative rounded shadow-lg">
+                                      <Webcam
+                                        audio={false}
+                                        ref={webcamRef}
+                                        screenshotFormat="image/jpeg"
+                                        className="rounded shadow-md"
+                                        videoConstraints={videoConstraints}
+                                      />
+                                      <div className="absolute bottom-3 flex space-x-8 z-10 w-full items-center justify-center">
+                                        <button
+                                          onClick={() =>
+                                            captureImage("Lunch", itemIndex)
+                                          }
+                                        >
+                                          <FaCamera color="#A24C4A" size={24} />
+                                        </button>
+
+                                        <button onClick={toggleCamera}>
+                                          <FiRefreshCcw
+                                            color="#A24C4A"
+                                            size={24}
+                                          />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <span className="flex items-center justify-center text-gray-600 text-sm font-medium p-4 border-dashed border-2 border-gray-300 rounded-lg">
+                                    No image captured
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Dinner */}
-            {dinner.length > 0 && (
-              <div key="Dinner" className="mb-8">
-                <h2 className="text-2xl text-[#A24C4A] font-bold my-4 text-center">
-                  Dinner
-                </h2>
-                <div className="table-responsive mt-2">
-                  <table className="table table-bordered">
-                    <thead className="table-light">
-                      <tr>
-                        <th className="text-center">Item</th>
-                        <th
-                          className="text-center"
-                          style={{ minWidth: "100px" }}
-                        >
-                          Assigned Food (kg)
-                        </th>
-                        <th
-                          className="text-center"
-                          style={{ minWidth: "150px" }}
-                        >
-                          Received Food (kg)
-                        </th>
-                        <th className="text-center">Image</th>
-                        <th
-                          className="text-center"
-                          style={{ minWidth: "200px" }}
-                        >
-                          Uploaded Image
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {dinner.map((item, itemIndex) => {
-                        const uniqueIndex = `Dinner-${itemIndex}`;
+              {/* Dinner */}
+              {dinner.length > 0 && (
+                <div key="Dinner" className="mb-8">
+                  <h2 className="text-2xl text-[#A24C4A] font-bold my-4 text-center">
+                    Dinner
+                  </h2>
+                  <div className="table-responsive mt-2">
+                    <table className="table table-bordered">
+                      <thead className="table-light">
+                        <tr>
+                          <th
+                            className="text-center"
+                            style={{ minWidth: "130px" }}
+                          >
+                            Item
+                          </th>
+                          <th
+                            className="text-center"
+                            style={{ minWidth: "100px" }}
+                          >
+                            Assigned Food
+                          </th>
+                          <th
+                            className="text-center"
+                            style={{ minWidth: "150px" }}
+                          >
+                            Received Food
+                          </th>
+                          <th className="text-center">Image</th>
+                          <th
+                            className="text-center"
+                            style={{ minWidth: "200px" }}
+                          >
+                            Uploaded Image
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {dinner.map((item, itemIndex) => {
+                          const uniqueIndex = `Dinner-${itemIndex}`;
 
-                        return (
-                          <tr key={uniqueIndex}>
-                            <td>{item.food_id}</td>
-                            <td>{item.quantity} kg</td>
-                            <td>
-                              <input
-                                type="number"
-                                value={
-                                  item.received_quantity === 0
-                                    ? "0"
-                                    : item.received_quantity || ""
-                                }
-                                onChange={(e) =>
-                                  handleReceivedChange(
-                                    "Dinner",
-                                    itemIndex,
-                                    e.target.value
-                                  )
-                                }
-                                className={`form-control ${
-                                  validationErrors[
-                                    `receivedQuantityDinner-${itemIndex}`
-                                  ]
-                                    ? "is-invalid"
-                                    : ""
-                                }`}
-                              />
-                              {validationErrors[
-                                `receivedQuantityDinner-${itemIndex}`
-                              ] && (
-                                <div className="invalid-feedback">
-                                  {
+                          return (
+                            <tr key={uniqueIndex}>
+                              <td className="text-center font-bold">
+                                {item.food_name}
+                              </td>
+                              <td className="text-center">
+                                <span className="font-bold">
+                                  {" "}
+                                  {item.total_quantity}
+                                </span>{" "}
+                                {item.unit_name}
+                              </td>
+                              <td>
+                                <input
+                                  type="number"
+                                  value={
+                                    item.received_quantity === 0
+                                      ? "0"
+                                      : item.received_quantity || ""
+                                  }
+                                  onChange={(e) =>
+                                    handleReceivedChange(
+                                      "Dinner",
+                                      itemIndex,
+                                      e.target.value
+                                    )
+                                  }
+                                  className={`form-control ${
                                     validationErrors[
                                       `receivedQuantityDinner-${itemIndex}`
                                     ]
-                                  }
-                                </div>
-                              )}
-                            </td>
-                            <td className="border p-2 text-center">
-                              {capturedImages.Dinner[itemIndex] ||
-                              showWebcamIndex === itemIndex ? (
-                                <button
-                                  className="btn btn-success"
-                                  onClick={() =>
-                                    captureImage("Dinner", itemIndex)
-                                  }
-                                >
-                                  Capture Image
-                                </button>
-                              ) : (
-                                <button
-                                  className="btn btn-primary"
-                                  onClick={() => setShowWebcamIndex(itemIndex)}
-                                >
-                                  Capture Image
-                                </button>
-                              )}
-                            </td>
-
-                            <td className="border p-2 text-center">
-                              {capturedImages.Dinner[itemIndex] ? (
-                                <div className="relative">
-                                  <img
-                                    src={capturedImages.Dinner[itemIndex]}
-                                    alt="Captured"
-                                    className="w-32 h-32 rounded shadow-lg"
-                                  />
+                                      ? "is-invalid"
+                                      : ""
+                                  }`}
+                                />
+                                {validationErrors[
+                                  `receivedQuantityDinner-${itemIndex}`
+                                ] && (
+                                  <div className="invalid-feedback">
+                                    {
+                                      validationErrors[
+                                        `receivedQuantityDinner-${itemIndex}`
+                                      ]
+                                    }
+                                  </div>
+                                )}
+                              </td>
+                              <td className="border p-2 text-center">
+                                {capturedImages.Dinner[itemIndex] ||
+                                showWebcamDinnerIndex === itemIndex ? (
                                   <button
-                                    className="absolute top-0 right-0 p-1 text-red-500 hover:text-red-700"
                                     onClick={() =>
-                                      handleRemoveImage("Dinner", itemIndex)
+                                      captureImage("Dinner", itemIndex)
                                     }
                                   >
-                                    <FiX size={24} />
+                                    <FaCamera color="#A24C4A" size={24} />
                                   </button>
-                                </div>
-                              ) : showWebcamIndex === itemIndex ? (
-                                <div>
-                                  <Webcam
-                                    audio={false}
-                                    ref={webcamRef}
-                                    screenshotFormat="image/jpeg"
-                                    width="100%"
-                                  />
-                                </div>
-                              ) : (
-                                <span>No image captured</span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+                                ) : (
+                                  <button
+                                    onClick={() =>
+                                      openWebcam("Dinner", itemIndex)
+                                    }
+                                  >
+                                    <FaCamera color="#A24C4A" size={24} />
+                                  </button>
+                                )}
+                              </td>
 
-            <div className="flex justify-center">
-              <button
-                type="button"
-                className={`mt-2 border-[#A24C4A] text-[#A24C4A] rounded border-1 px-4 py-1 mt-4 rounded-lg cursor-pointer ${
-                  isLoading ? "cursor-not-allowed opacity-50" : ""
-                }`}
-                onClick={handleSubmit}
-                disabled={isLoading}
-              >
-                {isLoading ? "Submitting..." : "Submit"}
-              </button>
+                              <td className="border p-2 text-center">
+                                {capturedImages.Dinner[itemIndex] ? (
+                                  <div className="relative">
+                                    <img
+                                      src={capturedImages.Dinner[itemIndex]}
+                                      alt="Captured"
+                                      className=" rounded shadow-lg"
+                                    />
+                                    <button
+                                      className="absolute top-0 right-0 p-1 text-red-500 hover:text-red-700"
+                                      onClick={() =>
+                                        handleRemoveImage("Dinner", itemIndex)
+                                      }
+                                    >
+                                      <FiX size={24} />
+                                    </button>
+                                  </div>
+                                ) : showWebcamDinnerIndex === itemIndex ? (
+                                  <div className="">
+                                    <div className="relative rounded shadow-lg">
+                                      <Webcam
+                                        audio={false}
+                                        ref={webcamRef}
+                                        screenshotFormat="image/jpeg"
+                                        className="rounded shadow-md"
+                                        videoConstraints={videoConstraints}
+                                      />
+                                      <div className="absolute bottom-3 flex space-x-8 z-10 w-full items-center justify-center">
+                                        <button
+                                          onClick={() =>
+                                            captureImage("Dinner", itemIndex)
+                                          }
+                                        >
+                                          <FaCamera color="#A24C4A" size={24} />
+                                        </button>
+
+                                        <button onClick={toggleCamera}>
+                                          <FiRefreshCcw
+                                            color="#A24C4A"
+                                            size={24}
+                                          />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <span className="flex items-center justify-center text-gray-600 text-sm font-medium p-4 border-dashed border-2 border-gray-300 rounded-lg">
+                                    No image captured
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {selectedDidi && (
+                <div className="flex justify-between my-4">
+                  <button
+                    className={`p-2 rounded-lg ${
+                      isLoading ? "bg-gray-300" : "bg-[#A24C4A] text-white"
+                    } ml-auto`}
+                    onClick={handleSubmit}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Submitting..." : "Submit"}
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
-        ) : (
-          <p className="text-center mt-4">
-            Please select any Didi to get food details
-          </p>
-        )}
+          ) : (
+            <div>No data available for meals</div>
+          )}
+        </>
       </div>
       <ToastContainer />
     </div>

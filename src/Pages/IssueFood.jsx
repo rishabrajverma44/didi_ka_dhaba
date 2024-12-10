@@ -3,8 +3,10 @@ import { ToastContainer, toast } from "react-toastify";
 import { FiX } from "react-icons/fi";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const IssueFood = () => {
+  const navigate = useNavigate();
   const [status, setStatus] = useState(null);
   const [namesDidi, setDidiName] = useState([]);
   const [currentFoodData, setCurrentFoodData] = useState([]);
@@ -172,70 +174,70 @@ const IssueFood = () => {
     getDidiName();
   }, []);
 
-  const checkInternetConnection = async () => {
-    try {
-      const response = await fetch(
-        "https://api.allorigins.win/raw?url=https://www.google.com",
-        {
-          method: "HEAD",
-          cache: "no-cache",
-        }
-      );
-      return response.ok;
-    } catch (error) {
-      return false;
-    }
-  };
-  const checkConnectionStatus = async () => {
-    const actualStatus = await checkInternetConnection();
-    setStatus(actualStatus);
-  };
-  useEffect(() => {
-    checkConnectionStatus();
-  }, []);
-  useEffect(() => {
-    console.log(status);
-    if (status === false) {
-      Swal.fire({
-        html: `<b>Check Internet connection!</b>`,
-        allowOutsideClick: false,
-        confirmButtonColor: "#A24C4A",
-      });
-    }
-  }, [status]);
+  // const checkInternetConnection = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       "https://api.allorigins.win/raw?url=https://www.google.com",
+  //       {
+  //         method: "HEAD",
+  //         cache: "no-cache",
+  //       }
+  //     );
+  //     return response.ok;
+  //   } catch (error) {
+  //     return false;
+  //   }
+  // };
+  // const checkConnectionStatus = async () => {
+  //   const actualStatus = await checkInternetConnection();
+  //   setStatus(actualStatus);
+  // };
+  // useEffect(() => {
+  //   checkConnectionStatus();
+  // }, []);
+  // useEffect(() => {
+  //   if (status === false) {
+  //     Swal.fire({
+  //       html: `<b>Check Internet connection!</b>`,
+  //       allowOutsideClick: false,
+  //       confirmButtonColor: "#A24C4A",
+  //     });
+  //   }
+  // }, [status]);
 
   const MealSection = ({ title, items, handleRemoveItem, mealType }) => (
     <>
-      {items && items.length > 0 ? (
-        <>
-          <h5 className="text-center mt-2 text-lg text-[#A24C4A] font-bold">
-            {title}:
-          </h5>
-          {items.map((item, index) => (
-            <div
-              key={index}
-              className="border py-1 px-1 rounded-lg flex justify-between items-center my-2"
-            >
-              <div className="flex flex-col">
-                <span className="text-2xl font-medium">{item.food_name}</span>
-                <span className="text-sm text-gray-600">
-                  {item.quantity} - {item.unit_name}
-                </span>
-              </div>
-              <button
-                onClick={() => handleRemoveItem(item, mealType)}
-                className="text-red-500 hover:text-red-700"
+      {
+        items && items.length > 0 ? (
+          <>
+            <h5 className="text-center mt-2 text-lg text-[#A24C4A] font-bold">
+              {title}:
+            </h5>
+            {items.map((item, index) => (
+              <div
+                key={index}
+                className="border py-1 px-1 rounded-lg flex justify-between items-center my-2"
               >
-                <FiX size={24} />
-              </button>
-            </div>
-          ))}
-        </>
-      ) : (
-        <div className="flex justify-center items-center text-gray-500 mt-4">
-          No {title.toLowerCase()} items selected
-        </div>
-      )}
+                <div className="flex flex-col">
+                  <span className="text-2xl font-medium">{item.food_name}</span>
+                  <span className="text-sm text-gray-600">
+                    {item.quantity} - {item.unit_name}
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleRemoveItem(item, mealType)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <FiX size={24} />
+                </button>
+              </div>
+            ))}
+          </>
+        ) : null
+        // <div className="flex justify-center items-center text-gray-500 mt-4">
+        //   No {title.toLowerCase()} selected
+        // </div>
+      }
     </>
   );
 
@@ -254,11 +256,17 @@ const IssueFood = () => {
           setMealType("");
           setSearchTerm("");
           setCurrentFoodData([]);
+          setDinner([]);
+          setBreakFast([]);
+          setLunch([]);
+          setTimeout(() => {
+            navigate("/");
+          }, 2000);
           setIsLoading(false);
         }
       })
       .catch((err) => {
-        console.log("reeoe in sending", err);
+        console.log("error in sending", err);
       });
   };
 
@@ -302,7 +310,9 @@ const IssueFood = () => {
       <div className="container py-4">
         <div>
           <h3 className="text-center mb-4">Issue Food</h3>
-          <h4 className="text-xl font-semibold text-gray-800">Select Didi</h4>
+          <h4 className="text-xl font-semibold text-gray-800">
+            Select Didi (stall code)
+          </h4>
 
           <div className="relative">
             <input
@@ -375,7 +385,7 @@ const IssueFood = () => {
           {selectedDidi && (
             <div className="mt-3 bg-white shadow rounded-lg p-2 w-full max-w-md">
               <h3 className="text-xl flex items-center justify-between font-semibold text-gray-800 mb-1">
-                <span>Add Items for {selectedDidi}</span>
+                <span>Add Items for {searchTerm}</span>
                 <button
                   className="text-red-500 hover:text-red-700"
                   onClick={() => {
@@ -384,7 +394,9 @@ const IssueFood = () => {
                     setLunch([]);
                   }}
                 >
-                  <FiX size={30} />
+                  {(dinner.length > 0 ||
+                    lunch.length > 0 ||
+                    breakfast.length > 0) && <FiX size={30} />}
                 </button>
               </h3>
 
@@ -438,11 +450,11 @@ const IssueFood = () => {
         </div>
 
         {selectedDidi && (
-          <div className="flex justify-between place-self-center my-4">
+          <div className="flex justify-between my-4">
             <button
               className={`p-2 rounded-lg ${
                 isLoading ? "bg-gray-300" : "bg-[#A24C4A] text-white"
-              }`}
+              } ml-auto`}
               onClick={handleSubmit}
               disabled={isLoading}
             >
@@ -455,12 +467,12 @@ const IssueFood = () => {
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-white w-full max-w-md p-6 rounded-lg shadow-lg">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Add Weight for {selectedItem.food_name} in{" "}
+                Enter value for {selectedItem.food_name} in{" "}
                 {selectedItem.unit_name}
               </h3>
               <input
                 type="number"
-                placeholder={`Enter ${selectedItem.unit_name}`}
+                placeholder={`Type here`}
                 value={value}
                 min="1"
                 onChange={(e) => {
