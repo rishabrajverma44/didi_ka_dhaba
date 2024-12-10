@@ -20,16 +20,21 @@ const Payment = () => {
   const [online, setOnline] = useState("");
   const [cash, setCash] = useState("");
   const [isCameraOn, setIsCameraOn] = useState(false);
-  const [isUsingFrontCamera, setIsUsingFrontCamera] = useState(true);
+  const [isUsingFrontCamera, setIsUsingFrontCamera] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const webcamRef = useRef(null);
 
-  const videoConstraints = useMemo(
-    () => ({
-      facingMode: isUsingFrontCamera ? "user" : "environment",
-    }),
-    [isUsingFrontCamera]
-  );
+  const videoConstraints = {
+    facingMode: isUsingFrontCamera ? "user" : "environment",
+  };
+
+  const toggleCamera = () => {
+    setIsCameraOn((prevState) => !prevState);
+  };
+
+  const toggleCameraType = () => {
+    setIsUsingFrontCamera((prevState) => !prevState);
+  };
 
   const handleCapture = () => {
     if (webcamRef.current) {
@@ -45,14 +50,6 @@ const Payment = () => {
         setIsCameraOn(false);
       }
     }
-  };
-
-  const toggleCamera = () => {
-    setIsCameraOn((prevState) => !prevState);
-  };
-
-  const toggleCameraType = () => {
-    setIsUsingFrontCamera((prevState) => !prevState);
   };
 
   const handleRemoveImage = (index) => {
@@ -264,10 +261,10 @@ const Payment = () => {
         <h4 className="text-xl font-semibold text-gray-800">Received Money</h4>
         <div>
           <div className="mb-2">
-            <label className="text-gray-700">Online Recived Money</label>
+            <label className="text-gray-700">UPI</label>
             <input
               type="number"
-              placeholder="Enter Online Payment"
+              placeholder="UPI Payment"
               min="1"
               value={online}
               onChange={(e) => {
@@ -280,10 +277,10 @@ const Payment = () => {
             />
           </div>
           <div className="mb-2">
-            <label className="text-gray-700">Cash Recived Money</label>
+            <label className="text-gray-700">Cash </label>
             <input
               type="number"
-              placeholder="Enter Cash Payment"
+              placeholder="Cash Payment"
               min="1"
               value={cash}
               onChange={(e) => {
@@ -297,7 +294,7 @@ const Payment = () => {
           </div>
 
           <div className="mb-4">
-            <label className="text-gray-700">Add Photos</label>
+            <label className="text-gray-700">Add Images</label>
             <div className="border border-gray-300 px-4 py-2 text-center">
               {isCameraOn ? (
                 <div className="relative">
