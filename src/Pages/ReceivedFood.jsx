@@ -23,7 +23,7 @@ const ReceivedFood = () => {
   const [lunch, setLunch] = useState([]);
   const [dinner, setDinner] = useState([]);
   const [finalData, setFinalData] = useState([]);
-  const [isFrontCamera, setIsFrontCamera] = useState(true);
+  const [isFrontCamera, setIsFrontCamera] = useState(false);
   const [showWebcamBreakfastIndex, setShowWebcamBreakfastIndex] =
     useState(null);
   const [showWebcamLunchIndex, setShowWebcamLunchIndex] = useState(null);
@@ -516,12 +516,11 @@ const ReceivedFood = () => {
                           >
                             Received Food
                           </th>
-                          <th className="text-center">Image</th>
                           <th
                             className="text-center"
                             style={{ minWidth: "200px" }}
                           >
-                            Uploaded Image
+                            Image
                           </th>
                         </tr>
                       </thead>
@@ -577,28 +576,8 @@ const ReceivedFood = () => {
                                 )}
                               </td>
                               <td className="border p-2 text-center">
-                                {capturedImages.Breakfast[itemIndex] ||
-                                showWebcamBreakfastIndex === itemIndex ? (
-                                  <button
-                                    onClick={() =>
-                                      captureImage("Breakfast", itemIndex)
-                                    }
-                                  >
-                                    <FaCamera color="#A24C4A" size={24} />
-                                  </button>
-                                ) : (
-                                  <button
-                                    onClick={() =>
-                                      openWebcam("Breakfast", itemIndex)
-                                    }
-                                  >
-                                    <FaCamera color="#A24C4A" size={24} />
-                                  </button>
-                                )}
-                              </td>
-                              <td className="border p-2 text-center">
                                 {capturedImages.Breakfast[itemIndex] ? (
-                                  <div className="relative">
+                                  <div className="relative inline-block">
                                     <img
                                       src={capturedImages.Breakfast[itemIndex]}
                                       alt="Captured"
@@ -617,37 +596,38 @@ const ReceivedFood = () => {
                                     </button>
                                   </div>
                                 ) : showWebcamBreakfastIndex === itemIndex ? (
-                                  <div className="">
-                                    <div className="relative rounded shadow-lg">
-                                      <Webcam
-                                        audio={false}
-                                        ref={webcamRef}
-                                        screenshotFormat="image/jpeg"
-                                        className="rounded shadow-md"
-                                        videoConstraints={videoConstraints}
-                                      />
-                                      <div className="absolute bottom-3 flex space-x-8 z-10 w-full items-center justify-center">
-                                        <button
-                                          onClick={() =>
-                                            captureImage("Breakfast", itemIndex)
-                                          }
-                                        >
-                                          <FaCamera color="#A24C4A" size={24} />
-                                        </button>
-
-                                        <button onClick={toggleCamera}>
-                                          <FiRefreshCcw
-                                            color="#A24C4A"
-                                            size={24}
-                                          />
-                                        </button>
-                                      </div>
+                                  <div className="relative inline-block rounded shadow-lg">
+                                    <Webcam
+                                      audio={false}
+                                      ref={webcamRef}
+                                      screenshotFormat="image/jpeg"
+                                      className="w-48 h-48 rounded shadow-md"
+                                      videoConstraints={videoConstraints}
+                                    />
+                                    <div className="absolute bottom-3 flex space-x-8 z-10 w-full items-center justify-center">
+                                      <button
+                                        onClick={() =>
+                                          captureImage("Breakfast", itemIndex)
+                                        }
+                                      >
+                                        <FaCamera color="#A24C4A" size={24} />
+                                      </button>
+                                      <button onClick={toggleCamera}>
+                                        <FiRefreshCcw
+                                          color="#A24C4A"
+                                          size={24}
+                                        />
+                                      </button>
                                     </div>
                                   </div>
                                 ) : (
-                                  <span className="flex items-center justify-center text-gray-600 text-sm font-medium p-4 border-dashed border-2 border-gray-300 rounded-lg">
-                                    No image captured
-                                  </span>
+                                  <button
+                                    onClick={() =>
+                                      openWebcam("Breakfast", itemIndex)
+                                    }
+                                  >
+                                    <FaCamera color="#A24C4A" size={24} />
+                                  </button>
                                 )}
                               </td>
                             </tr>
@@ -687,12 +667,11 @@ const ReceivedFood = () => {
                           >
                             Received Food
                           </th>
-                          <th className="text-center">Image</th>
                           <th
                             className="text-center"
                             style={{ minWidth: "200px" }}
                           >
-                            Uploaded Image
+                            Image
                           </th>
                         </tr>
                       </thead>
@@ -748,33 +727,12 @@ const ReceivedFood = () => {
                                 )}
                               </td>
                               <td className="border p-2 text-center">
-                                {capturedImages.Lunch[itemIndex] ||
-                                showWebcamLunchIndex === itemIndex ? (
-                                  <button
-                                    onClick={() =>
-                                      captureImage("Lunch", itemIndex)
-                                    }
-                                  >
-                                    <FaCamera color="#A24C4A" size={24} />
-                                  </button>
-                                ) : (
-                                  <button
-                                    onClick={() =>
-                                      openWebcam("Lunch", itemIndex)
-                                    }
-                                  >
-                                    <FaCamera color="#A24C4A" size={24} />
-                                  </button>
-                                )}
-                              </td>
-
-                              <td className="border p-2 text-center">
                                 {capturedImages.Lunch[itemIndex] ? (
-                                  <div className="relative">
+                                  <div className="relative inline-block">
                                     <img
                                       src={capturedImages.Lunch[itemIndex]}
                                       alt="Captured"
-                                      className=" rounded shadow-lg"
+                                      className="rounded shadow-lg"
                                     />
                                     <button
                                       className="absolute top-0 right-0 p-1 text-red-500 hover:text-red-700"
@@ -786,37 +744,38 @@ const ReceivedFood = () => {
                                     </button>
                                   </div>
                                 ) : showWebcamLunchIndex === itemIndex ? (
-                                  <div className="">
-                                    <div className="relative rounded shadow-lg">
-                                      <Webcam
-                                        audio={false}
-                                        ref={webcamRef}
-                                        screenshotFormat="image/jpeg"
-                                        className="rounded shadow-md"
-                                        videoConstraints={videoConstraints}
-                                      />
-                                      <div className="absolute bottom-3 flex space-x-8 z-10 w-full items-center justify-center">
-                                        <button
-                                          onClick={() =>
-                                            captureImage("Lunch", itemIndex)
-                                          }
-                                        >
-                                          <FaCamera color="#A24C4A" size={24} />
-                                        </button>
-
-                                        <button onClick={toggleCamera}>
-                                          <FiRefreshCcw
-                                            color="#A24C4A"
-                                            size={24}
-                                          />
-                                        </button>
-                                      </div>
+                                  <div className="relative inline-block rounded shadow-lg">
+                                    <Webcam
+                                      audio={false}
+                                      ref={webcamRef}
+                                      screenshotFormat="image/jpeg"
+                                      className="rounded shadow-md"
+                                      videoConstraints={videoConstraints}
+                                    />
+                                    <div className="absolute bottom-3 flex space-x-8 z-10 w-full items-center justify-center">
+                                      <button
+                                        onClick={() =>
+                                          captureImage("Lunch", itemIndex)
+                                        }
+                                      >
+                                        <FaCamera color="#A24C4A" size={24} />
+                                      </button>
+                                      <button onClick={toggleCamera}>
+                                        <FiRefreshCcw
+                                          color="#A24C4A"
+                                          size={24}
+                                        />
+                                      </button>
                                     </div>
                                   </div>
                                 ) : (
-                                  <span className="flex items-center justify-center text-gray-600 text-sm font-medium p-4 border-dashed border-2 border-gray-300 rounded-lg">
-                                    No image captured
-                                  </span>
+                                  <button
+                                    onClick={() =>
+                                      openWebcam("Lunch", itemIndex)
+                                    }
+                                  >
+                                    <FaCamera color="#A24C4A" size={24} />
+                                  </button>
                                 )}
                               </td>
                             </tr>
@@ -856,12 +815,11 @@ const ReceivedFood = () => {
                           >
                             Received Food
                           </th>
-                          <th className="text-center">Image</th>
                           <th
                             className="text-center"
                             style={{ minWidth: "200px" }}
                           >
-                            Uploaded Image
+                            Image
                           </th>
                         </tr>
                       </thead>
@@ -917,33 +875,12 @@ const ReceivedFood = () => {
                                 )}
                               </td>
                               <td className="border p-2 text-center">
-                                {capturedImages.Dinner[itemIndex] ||
-                                showWebcamDinnerIndex === itemIndex ? (
-                                  <button
-                                    onClick={() =>
-                                      captureImage("Dinner", itemIndex)
-                                    }
-                                  >
-                                    <FaCamera color="#A24C4A" size={24} />
-                                  </button>
-                                ) : (
-                                  <button
-                                    onClick={() =>
-                                      openWebcam("Dinner", itemIndex)
-                                    }
-                                  >
-                                    <FaCamera color="#A24C4A" size={24} />
-                                  </button>
-                                )}
-                              </td>
-
-                              <td className="border p-2 text-center">
                                 {capturedImages.Dinner[itemIndex] ? (
-                                  <div className="relative">
+                                  <div className="relative inline-block">
                                     <img
                                       src={capturedImages.Dinner[itemIndex]}
                                       alt="Captured"
-                                      className=" rounded shadow-lg"
+                                      className="rounded shadow-lg"
                                     />
                                     <button
                                       className="absolute top-0 right-0 p-1 text-red-500 hover:text-red-700"
@@ -955,37 +892,38 @@ const ReceivedFood = () => {
                                     </button>
                                   </div>
                                 ) : showWebcamDinnerIndex === itemIndex ? (
-                                  <div className="">
-                                    <div className="relative rounded shadow-lg">
-                                      <Webcam
-                                        audio={false}
-                                        ref={webcamRef}
-                                        screenshotFormat="image/jpeg"
-                                        className="rounded shadow-md"
-                                        videoConstraints={videoConstraints}
-                                      />
-                                      <div className="absolute bottom-3 flex space-x-8 z-10 w-full items-center justify-center">
-                                        <button
-                                          onClick={() =>
-                                            captureImage("Dinner", itemIndex)
-                                          }
-                                        >
-                                          <FaCamera color="#A24C4A" size={24} />
-                                        </button>
-
-                                        <button onClick={toggleCamera}>
-                                          <FiRefreshCcw
-                                            color="#A24C4A"
-                                            size={24}
-                                          />
-                                        </button>
-                                      </div>
+                                  <div className="relative rounded shadow-lg">
+                                    <Webcam
+                                      audio={false}
+                                      ref={webcamRef}
+                                      screenshotFormat="image/jpeg"
+                                      className="rounded shadow-md"
+                                      videoConstraints={videoConstraints}
+                                    />
+                                    <div className="absolute bottom-3 flex space-x-8 z-10 w-full items-center justify-center">
+                                      <button
+                                        onClick={() =>
+                                          captureImage("Dinner", itemIndex)
+                                        }
+                                      >
+                                        <FaCamera color="#A24C4A" size={24} />
+                                      </button>
+                                      <button onClick={toggleCamera}>
+                                        <FiRefreshCcw
+                                          color="#A24C4A"
+                                          size={24}
+                                        />
+                                      </button>
                                     </div>
                                   </div>
                                 ) : (
-                                  <span className="flex items-center justify-center text-gray-600 text-sm font-medium p-4 border-dashed border-2 border-gray-300 rounded-lg">
-                                    No image captured
-                                  </span>
+                                  <button
+                                    onClick={() =>
+                                      openWebcam("Dinner", itemIndex)
+                                    }
+                                  >
+                                    <FaCamera color="#A24C4A" size={24} />
+                                  </button>
                                 )}
                               </td>
                             </tr>
