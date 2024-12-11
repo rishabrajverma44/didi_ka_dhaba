@@ -6,9 +6,11 @@ import { FiX, FiRefreshCcw } from "react-icons/fi";
 import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import ConfirmNavigation from "../Components/prebuiltComponent/ConfirmNavigation";
 
 const Payment = () => {
   const navigate = useNavigate();
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [status, setStatus] = useState(null);
   const [namesDidi, setNamesDidi] = useState([]);
   const [searchTermDidi, setSearchTermDidi] = useState("");
@@ -23,13 +25,18 @@ const Payment = () => {
   const [isUsingFrontCamera, setIsUsingFrontCamera] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const webcamRef = useRef(null);
+  const [isInitializingCamera, setIsInitializingCamera] = useState(false);
 
   const videoConstraints = {
     facingMode: isUsingFrontCamera ? "user" : "environment",
   };
 
   const toggleCamera = () => {
-    setIsCameraOn((prevState) => !prevState);
+    setIsInitializingCamera(true); // Set to true when starting camera
+    setTimeout(() => {
+      setIsCameraOn(true);
+      setIsInitializingCamera(false); // Set to false after camera is on
+    }, 2000); // Simulate delay for camera initialization
   };
 
   const toggleCameraType = () => {
@@ -37,6 +44,7 @@ const Payment = () => {
   };
 
   const handleCapture = () => {
+    setHasUnsavedChanges(true);
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
       if (imageSrc) {
@@ -46,7 +54,6 @@ const Payment = () => {
         } else {
           toast.error("You can only add up to 5 photos.");
         }
-
         setIsCameraOn(false);
       }
     }
@@ -207,10 +214,13 @@ const Payment = () => {
 
   return (
     <div className="bg-gray-50" style={{ minHeight: "100vh" }}>
+      <ConfirmNavigation targetUrl="/" hasUnsavedChanges={hasUnsavedChanges} />
       <div className="container py-4">
         <h3 className="text-center mb-4">Payment Details</h3>
 
-        <h4 className="text-xl font-semibold text-gray-800">Select Didi</h4>
+        <h4 className="text-xl font-semibold text-gray-800">
+          Select Didi (stall code)
+        </h4>
 
         <div ref={dropdownRefDidi} className="relative">
           <input
@@ -242,6 +252,7 @@ const Payment = () => {
                       setSelectedDidi(name.didi_id);
                       setSearchTermDidi(name.didi_name_and_thela_code);
                       setIsDropdownOpenDidi(false);
+                      setHasUnsavedChanges(true);
                     }}
                   >
                     {name.didi_name_and_thela_code}
@@ -271,6 +282,7 @@ const Payment = () => {
                 const newValue = e.target.value;
                 if (newValue === "" || Number(newValue) > 0) {
                   setOnline(newValue);
+                  setHasUnsavedChanges(true);
                 }
               }}
               className="w-full p-2 border border-transparent rounded focus:outline-none focus:ring-2 focus:ring-blue-200"
@@ -287,6 +299,7 @@ const Payment = () => {
                 const newValue = e.target.value;
                 if (newValue === "" || Number(newValue) > 0) {
                   setCash(newValue);
+                  setHasUnsavedChanges(true);
                 }
               }}
               className="w-full p-2 border border-transparent rounded focus:outline-none focus:ring-2 focus:ring-blue-200"
@@ -296,7 +309,11 @@ const Payment = () => {
           <div className="mb-4">
             <label className="text-gray-700">Add Images</label>
             <div className="border border-gray-300 px-4 py-2 text-center">
-              {isCameraOn ? (
+              {isInitializingCamera && !isCameraOn ? (
+                <p className="text-blue-500">
+                  Please wait while the camera is opening...
+                </p>
+              ) : isCameraOn ? (
                 <div className="relative">
                   <Webcam
                     audio={false}
@@ -313,7 +330,7 @@ const Payment = () => {
                     </button>
                     <button
                       className="text-red-500 hover:text-red-700"
-                      onClick={toggleCamera}
+                      onClick={() => setIsCameraOn(false)}
                     >
                       <FiX size={30} />
                     </button>
@@ -323,9 +340,28 @@ const Payment = () => {
                   </div>
                 </div>
               ) : (
-                <button onClick={toggleCamera}>
-                  <FaCamera color="#A24C4A" size={20} />
-                </button>
+                <div>
+                  {photos.length < 5 ? (
+                    <button
+                      onClick={toggleCamera}
+                      className="items-center gap-2 bg-[#A24C4A] hover:bg-red-600 text-white font-semibold py-2 px-4 rounded shadow-md transition duration-300 ease-in-out"
+                    >
+                      {photos.length === 0 ? (
+                        <span className="flex items-center gap-2">
+                          <FaCamera color="white" size={20} />
+                          Open Camera
+                        </span>
+                      ) : photos.length < 5 ? (
+                        <span className="flex items-center gap-2">
+                          <FaCamera color="white" size={20} />
+                          Add More
+                        </span>
+                      ) : null}
+                    </button>
+                  ) : (
+                    <p className="text-red-500">Remove an image to add more.</p>
+                  )}
+                </div>
               )}
             </div>
 

@@ -6,6 +6,11 @@ import Login from "../Components/Login/Login";
 import ReceivedFood from "../Pages/ReceivedFood";
 import IssueFood from "../Pages/IssueFood";
 import Payment from "../Pages/Payment";
+import AdminHome from "../Pages/Adimn/AdminHome";
+import DidiDetails from "../Pages/Adimn/DidiDetails";
+import ThelaRegistration from "../Pages/Adimn/ThelaRegistration";
+import AdminRoute from "./AdminRoute";
+import DidiAssignment from "../Pages/Adimn/DidiAssignment";
 
 const routes = [
   {
@@ -15,6 +20,42 @@ const routes = [
       {
         path: "login",
         element: <Login />,
+      },
+      {
+        index: true,
+        path: "didireg",
+        element: (
+          <AdminRoute>
+            <DidiDetails />,
+          </AdminRoute>
+        ),
+      },
+      {
+        index: true,
+        path: "thelareg",
+        element: (
+          <AdminRoute>
+            <ThelaRegistration />,
+          </AdminRoute>
+        ),
+      },
+      {
+        index: true,
+        path: "admin",
+        element: (
+          <AdminRoute>
+            <AdminHome />,
+          </AdminRoute>
+        ),
+      },
+      {
+        index: true,
+        path: "assign",
+        element: (
+          <AdminRoute>
+            <DidiAssignment />,
+          </AdminRoute>
+        ),
       },
       {
         index: true,

@@ -7,9 +7,11 @@ import { ToastContainer, toast } from "react-toastify";
 import Swal from "sweetalert2";
 import Webcam from "react-webcam";
 import { useNavigate } from "react-router-dom";
+import ConfirmNavigation from "../Components/prebuiltComponent/ConfirmNavigation";
 
 const ReceivedFood = () => {
   const navigate = useNavigate();
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [namesDidi, setDidiName] = useState([]);
   const [currentDate, setCurrentDate] = useState("");
   const [searchTermDidi, setSearchTermDidi] = useState("");
@@ -89,7 +91,7 @@ const ReceivedFood = () => {
   const handleReceivedChange = (mealType, itemIndex, value, image = null) => {
     const parsedValue = value === "" ? 0 : parseFloat(value);
     let errorMessage = "";
-
+    setHasUnsavedChanges(true);
     const currentItem =
       mealType === "Breakfast"
         ? breakfast[itemIndex]
@@ -436,8 +438,14 @@ const ReceivedFood = () => {
     <div className="bg-gray-50" style={{ minHeight: "100vh" }}>
       <div className="container py-4">
         <h3 className="text-center mb-4">Received Return Food</h3>
+        <ConfirmNavigation
+          targetUrl="/"
+          hasUnsavedChanges={hasUnsavedChanges}
+        />
 
-        <h4 className="text-xl font-semibold text-gray-800">Select Didi</h4>
+        <h4 className="text-xl font-semibold text-gray-800">
+          Select Didi (stall code)
+        </h4>
 
         <div ref={dropdownRefDidi} className="relative">
           <input
@@ -469,6 +477,7 @@ const ReceivedFood = () => {
                       setSelectedDidi(name.didi_id);
                       setSearchTermDidi(name.didi_name_and_thela_code);
                       setIsDropdownOpenDidi(false);
+                      setHasUnsavedChanges(true);
                     }}
                   >
                     {name.didi_name_and_thela_code}

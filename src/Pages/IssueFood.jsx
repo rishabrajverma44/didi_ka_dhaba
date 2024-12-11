@@ -3,10 +3,12 @@ import { ToastContainer, toast } from "react-toastify";
 import { FiX } from "react-icons/fi";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import ConfirmNavigation from "../Components/prebuiltComponent/ConfirmNavigation";
 
 const IssueFood = () => {
   const navigate = useNavigate();
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [status, setStatus] = useState(null);
   const [namesDidi, setDidiName] = useState([]);
   const [currentFoodData, setCurrentFoodData] = useState([]);
@@ -23,8 +25,50 @@ const IssueFood = () => {
   const [dinner, setDinner] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  const handleAddItem = (item) => {
+    if (selectedDidi) {
+      setSelectedItem(item);
+      setShowModal(true);
+
+      if (mealType === "1") {
+        setBreakFast((prev) => [...prev, item]);
+        setCurrentFoodData((prev) =>
+          prev.filter((food) => food.food_id !== item.food_id)
+        );
+      } else if (mealType === "2") {
+        setLunch((prev) => [...prev, item]);
+        setCurrentFoodData((prev) =>
+          prev.filter((food) => food.food_id !== item.food_id)
+        );
+      } else if (mealType === "3") {
+        setDinner((prev) => [...prev, item]);
+        setCurrentFoodData((prev) =>
+          prev.filter((food) => food.food_id !== item.food_id)
+        );
+      }
+    } else {
+      toast.warning("Please select Didi");
+    }
+  };
+
+  const handleRemoveItem = (item, meal) => {
+    if (meal === "1") {
+      setBreakFast((prev) =>
+        prev.filter((food) => food.food_id !== item.food_id)
+      );
+      setCurrentFoodData((prev) => [...prev, item]);
+    } else if (meal === "2") {
+      setLunch((prev) => prev.filter((food) => food.food_id !== item.food_id));
+      setCurrentFoodData((prev) => [...prev, item]);
+    } else if (meal === "3") {
+      setDinner((prev) => prev.filter((food) => food.food_id !== item.food_id));
+      setCurrentFoodData((prev) => [...prev, item]);
+    }
+  };
+
   const handleMealChange = (e) => {
     setMealType(e.target.value);
+    setHasUnsavedChanges(true);
   };
 
   const dropdownRef = useRef(null);
@@ -35,25 +79,20 @@ const IssueFood = () => {
 
   const getFoodItem = async () => {
     try {
-      axios
-        .get(
-          `https://didikadhababackend.indevconsultancy.in/dhaba/foodmaster/category/${mealType}`
-        )
-        .then((res) => {
-          if (res.status === 200) {
-            setCurrentFoodData(res.data.data);
-          } else {
-            setCurrentFoodData([]);
-          }
-        })
-        .catch((e) => {
-          console.log("Error in food item:", e);
-        });
+      const response = await axios.get(
+        `https://didikadhababackend.indevconsultancy.in/dhaba/foodmaster/category/${mealType}`
+      );
+
+      if (response.status === 200) {
+        setCurrentFoodData(response.data.data);
+      } else {
+        setCurrentFoodData([]);
+      }
     } catch (error) {
       console.log("Error in getting food items:", error);
+      setCurrentFoodData([]);
     }
   };
-
   useEffect(() => {
     getFoodItem();
   }, [mealType]);
@@ -62,20 +101,7 @@ const IssueFood = () => {
     setSelectedDidi(name.didi_id);
     setSearchTerm(name.didi_name_and_thela_code);
     setIsDropdownOpen(false);
-  };
-
-  const handleRemoveItem = (item, meal) => {
-    if (meal === "1") {
-      setBreakFast((prev) =>
-        prev.filter((food) => food.food_id !== item.food_id)
-      );
-    }
-    if (meal === "2") {
-      setLunch((prev) => prev.filter((food) => food.food_id !== item.food_id));
-    }
-    if (meal === "3") {
-      setDinner((prev) => prev.filter((food) => food.food_id !== item.food_id));
-    }
+    setHasUnsavedChanges(true);
   };
 
   const handleConfirm = (item) => {
@@ -119,15 +145,6 @@ const IssueFood = () => {
 
     setValue("");
     setShowModal(false);
-  };
-
-  const handleAddItem = (item) => {
-    if (selectedDidi) {
-      setSelectedItem(item);
-      setShowModal(true);
-    } else {
-      toast.warning("Please select Didi");
-    }
   };
 
   useEffect(() => {
@@ -307,6 +324,7 @@ const IssueFood = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center">
+      <ConfirmNavigation targetUrl="/" hasUnsavedChanges={hasUnsavedChanges} />
       <div className="container py-4">
         <div>
           <h3 className="text-center mb-4">Issue Food</h3>
