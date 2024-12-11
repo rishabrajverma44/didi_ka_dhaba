@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import axios from "axios";
 import {
   useTable,
@@ -8,6 +8,7 @@ import {
 } from "react-table";
 import Modal from "react-modal";
 import { FaFilePdf } from "react-icons/fa";
+import { toast, ToastContainer } from "react-toastify";
 Modal.setAppElement("#root");
 
 const AdminHome = () => {
@@ -95,15 +96,21 @@ const AdminHome = () => {
   const { globalFilter, pageIndex } = state;
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Admin Home</h2>
+    <div className="bg-gray-50 py-2 px-4" style={{ height: "99vh" }}>
+      <ToastContainer />
+      <h2 className="text-2xl font-bold text-center text-slate-600">
+        Assign Didi to Stall
+      </h2>
 
       <div className="flex flex-col md:flex-row justify-between items-center mb-4">
         <input
           type="text"
           placeholder="Search by Didi Name or Stall Code"
           value={globalFilter || ""}
-          onChange={(e) => setGlobalFilter(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value.toLowerCase();
+            setGlobalFilter(value);
+          }}
           className="p-2 border border-gray-300 rounded focus:outline-none focus:border-[#A24C4A] w-full md:w-80"
         />
         <button className="flex items-center gap-2 tracking-wide font-semibold text-[#A24C4A] py-2 px-4 mt-4 md:mt-0 rounded border border-[#A24C4A] hover:bg-[#A24C4A] hover:text-white transition">

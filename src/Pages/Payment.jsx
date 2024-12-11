@@ -15,6 +15,7 @@ const Payment = () => {
   const [namesDidi, setNamesDidi] = useState([]);
   const [searchTermDidi, setSearchTermDidi] = useState("");
   const [selectedDidi, setSelectedDidi] = useState(null);
+  const [selectedThela_id, setSelectedThela_id] = useState(null);
   const [isDropdownOpenDidi, setIsDropdownOpenDidi] = useState(false);
   const dropdownRefDidi = useRef(null);
   const [currentDate, setCurrentDate] = useState("");
@@ -71,6 +72,7 @@ const Payment = () => {
         .then((res) => {
           if (res.status === 200) {
             setNamesDidi(res.data);
+            console.log(res.data);
           } else {
             setNamesDidi([]);
           }
@@ -139,12 +141,14 @@ const Payment = () => {
         setIsLoading(true);
         const formData = new FormData();
         formData.append("didi_id", selectedDidi);
+        formData.append("thela_id", selectedThela_id);
         photos.forEach((photo, index) => {
           formData.append(`photo${index + 1}`, photo);
         });
 
         const payload = {
           didi_id: formData.get("didi_id"),
+          thela_id: formData.get("thela_id"),
           upi: online,
           cash: cash,
           image: Array.from({ length: photos.length }).map((_, i) => {
@@ -250,6 +254,7 @@ const Payment = () => {
                     className="p-2 hover:bg-blue-100 cursor-pointer"
                     onClick={() => {
                       setSelectedDidi(name.didi_id);
+                      setSelectedThela_id(name.thela_id);
                       setSearchTermDidi(name.didi_name_and_thela_code);
                       setIsDropdownOpenDidi(false);
                       setHasUnsavedChanges(true);
