@@ -369,22 +369,6 @@ const ReceivedFood = () => {
       return false;
     }
   };
-  // const checkConnectionStatus = async () => {
-  //   const actualStatus = await checkInternetConnection();
-  //   setStatus(actualStatus);
-  // };
-  // useEffect(() => {
-  //   checkConnectionStatus();
-  // }, []);
-  useEffect(() => {
-    if (status === false) {
-      Swal.fire({
-        html: `<b>Check Internet connection!</b>`,
-        allowOutsideClick: false,
-        confirmButtonColor: "#A24C4A",
-      });
-    }
-  }, [status]);
 
   const handleSubmit = async () => {
     if (!validateFields()) {

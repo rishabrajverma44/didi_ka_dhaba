@@ -115,72 +115,80 @@ const Payment = () => {
       toast.warning("Please enter online payment");
       return;
     }
+    const actualStatus = checkInternetConnection();
+    if (actualStatus) {
+      Swal.fire({
+        title: "Are you sure?",
+        html: `
+          <p>Do you want to confirm the submission?</p>
+          <p>${currentDate}</p>
+          <ul style="text-align: left; margin-top: 1rem;">
+            <li>Didi Name:<strong> ${searchTermDidi}</strong></li>
+            <li>Online Amount:<strong> ${online || "Not provided"}</strong></li>
+            <li>Cash Amount:<strong> ${cash || "Not provided"}</strong></li>
+            <li>Total Amount:<strong> ${
+              Number(cash) + Number(online) || "Not provided"
+            }</strong></li>
+          </ul>
+        `,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, submit it!",
+        cancelButtonText: "No, cancel!",
+        confirmButtonColor: "#A24C4A",
+        cancelButtonColor: "#d33",
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          setIsLoading(true);
+          const formData = new FormData();
+          formData.append("didi_id", selectedDidi);
+          formData.append("thela_id", selectedThela_id);
+          photos.forEach((photo, index) => {
+            formData.append(`photo${index + 1}`, photo);
+          });
 
-    Swal.fire({
-      title: "Are you sure?",
-      html: `
-        <p>Do you want to confirm the submission?</p>
-        <p>${currentDate}</p>
-        <ul style="text-align: left; margin-top: 1rem;">
-          <li>Didi Name:<strong> ${searchTermDidi}</strong></li>
-          <li>Online Amount:<strong> ${online || "Not provided"}</strong></li>
-          <li>Cash Amount:<strong> ${cash || "Not provided"}</strong></li>
-          <li>Total Amount:<strong> ${
-            Number(cash) + Number(online) || "Not provided"
-          }</strong></li>
-        </ul>
-      `,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, submit it!",
-      cancelButtonText: "No, cancel!",
-      confirmButtonColor: "#A24C4A",
-      cancelButtonColor: "#d33",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        setIsLoading(true);
-        const formData = new FormData();
-        formData.append("didi_id", selectedDidi);
-        formData.append("thela_id", selectedThela_id);
-        photos.forEach((photo, index) => {
-          formData.append(`photo${index + 1}`, photo);
-        });
+          const payload = {
+            didi_id: formData.get("didi_id"),
+            thela_id: formData.get("thela_id"),
+            upi: online,
+            cash: cash,
+            image: Array.from({ length: photos.length }).map((_, i) => {
+              const photo = formData.get(`photo${i + 1}`);
+              return photo.replace(/^data:image\/jpeg;base64,\/9j\//, "");
+            }),
+          };
 
-        const payload = {
-          didi_id: formData.get("didi_id"),
-          thela_id: formData.get("thela_id"),
-          upi: online,
-          cash: cash,
-          image: Array.from({ length: photos.length }).map((_, i) => {
-            const photo = formData.get(`photo${i + 1}`);
-            return photo.replace(/^data:image\/jpeg;base64,\/9j\//, "");
-          }),
-        };
-
-        try {
-          const response = await axios.post(
-            "https://didikadhababackend.indevconsultancy.in/dhaba/payment-details/",
-            payload
-          );
-          toast.success("Submitted successfully!");
-          setPhotos([]);
-          setSearchTermDidi("");
-          setSelectedDidi(null);
-          setOnline("");
-          setCash("");
-          setTimeout(() => {
-            navigate("/");
-          }, 2000);
-        } catch (error) {
-          toast.error("Submission failed. Please try again.");
-          console.error("Error:", error);
-        } finally {
-          setIsLoading(false);
+          try {
+            const response = await axios.post(
+              "https://didikadhababackend.indevconsultancy.in/dhaba/payment-details/",
+              payload
+            );
+            toast.success("Submitted successfully!");
+            setPhotos([]);
+            setSearchTermDidi("");
+            setSelectedDidi(null);
+            setOnline("");
+            setCash("");
+            setTimeout(() => {
+              navigate("/");
+            }, 2000);
+          } catch (error) {
+            toast.error("Submission failed. Please try again.");
+            console.error("Error:", error);
+          } finally {
+            setIsLoading(false);
+          }
+        } else {
+          toast.info("Submission cancelled.");
         }
-      } else {
-        toast.info("Submission cancelled.");
-      }
-    });
+      });
+    } else {
+      Swal.fire({
+        html: `<b>Check Internet connection!</b>`,
+        allowOutsideClick: false,
+        confirmButtonColor: "#A24C4A",
+      });
+    }
   };
 
   const checkInternetConnection = async () => {
@@ -196,10 +204,6 @@ const Payment = () => {
     } catch (error) {
       return false;
     }
-  };
-  const checkConnectionStatus = async () => {
-    const actualStatus = await checkInternetConnection();
-    setStatus(actualStatus);
   };
 
   // useEffect(() => {

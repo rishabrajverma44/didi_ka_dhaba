@@ -7,10 +7,11 @@ import ReceivedFood from "../Pages/ReceivedFood";
 import IssueFood from "../Pages/IssueFood";
 import Payment from "../Pages/Payment";
 import AdminHome from "../Pages/Adimn/AdminHome";
-import DidiDetails from "../Pages/Adimn/DidiDetails";
+import DidiRegistration from "../Pages/Adimn/DidiRegistration";
 import ThelaRegistration from "../Pages/Adimn/ThelaRegistration";
 import AdminRoute from "./AdminRoute";
 import DidiAssignment from "../Pages/Adimn/DidiAssignment";
+import FoodMaster from "../Pages/Adimn/FoodMaster";
 
 const routes = [
   {
@@ -26,7 +27,16 @@ const routes = [
         path: "didireg",
         element: (
           <AdminRoute>
-            <DidiDetails />,
+            <DidiRegistration />,
+          </AdminRoute>
+        ),
+      },
+      {
+        index: true,
+        path: "foodmaster",
+        element: (
+          <AdminRoute>
+            <FoodMaster />,
           </AdminRoute>
         ),
       },

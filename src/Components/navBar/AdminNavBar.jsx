@@ -98,6 +98,12 @@ const AdminNavBar = () => {
                     Home
                   </Link>
                   <Link
+                    className="block w-full py-1 px-4 text-[#A24C4A] text-left text-gray-700 font-bold no-underline text-xl"
+                    to="/foodmaster"
+                  >
+                    Food Master
+                  </Link>
+                  <Link
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
                     to="/didireg"
                   >
@@ -127,7 +133,7 @@ const AdminNavBar = () => {
             </div>
           </nav>
         </main>
-
+        {/* desktop menu */}
         <section className="z-50 bg-white d-none d-md-block">
           <div className="border-b-2 border-[#A24C4A]">
             <div className="mx-4 flex">
@@ -136,6 +142,12 @@ const AdminNavBar = () => {
                 to="/admin"
               >
                 Home
+              </Link>
+              <Link
+                className="block w-full py-1 px-4 text-[#A24C4A] text-left text-gray-700 font-bold no-underline text-xl"
+                to="/foodmaster"
+              >
+                Food Master
               </Link>
               <Link
                 className="block w-full py-1 px-4 text-[#A24C4A] text-left text-gray-700 font-bold no-underline text-xl"
