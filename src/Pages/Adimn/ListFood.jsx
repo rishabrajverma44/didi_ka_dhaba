@@ -34,7 +34,7 @@ const ListFood = () => {
   const columns = React.useMemo(
     () => [
       { Header: "Food Name", accessor: "food_name" },
-      { Header: "Category", accessor: "food_category" },
+      { Header: "Category", accessor: "food_category_type" },
       { Header: "Unit", accessor: "unit_name" },
       { Header: "Unit Price", accessor: "per_unit_price" },
       {

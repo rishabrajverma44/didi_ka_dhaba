@@ -57,7 +57,7 @@ const AdminNavBar = () => {
   const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("userCredentials");
-    navigate("/login");
+    navigate("/");
   };
 
   return (

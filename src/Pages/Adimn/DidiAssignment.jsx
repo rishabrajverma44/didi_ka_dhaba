@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 
@@ -13,28 +14,56 @@ const DidiAssignment = () => {
   const [selectedDateTo, setSelectedDateTo] = useState("");
   const [formErrors, setFormErrors] = useState({});
 
-  const didiOptions = [
-    { didi_id: 1, didi_name_and_thela_code: "Didi A - 001" },
-    { didi_id: 2, didi_name_and_thela_code: "Didi B - 002" },
-    { didi_id: 3, didi_name_and_thela_code: "Didi C - 003" },
-  ];
+  const [didiOptions, setDidiOptions] = useState([]);
+  const [stallOptions, setStallOptions] = useState([]);
 
-  const stallOptions = [
-    { stall_id: 1, stall_name_and_code: "Stall 1 - S001" },
-    { stall_id: 2, stall_name_and_code: "Stall 2 - S002" },
-    { stall_id: 3, stall_name_and_code: "Stall 3 - S003" },
-  ];
+  const getDidiName = async () => {
+    try {
+      const response = await axios.get(
+        "https://didikadhababackend.indevconsultancy.in/dhaba/didi/"
+      );
+      if (response.status === 200) {
+        setDidiOptions(response.data);
+      } else {
+        setDidiOptions([]);
+      }
+    } catch (error) {
+      console.log("Error in getting didi:", error);
+      setDidiOptions([]);
+    }
+  };
+
+  const getThelaName = async () => {
+    try {
+      const response = await axios.get(
+        "https://didikadhababackend.indevconsultancy.in/dhaba/thelas/"
+      );
+      if (response.status === 200) {
+        setStallOptions(response.data);
+      } else {
+        setStallOptions([]);
+      }
+    } catch (error) {
+      console.log("Error in getting stall:", error);
+      setStallOptions([]);
+    }
+  };
+
+  useEffect(() => {
+    getDidiName();
+    getThelaName();
+  }, []);
 
   const filteredDidiNames = didiOptions.filter((didi) =>
-    didi.didi_name_and_thela_code
-      .toLowerCase()
-      .includes(searchTermDidi.toLowerCase())
+    didi.full_name
+      ? didi.full_name.toLowerCase().includes(searchTermDidi.toLowerCase())
+      : false
   );
 
   const filteredStallNames = stallOptions.filter((stall) =>
-    stall.stall_name_and_code
-      .toLowerCase()
-      .includes(searchTermStall.toLowerCase())
+    stall.thela_name
+      ? stall.thela_name.toLowerCase().includes(searchTermStall.toLowerCase())
+      : false
   );
 
   const dropdownRefDidi = useRef(null);
@@ -83,13 +112,33 @@ const DidiAssignment = () => {
     } else if (new Date(selectedDateFrom) > new Date(selectedDateTo)) {
       errors.dateTo = "To date should be greater than From date!";
     }
-
-    console.log("Validation Errors:", errors);
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const sendData = async (payload) => {
+    try {
+      axios
+        .post(
+          "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/",
+          payload
+        )
+        .then((res) => {
+          if (res.status === 201) {
+            toast.success(
+              `Successfully assigned ${searchTermDidi} to ${searchTermStall}`
+            );
+          }
+        })
+        .catch((err) => {
+          console.log("ree", err);
+        });
+    } catch (error) {
+      console.log("error in assingment", error);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     console.log("Submitting form...");
@@ -111,16 +160,13 @@ const DidiAssignment = () => {
       return;
     }
 
-    toast.success(
-      `Successfully assigned ${searchTermDidi} to ${searchTermStall}`
-    );
-
-    console.log("Form Data Submitted:", {
-      didi: selectedDidi,
-      stall: selectedStall,
-      dateFrom: selectedDateFrom,
-      dateTo: selectedDateTo,
-    });
+    const payload = {
+      didi_id: selectedDidi,
+      thela_id: selectedStall,
+      from_date: selectedDateFrom,
+      to_date: selectedDateTo,
+    };
+    await sendData(payload);
   };
 
   return (
@@ -197,11 +243,11 @@ const DidiAssignment = () => {
                           className="p-2 hover:bg-blue-100 cursor-pointer"
                           onClick={() => {
                             setSelectedDidi(name.didi_id);
-                            setSearchTermDidi(name.didi_name_and_thela_code);
+                            setSearchTermDidi(name.full_name);
                             setIsDropdownOpenDidi(false);
                           }}
                         >
-                          {name.didi_name_and_thela_code}
+                          {name.full_name}
                         </li>
                       ))
                     ) : (
@@ -245,12 +291,12 @@ const DidiAssignment = () => {
                           key={index}
                           className="p-2 hover:bg-blue-100 cursor-pointer"
                           onClick={() => {
-                            setSelectedStall(stall.stall_id);
-                            setSearchTermStall(stall.stall_name_and_code);
+                            setSelectedStall(stall.thela_id);
+                            setSearchTermStall(stall.thela_name);
                             setIsDropdownOpenStall(false);
                           }}
                         >
-                          {stall.stall_name_and_code}
+                          {stall.thela_name}
                         </li>
                       ))
                     ) : (
@@ -268,7 +314,7 @@ const DidiAssignment = () => {
               </div>
             </div>
 
-            <div className="flex justify-center items-center">
+            <div className="flex justify-center items-center pt-12">
               <button
                 type="submit"
                 onClick={handleSubmit}
