@@ -40,12 +40,20 @@ const Login = () => {
         values.email === "rishab@gmail.com" &&
         values.password === "Rishab@123"
       ) {
-        toast.success("Login success");
-        localStorage.setItem("jwt", "password_jwt");
-        navigate("/");
-      } else {
-        toast.error("Wrong credentials");
-        resetForm();
+        localStorage.setItem(
+          "userCredentials",
+          JSON.stringify({ email: values.email, password: values.password })
+        );
+        navigate("/mobilehome");
+      } else if (
+        values.email === "admin@gmail.com" &&
+        values.password === "Rishab@123"
+      ) {
+        localStorage.setItem(
+          "userCredentials",
+          JSON.stringify({ email: values.email, password: values.password })
+        );
+        navigate("/admin");
       }
     } else {
       Swal.fire({

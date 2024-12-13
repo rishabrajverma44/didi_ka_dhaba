@@ -230,6 +230,7 @@ const IssueFood = () => {
   );
 
   const postFoodItem = async (payload) => {
+    setIsLoading(true);
     const actualStatus = await checkInternetConnection();
     if (actualStatus) {
       setIsLoading(true);
@@ -265,6 +266,7 @@ const IssueFood = () => {
         confirmButtonColor: "#A24C4A",
       });
     }
+    setIsLoading(false);
   };
 
   const handleSubmit = async () => {

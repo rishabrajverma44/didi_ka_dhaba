@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FaCamera } from "react-icons/fa";
 import { FiX, FiRefreshCcw } from "react-icons/fi";

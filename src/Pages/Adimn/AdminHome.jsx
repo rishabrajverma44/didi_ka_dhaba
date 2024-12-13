@@ -118,82 +118,83 @@ const AdminHome = () => {
         </h2>
         {selectedRowData ? (
           <div className="space-y-6 px-3">
-            {selectedRowData.issued_food &&
-            Object.keys(selectedRowData.issued_food).length > 0 ? (
-              Object.keys(selectedRowData.issued_food).map((mealType) => (
-                <div key={mealType}>
-                  <h3 className="text-xl font-semibold mb-2 text-gray-700 capitalize text-slate-600">
-                    {mealType.replace("-", " ")} Issued :-
-                  </h3>
+            {selectedRowData.issued_food || selectedRowData.returned_food ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white border border-gray-200 rounded-md">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="py-2 px-4 border-b text-left text-slate-600">
+                        Meal Type
+                      </th>
+                      <th className="py-2 px-4 border-b text-center text-slate-600">
+                        Issued
+                      </th>
+                      <th className="py-2 px-4 border-b text-center text-slate-600">
+                        Returned
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.keys({
+                      ...selectedRowData.issued_food,
+                      ...selectedRowData.returned_food,
+                    }).map((mealType) => {
+                      const issuedItems =
+                        selectedRowData.issued_food?.[mealType] || [];
+                      const returnedItems =
+                        selectedRowData.returned_food?.[mealType] || [];
 
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 px-3">
-                    {selectedRowData.issued_food[mealType].length > 0 ? (
-                      selectedRowData.issued_food[mealType].map((item) => (
-                        <div
-                          key={item.issue_food_id}
-                          className="px-3 border border-gray-200 rounded-md"
-                        >
-                          <p className="font-medium text-gray-800 my-1">
-                            {item.food_name}
-                          </p>
-                          <p className="my-1">
-                            <span className="text-gray-500">Quantity: </span>
-                            <span className="font-medium">
-                              {item.quantity} {item.unit_name}
-                            </span>
-                          </p>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="col-span-4 text-gray-500">
-                        No issued food data available.
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))
+                      return (
+                        <tr key={mealType}>
+                          <td className="py-2 px-4 border-b capitalize text-gray-800">
+                            {mealType.replace("-", " ")}
+                          </td>
+                          <td className="py-2 px-4 border-b">
+                            {issuedItems.length > 0 ? (
+                              <ul className="list-disc ml-4">
+                                {issuedItems.map((item) => (
+                                  <li
+                                    key={item.issue_food_id}
+                                    className="text-gray-800"
+                                  >
+                                    {item.food_name} - {item.quantity}{" "}
+                                    {item.unit_name}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <span className="text-gray-500">
+                                No issued food data available
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-2 px-4 border-b">
+                            {returnedItems.length > 0 ? (
+                              <ul className="list-disc ml-4">
+                                {returnedItems.map((item) => (
+                                  <li
+                                    key={item.issue_food_id}
+                                    className="text-gray-800"
+                                  >
+                                    {item.food_name} - {item.returned_quantity}{" "}
+                                    {item.unit_name}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <span className="text-gray-500">
+                                No returned food data available
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             ) : (
-              <p className="text-gray-500">No issued food data available.</p>
-            )}
-
-            {selectedRowData.returned_food &&
-            Object.keys(selectedRowData.returned_food).length > 0 ? (
-              Object.keys(selectedRowData.returned_food).map((mealType) => (
-                <div key={mealType}>
-                  <h3 className="text-xl font-semibold mb-2 text-gray-700 capitalize text-slate-600">
-                    {mealType.replace("-", " ")} (Returned)
-                  </h3>
-
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 px-3">
-                    {selectedRowData.returned_food[mealType].length > 0 ? (
-                      selectedRowData.returned_food[mealType].map((item) => (
-                        <div
-                          key={item.issue_food_id}
-                          className="px-3 border border-gray-200 rounded-md"
-                        >
-                          <p className="font-medium text-gray-800 my-1">
-                            {item.food_name}
-                          </p>
-                          <p className="my-1">
-                            <span className="text-gray-500">
-                              Returned Quantity:{" "}
-                            </span>
-                            <span className="font-medium">
-                              {item.returned_quantity} {item.unit_name}
-                            </span>
-                          </p>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="col-span-4 text-gray-500">
-                        No returned food data available.
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-500">No returned food data available.</p>
+              <p className="text-gray-500">No food data available.</p>
             )}
 
             {selectedRowData.payment_details &&
@@ -210,11 +211,11 @@ const AdminHome = () => {
                       className="px-3 border border-gray-200 rounded-md"
                     >
                       <p className="font-medium text-gray-800 my-1">
-                        <span className="text-gray-500">UPI Amount: </span>₹
+                        <span className="text-gray-500">UPI Amount: </span>₹{" "}
                         {payment.upi_amount}
                       </p>
                       <p className="font-medium text-gray-800 my-1">
-                        <span className="text-gray-500">Cash Amount: </span>₹
+                        <span className="text-gray-500">Cash Amount: </span>₹{" "}
                         {payment.cash_amount}
                       </p>
                     </div>
@@ -274,7 +275,7 @@ const AdminHome = () => {
         <p>Loading data...</p>
       ) : (
         <>
-          <div className="overflow-auto border rounded-lg">
+          <div className="overflow-auto border rounded-lg bg-white">
             <table {...getTableProps()} className="w-full text-left">
               <thead className="bg-gray-100">
                 {headerGroups.map((headerGroup) => (

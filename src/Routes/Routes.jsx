@@ -12,63 +12,93 @@ import ThelaRegistration from "../Pages/Adimn/ThelaRegistration";
 import AdminRoute from "./AdminRoute";
 import DidiAssignment from "../Pages/Adimn/DidiAssignment";
 import FoodMaster from "../Pages/Adimn/FoodMaster";
+import ListFood from "../Pages/Adimn/ListFood";
+import AddFood from "../Pages/Adimn/AddFood";
+import ListDidi from "../Pages/Adimn/ListDidi";
+import ListStall from "../Pages/Adimn/ListStall";
 
 const routes = [
   {
     path: "/",
     element: <Layout />,
     children: [
+      { path: "/", element: <Login /> },
+
       {
-        path: "login",
-        element: <Login />,
-      },
-      {
-        index: true,
-        path: "didireg",
-        element: (
-          <AdminRoute>
-            <DidiRegistration />,
-          </AdminRoute>
-        ),
-      },
-      {
-        index: true,
-        path: "foodmaster",
-        element: (
-          <AdminRoute>
-            <FoodMaster />,
-          </AdminRoute>
-        ),
-      },
-      {
-        index: true,
-        path: "thelareg",
-        element: (
-          <AdminRoute>
-            <ThelaRegistration />,
-          </AdminRoute>
-        ),
-      },
-      {
-        index: true,
         path: "admin",
         element: (
           <AdminRoute>
-            <AdminHome />,
+            <AdminHome />
           </AdminRoute>
         ),
       },
       {
-        index: true,
+        path: "didireg",
+        element: (
+          <AdminRoute>
+            <DidiRegistration />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "foodmaster",
+        element: (
+          <AdminRoute>
+            <FoodMaster />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "thelareg",
+        element: (
+          <AdminRoute>
+            <ThelaRegistration />
+          </AdminRoute>
+        ),
+      },
+      {
         path: "assign",
         element: (
           <AdminRoute>
-            <DidiAssignment />,
+            <DidiAssignment />
           </AdminRoute>
         ),
       },
       {
-        index: true,
+        path: "listfood",
+        element: (
+          <AdminRoute>
+            <ListFood />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "addfood",
+        element: (
+          <AdminRoute>
+            <AddFood />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "didilist",
+        element: (
+          <AdminRoute>
+            <ListDidi />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "stall_list",
+        element: (
+          <AdminRoute>
+            <ListStall />
+          </AdminRoute>
+        ),
+      },
+
+      {
+        path: "mobilehome",
         element: (
           <PrivateRoute>
             <Home />
@@ -76,7 +106,6 @@ const routes = [
         ),
       },
       {
-        index: true,
         path: "receivedfood",
         element: (
           <PrivateRoute>
@@ -85,7 +114,6 @@ const routes = [
         ),
       },
       {
-        index: true,
         path: "issuefood",
         element: (
           <PrivateRoute>
@@ -94,7 +122,6 @@ const routes = [
         ),
       },
       {
-        index: true,
         path: "payment",
         element: (
           <PrivateRoute>
@@ -102,10 +129,9 @@ const routes = [
           </PrivateRoute>
         ),
       },
-      {
-        path: "*",
-        element: <NotFound />,
-      },
+
+      // Catch-All Route
+      { path: "*", element: <NotFound /> },
     ],
   },
 ];
