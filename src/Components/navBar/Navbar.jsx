@@ -11,8 +11,8 @@ const Navbar = () => {
   const datetimeInputRef = useRef(null);
   const navigate = useNavigate();
   const handleLogout = () => {
-    localStorage.removeItem("jwt");
-    navigate("/login");
+    localStorage.removeItem("userCredentials");
+    navigate("/");
   };
 
   useEffect(() => {
@@ -36,7 +36,7 @@ const Navbar = () => {
           <div className="flex items-center w-full justify-between">
             <section className="flex justify-between items-center w-full">
               <div className="flex items-center justify-center">
-                <Link to="/">
+                <Link to="/mobilehome">
                   <img src="/images/logo.png" alt="logo" width="70" />
                 </Link>
               </div>

@@ -12,6 +12,9 @@ import { toast, ToastContainer } from "react-toastify";
 Modal.setAppElement("#root");
 
 const AdminHome = () => {
+  const today = new Date().toISOString().split("T")[0];
+  const [selectedDate, setSelectedDate] = useState(today);
+
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -20,8 +23,9 @@ const AdminHome = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(
-          "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela_summary/"
+        const res = await axios.post(
+          "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela_summary/",
+          { date: selectedDate }
         );
         setData(res.data);
       } catch (error) {
@@ -32,16 +36,20 @@ const AdminHome = () => {
     };
 
     fetchData();
-  }, []);
+  }, [selectedDate]);
+  const handleDateChange = (e) => {
+    setSelectedDate(e.target.value);
+    setLoading(true);
+  };
 
   const handleViewDetails = async (row) => {
     try {
       const res = await axios.post(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/get_didi_details/",
-        { didi_id: row.original.didi_id }
+        "https://didikadhababackend.indevconsultancy.in/dhaba/details-by-meal-type/",
+        { didi_id: row.original.didi_id, date: selectedDate }
       );
       setSelectedRowData(res.data);
-      console.log(res.data);
+      console.log(selectedRowData);
       setModalIsOpen(true);
     } catch (error) {
       console.error("Error fetching details:", error);
@@ -52,8 +60,7 @@ const AdminHome = () => {
     () => [
       { Header: "Didi Name", accessor: "full_name" },
       { Header: "Stall", accessor: "thela_code" },
-      { Header: "Payment", accessor: "payment" },
-      // { Header: "Date", accessor: "date" },
+      { Header: "Amount", accessor: "total_payment" },
       {
         Header: "View",
         Cell: ({ row }) => (
@@ -86,7 +93,15 @@ const AdminHome = () => {
     {
       columns,
       data,
-      initialState: { pageIndex: 0 },
+      initialState: {
+        pageIndex: 0,
+        sortBy: [
+          {
+            id: "total_payment",
+            desc: true,
+          },
+        ],
+      },
     },
     useGlobalFilter,
     useSortBy,
@@ -95,14 +110,140 @@ const AdminHome = () => {
 
   const { globalFilter, pageIndex } = state;
 
+  const FoodDetails = ({ selectedRowData }) => {
+    return (
+      <div className="p-1 w-full bg-white mb-8 rounded-md pb-4">
+        <h2 className="text-2xl font-bold mb-4 text-[#A24C4A] text-center">
+          Food Summary
+        </h2>
+        {selectedRowData ? (
+          <div className="space-y-6 px-3">
+            {selectedRowData.issued_food || selectedRowData.returned_food ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white border border-gray-200 rounded-md">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="py-2 px-4 border-b text-left text-slate-600">
+                        Meal Type
+                      </th>
+                      <th className="py-2 px-4 border-b text-center text-slate-600">
+                        Issued
+                      </th>
+                      <th className="py-2 px-4 border-b text-center text-slate-600">
+                        Returned
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.keys({
+                      ...selectedRowData.issued_food,
+                      ...selectedRowData.returned_food,
+                    }).map((mealType) => {
+                      const issuedItems =
+                        selectedRowData.issued_food?.[mealType] || [];
+                      const returnedItems =
+                        selectedRowData.returned_food?.[mealType] || [];
+
+                      return (
+                        <tr key={mealType}>
+                          <td className="py-2 px-4 border-b capitalize text-gray-800">
+                            {mealType.replace("-", " ")}
+                          </td>
+                          <td className="py-2 px-4 border-b">
+                            {issuedItems.length > 0 ? (
+                              <ul className="list-disc ml-4">
+                                {issuedItems.map((item) => (
+                                  <li
+                                    key={item.issue_food_id}
+                                    className="text-gray-800"
+                                  >
+                                    {item.food_name} - {item.quantity}{" "}
+                                    {item.unit_name}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <span className="text-gray-500">
+                                No issued food data available
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-2 px-4 border-b">
+                            {returnedItems.length > 0 ? (
+                              <ul className="list-disc ml-4">
+                                {returnedItems.map((item) => (
+                                  <li
+                                    key={item.issue_food_id}
+                                    className="text-gray-800"
+                                  >
+                                    {item.food_name} - {item.returned_quantity}{" "}
+                                    {item.unit_name}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <span className="text-gray-500">
+                                No returned food data available
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-gray-500">No food data available.</p>
+            )}
+
+            {selectedRowData.payment_details &&
+            selectedRowData.payment_details.length > 0 ? (
+              <div>
+                <h3 className="text-xl font-semibold mb-2 text-gray-700">
+                  Payment Details
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 px-3">
+                  {selectedRowData.payment_details.map((payment, index) => (
+                    <div
+                      key={index}
+                      className="px-3 border border-gray-200 rounded-md"
+                    >
+                      <p className="font-medium text-gray-800 my-1">
+                        <span className="text-gray-500">UPI Amount: </span>₹{" "}
+                        {payment.upi_amount}
+                      </p>
+                      <p className="font-medium text-gray-800 my-1">
+                        <span className="text-gray-500">Cash Amount: </span>₹{" "}
+                        {payment.cash_amount}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p className="text-gray-500">No payment details available.</p>
+            )}
+          </div>
+        ) : (
+          <p className="text-gray-500">No data available.</p>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="bg-gray-50 py-2 px-4" style={{ height: "99vh" }}>
       <ToastContainer />
       <h2 className="text-2xl font-bold text-center text-slate-600">
-        Assign Didi to Stall
+        Admin Home
       </h2>
+      <div className="border rounded-lg bg-white text-center p-12">
+        Graph section
+      </div>
 
-      <div className="flex flex-col md:flex-row justify-between items-center mb-4">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 mt-3">
         <input
           type="text"
           placeholder="Search by Didi Name or Stall Code"
@@ -111,9 +252,20 @@ const AdminHome = () => {
             const value = e.target.value.toLowerCase();
             setGlobalFilter(value);
           }}
-          className="p-2 border border-gray-300 rounded focus:outline-none focus:border-[#A24C4A] w-full md:w-80"
+          className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A24C4A] w-full md:w-80 transition duration-200"
         />
-        <button className="flex items-center gap-2 tracking-wide font-semibold text-[#A24C4A] py-2 px-4 mt-4 md:mt-0 rounded border border-[#A24C4A] hover:bg-[#A24C4A] hover:text-white transition">
+
+        <div className="md:w-60">
+          <input
+            type="date"
+            id="date"
+            value={selectedDate}
+            onChange={handleDateChange}
+            className="w-full p-2 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
+          />
+        </div>
+
+        <button className="flex items-center gap-2 text-[#A24C4A] font-semibold py-2 px-5 rounded-md border border-[#A24C4A] hover:bg-[#A24C4A] hover:text-white transition duration-200">
           <FaFilePdf size={20} />
           Download PDF
         </button>
@@ -123,7 +275,7 @@ const AdminHome = () => {
         <p>Loading data...</p>
       ) : (
         <>
-          <div className="overflow-auto border rounded-lg">
+          <div className="overflow-auto border rounded-lg bg-white">
             <table {...getTableProps()} className="w-full text-left">
               <thead className="bg-gray-100">
                 {headerGroups.map((headerGroup) => (
@@ -194,34 +346,25 @@ const AdminHome = () => {
             isOpen={modalIsOpen}
             onRequestClose={() => setModalIsOpen(false)}
             contentLabel="Row Details"
-            className="p-6 bg-white rounded-lg shadow-lg max-w-lg mx-auto"
-            overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+            className="bg-white rounded-lg shadow-lg w-full max-w-screen-lg h-full max-h-[90vh] relative"
+            overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-6"
           >
-            <h2 className="text-2xl font-bold mb-4">Didi Details</h2>
-            {selectedRowData ? (
+            <div className="overflow-y-auto max-h-[calc(100%-4rem)] mb-16">
               <div>
-                <p>
-                  <strong>Name:</strong> {selectedRowData.full_name}
-                </p>
-                <p>
-                  <strong>Stall Code:</strong> {selectedRowData.thela_code}
-                </p>
-                <p>
-                  <strong>Payment:</strong> {selectedRowData.payment}
-                </p>
-                <p>
-                  <strong>Date:</strong> {selectedRowData.date}
-                </p>
+                {selectedRowData && (
+                  <FoodDetails selectedRowData={selectedRowData} />
+                )}
               </div>
-            ) : (
-              <p>No data available.</p>
-            )}
-            <button
-              onClick={() => setModalIsOpen(false)}
-              className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-            >
-              Close
-            </button>
+            </div>
+
+            <div className="absolute bottom-0 left-0 w-full bg-white p-2 shadow-lg flex justify-end space-x-4">
+              <button
+                onClick={() => setModalIsOpen(false)}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Close
+              </button>
+            </div>
           </Modal>
         </>
       )}

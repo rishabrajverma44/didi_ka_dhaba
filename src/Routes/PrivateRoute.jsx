@@ -1,19 +1,28 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../Components/navBar/Navbar";
 
 const PrivateRoute = ({ children }) => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("jwt");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    if (!token) {
-      navigate("/login");
+    const userCredentials = JSON.parse(localStorage.getItem("userCredentials"));
+
+    if (
+      userCredentials?.email === "rishab@gmail.com" &&
+      userCredentials?.password === "Rishab@123"
+    ) {
+      setIsAuthenticated(true);
+    } else {
+      navigate("/");
     }
-    if (token === "password_jwt") {
-      console.log(token);
-    }
-  }, [navigate, token]);
+  }, [navigate]);
+
+  if (!isAuthenticated) {
+    navigate("/");
+    return null;
+  }
 
   return (
     <>

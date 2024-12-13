@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FaCamera } from "react-icons/fa";
 import { FiX, FiRefreshCcw } from "react-icons/fi";
@@ -300,7 +300,7 @@ const ReceivedFood = () => {
           Dinner: [],
         });
         setTimeout(() => {
-          navigate("/");
+          navigate("/mobilehome");
         }, 2000);
       }
     } catch (e) {
@@ -369,22 +369,6 @@ const ReceivedFood = () => {
       return false;
     }
   };
-  // const checkConnectionStatus = async () => {
-  //   const actualStatus = await checkInternetConnection();
-  //   setStatus(actualStatus);
-  // };
-  // useEffect(() => {
-  //   checkConnectionStatus();
-  // }, []);
-  useEffect(() => {
-    if (status === false) {
-      Swal.fire({
-        html: `<b>Check Internet connection!</b>`,
-        allowOutsideClick: false,
-        confirmButtonColor: "#A24C4A",
-      });
-    }
-  }, [status]);
 
   const handleSubmit = async () => {
     if (!validateFields()) {

@@ -22,11 +22,6 @@ const Home = () => {
                 Payment Details
               </button>
             </Link>
-            <Link to="/admin">
-              <button className="tracking-wide font-semibold bg-white text-[#A24C4A] py-2 px-4 h-12 w-60 rounded border-1 border-[#A24C4A]">
-                Admin
-              </button>
-            </Link>
           </div>
         </div>
       </div>

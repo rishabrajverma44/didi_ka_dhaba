@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FiMenu } from "react-icons/fi";
+import { FiMenu, FiChevronDown } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import clsx from "clsx";
 
@@ -8,26 +8,57 @@ const AdminNavBar = () => {
   const [isSideMenuOpen, setMenu] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const toggleDropdown = () => setIsOpen(!isOpen);
-  const datetimeInputRef = useRef(null);
-  const navigate = useNavigate();
-  const handleLogout = () => {
-    localStorage.removeItem("jwt");
-    navigate("/login");
+  const [isOpenDidi, setIsOpenDidi] = useState(false);
+  const [isOpenFood, setIsOpenFood] = useState(false);
+  const [isOpenStall, setIsOpenStall] = useState(false);
+
+  const dropdownRefDidi = useRef(null);
+  const dropdownRefFood = useRef(null);
+  const dropdownRefStall = useRef(null);
+
+  const toggleDropdownDidi = () => {
+    setIsOpenDidi(!isOpenDidi);
+    setIsOpenFood(false);
+    setIsOpenStall(false);
+  };
+  const toggleDropdownFood = () => {
+    setIsOpenFood(!isOpenFood);
+    setIsOpenDidi(false);
+    setIsOpenStall(false);
+  };
+  const toggleDropdownStall = () => {
+    setIsOpenStall(!isOpenStall);
+    setIsOpenDidi(false);
+    setIsOpenFood(false);
   };
 
   useEffect(() => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRefDidi.current &&
+        !dropdownRefDidi.current.contains(event.target) &&
+        dropdownRefFood.current &&
+        !dropdownRefFood.current.contains(event.target) &&
+        dropdownRefStall.current &&
+        !dropdownRefStall.current.contains(event.target)
+      ) {
+        setIsOpenDidi(false);
+        setIsOpenFood(false);
+        setIsOpenStall(false);
+      }
+    };
 
-    const formattedDatetime = `${year}-${month}-${day}T${hours}:${minutes}`;
-    if (datetimeInputRef.current) {
-      datetimeInputRef.current.value = formattedDatetime;
-    }
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.removeItem("userCredentials");
+    navigate("/");
+  };
 
   return (
     <>
@@ -85,6 +116,7 @@ const AdminNavBar = () => {
                 isSideMenuOpen ? "translate-y-0" : "translate-x-full"
               )}
             >
+              {/* mobile menu */}
               <section className="text-black bg-white flex-col absolute right-0 top-0 h-screen py-8 gap-8 z-50 w-70">
                 <IoCloseOutline
                   onClick={() => setMenu(false)}
@@ -96,6 +128,12 @@ const AdminNavBar = () => {
                     to="/"
                   >
                     Home
+                  </Link>
+                  <Link
+                    className="block w-full py-1 px-4 text-[#A24C4A] text-left text-gray-700 font-bold no-underline text-xl"
+                    to="/foodmaster"
+                  >
+                    Food Master
                   </Link>
                   <Link
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
@@ -127,33 +165,110 @@ const AdminNavBar = () => {
             </div>
           </nav>
         </main>
-
+        {/* desktop menu */}
         <section className="z-50 bg-white d-none d-md-block">
           <div className="border-b-2 border-[#A24C4A]">
-            <div className="mx-4 flex">
+            <div className="mx-4 flex justify-between items-center">
               <Link
-                className="block w-full py-1 px-4 text-[#A24C4A] text-gray-700 font-bold no-underline text-xl"
+                className="block py-1 px-4 text-[#A24C4A] text-gray-700 font-bold no-underline text-xl"
                 to="/admin"
               >
                 Home
               </Link>
+              <div className="relative" ref={dropdownRefFood}>
+                <button
+                  className="block py-1 px-4 text-[#A24C4A] text-left text-gray-700 font-bold no-underline text-xl"
+                  onClick={toggleDropdownFood}
+                >
+                  <span className="flex gap-2 justify-center items-center text-center">
+                    <span>Food Mater</span> <FiChevronDown />
+                  </span>
+                </button>
+                {isOpenFood && (
+                  <div className="absolute left-0 mt-2 w-56 rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5">
+                    <div className="py-2">
+                      <Link
+                        className="block w-full px-4 text-xl py-1 text-left text-sm text-gray-700 no-underline"
+                        to="/addfood"
+                      >
+                        Add Food
+                      </Link>
+
+                      <Link
+                        className="block w-full px-4 text-xl py-1 text-left text-sm text-gray-700 no-underline"
+                        to="/listfood"
+                      >
+                        Food List
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="relative" ref={dropdownRefDidi}>
+                <button
+                  className="block py-1 px-4 text-[#A24C4A] text-left text-gray-700 font-bold no-underline text-xl"
+                  onClick={toggleDropdownDidi}
+                >
+                  <span className="flex gap-2 justify-center items-center text-center">
+                    <span>Didi</span> <FiChevronDown />
+                  </span>
+                </button>
+                {isOpenDidi && (
+                  <div className="absolute left-0 mt-2 w-56 rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5">
+                    <div className="py-1">
+                      <Link
+                        className="block w-full px-4 text-xl  py-1 text-left text-sm text-gray-700 no-underline"
+                        to="/didireg"
+                      >
+                        Didi Registration
+                      </Link>
+
+                      <Link
+                        className="block w-full px-4 text-xl py-1 text-left text-sm text-gray-700 no-underline"
+                        to="/didilist"
+                      >
+                        Didi List
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="relative" ref={dropdownRefStall}>
+                <button
+                  className="block py-1 px-4 text-[#A24C4A] text-left text-gray-700 font-bold no-underline text-xl"
+                  onClick={toggleDropdownStall}
+                >
+                  <span className="flex gap-2 justify-center items-center text-center">
+                    <span>Stall</span> <FiChevronDown />
+                  </span>
+                </button>
+                {isOpenStall && (
+                  <div className="absolute left-0 mt-2 w-56 rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5">
+                    <div className="py-1">
+                      <Link
+                        className="block w-full px-4 text-xl py-1 text-left text-sm text-gray-700 no-underline"
+                        to="/thelareg"
+                      >
+                        Stall Registration
+                      </Link>
+
+                      <Link
+                        className="block w-full px-4 text-xl py-1 text-left text-sm text-gray-700 no-underline"
+                        to="/stall_list"
+                      >
+                        Stall List
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
               <Link
-                className="block w-full py-1 px-4 text-[#A24C4A] text-left text-gray-700 font-bold no-underline text-xl"
-                to="/didireg"
-              >
-                Didi Registration
-              </Link>
-              <Link
-                className="block w-full py-1 px-4 text-[#A24C4A] text-left text-gray-700 font-bold no-underline text-xl"
-                to="/thelareg"
-              >
-                Stall Registration
-              </Link>
-              <Link
-                className="block w-full py-1 px-4 text-[#A24C4A] text-left text-gray-700 font-bold no-underline text-xl"
+                className="block py-1 px-4 text-[#A24C4A] text-gray-700 font-bold no-underline text-xl"
                 to="/assign"
               >
-                Didi Stall Assignment
+                Assign Stall
               </Link>
             </div>
           </div>
