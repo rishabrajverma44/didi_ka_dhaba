@@ -170,7 +170,7 @@ const Payment = () => {
             setOnline("");
             setCash("");
             setTimeout(() => {
-              navigate("/");
+              navigate("/mobilehome");
             }, 2000);
           } catch (error) {
             toast.error("Submission failed. Please try again.");

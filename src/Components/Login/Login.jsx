@@ -33,7 +33,7 @@ const Login = () => {
   };
 
   const handleSubmit = async (values, { resetForm }) => {
-    const actualStatus = await checkInternetConnection();
+    const actualStatus = true;
 
     if (actualStatus) {
       if (

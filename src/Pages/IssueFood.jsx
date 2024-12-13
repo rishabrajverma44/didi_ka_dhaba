@@ -251,7 +251,7 @@ const IssueFood = () => {
             setBreakFast([]);
             setLunch([]);
             setTimeout(() => {
-              navigate("/");
+              navigate("/mobilehome");
             }, 2000);
             setIsLoading(false);
           }

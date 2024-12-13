@@ -300,7 +300,7 @@ const ReceivedFood = () => {
           Dinner: [],
         });
         setTimeout(() => {
-          navigate("/");
+          navigate("/mobilehome");
         }, 2000);
       }
     } catch (e) {
