@@ -170,16 +170,16 @@ const DidiAssignment = () => {
   };
 
   return (
-    <div className="bg-gray-50 py-2 px-4" style={{ height: "99vh" }}>
+    <div className="bg-gray-50 py-2 px-24" style={{ height: "99vh" }}>
       <ToastContainer />
       <div>
-        <div className="mx-auto my-8 p-6 bg-white shadow-md rounded-md">
-          <h2 className="text-2xl font-bold text-center mb-6 text-slate-600">
-            <div className="">
-              <span className="mx-2">Assign Didi to Stall</span>
-            </div>
-          </h2>
+        <h2 className="text-2xl font-bold mb-4 text-slate-600">
+          <div className="">
+            <span className="mx-2">Assign Didi to Stall</span>
+          </div>
+        </h2>
 
+        <div className="mx-auto my-8 p-6 bg-white shadow-md rounded-md">
           <h2 className="text-xl font-bold flex flex-row   mb-6 text-slate-600">
             <span className="mx-4 w-50 text-center">
               <span>From </span>

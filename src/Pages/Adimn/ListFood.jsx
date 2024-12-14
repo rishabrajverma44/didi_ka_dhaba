@@ -120,7 +120,7 @@ const ListFood = () => {
   );
 
   return (
-    <div className="bg-gray-50 p-4" style={{ height: "99vh" }}>
+    <div className="bg-gray-50 py-2 px-24" style={{ height: "99vh" }}>
       <h1 className="text-2xl font-bold mb-4 text-slate-600">Food List</h1>
       <ToastContainer />
       <div className="mb-4">
@@ -129,7 +129,7 @@ const ListFood = () => {
           value={searchText}
           onChange={handleSearchChange}
           placeholder="Search by Food Name or Category"
-          className="px-4 w-50 py-2 border border-gray-300 rounded"
+          className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A24C4A] w-full md:w-80 transition duration-200"
         />
       </div>
 
@@ -137,76 +137,78 @@ const ListFood = () => {
         <p className="text-slate-600">Loading...</p>
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <table
-              {...getTableProps()}
-              className="min-w-full bg-white border border-gray-200"
-            >
-              <thead className="bg-gray-100">
-                {headerGroups.map((headerGroup) => (
-                  <tr
-                    {...headerGroup.getHeaderGroupProps()}
-                    key={headerGroup.id}
-                  >
-                    {headerGroup.headers.map((column) => (
-                      <th
-                        {...column.getHeaderProps()}
-                        className="py-2 px-4 border-b text-slate-600"
-                      >
-                        {column.render("Header")}
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-
-              <tbody {...getTableBodyProps()}>
-                {currentPageData.map((row) => {
-                  prepareRow(row);
-                  return (
+          <div className="border rounded-lg bg-white text-center p-2">
+            <div className="overflow-x-auto">
+              <table
+                {...getTableProps()}
+                className="min-w-full bg-white border border-gray-200"
+              >
+                <thead className="bg-gray-100">
+                  {headerGroups.map((headerGroup) => (
                     <tr
-                      {...row.getRowProps()}
-                      key={row.id}
-                      className="hover:bg-gray-50"
+                      {...headerGroup.getHeaderGroupProps()}
+                      key={headerGroup.id}
                     >
-                      {row.cells.map((cell) => (
-                        <td
-                          {...cell.getCellProps()}
+                      {headerGroup.headers.map((column) => (
+                        <th
+                          {...column.getHeaderProps()}
                           className="py-2 px-4 border-b text-slate-600"
                         >
-                          {cell.render("Cell")}
-                        </td>
+                          {column.render("Header")}
+                        </th>
                       ))}
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                  ))}
+                </thead>
 
-          <div className="flex items-center justify-between mt-4">
-            <button
-              onClick={() => previousPage()}
-              disabled={!canPreviousPage}
-              className="px-4 py-2 bg-[#A24C4A] text-white rounded disabled:opacity-50"
-            >
-              Previous
-            </button>
+                <tbody {...getTableBodyProps()}>
+                  {currentPageData.map((row) => {
+                    prepareRow(row);
+                    return (
+                      <tr
+                        {...row.getRowProps()}
+                        key={row.id}
+                        className="hover:bg-gray-50"
+                      >
+                        {row.cells.map((cell) => (
+                          <td
+                            {...cell.getCellProps()}
+                            className="py-2 px-4 border-b text-slate-600"
+                          >
+                            {cell.render("Cell")}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
 
-            <span>
-              Page{" "}
-              <strong>
-                {pageIndex + 1} of {pageOptions.length}
-              </strong>
-            </span>
+            <div className="flex items-center justify-between mt-4">
+              <button
+                onClick={() => previousPage()}
+                disabled={!canPreviousPage}
+                className="px-4 py-2 bg-[#A24C4A] text-white rounded disabled:opacity-50"
+              >
+                Previous
+              </button>
 
-            <button
-              onClick={() => nextPage()}
-              disabled={!canNextPage}
-              className="px-4 py-2 bg-[#A24C4A] text-white rounded disabled:opacity-50"
-            >
-              Next
-            </button>
+              <span>
+                Page{" "}
+                <strong>
+                  {pageIndex + 1} of {pageOptions.length}
+                </strong>
+              </span>
+
+              <button
+                onClick={() => nextPage()}
+                disabled={!canNextPage}
+                className="px-4 py-2 bg-[#A24C4A] text-white rounded disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </>
       )}

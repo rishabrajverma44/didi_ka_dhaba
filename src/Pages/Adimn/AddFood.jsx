@@ -103,9 +103,9 @@ const AddFood = () => {
   };
 
   return (
-    <div className="p-4 space-y-4 bg-gray-100">
+    <div className="bg-gray-50 py-2 px-24">
       <ToastContainer />
-      <h2 className="text-2xl font-bold text-center text-slate-600">
+      <h2 className="text-2xl font-bold text-start text-slate-600">
         Food Master
       </h2>
       <div className="mx-auto my-8 p-6 bg-white shadow-md rounded-md">

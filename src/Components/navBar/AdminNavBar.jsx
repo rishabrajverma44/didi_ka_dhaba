@@ -33,14 +33,14 @@ const AdminNavBar = () => {
   };
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleMouseLeave = (event) => {
       if (
         dropdownRefDidi.current &&
-        !dropdownRefDidi.current.contains(event.target) &&
+        !dropdownRefDidi.current.contains(event.relatedTarget) &&
         dropdownRefFood.current &&
-        !dropdownRefFood.current.contains(event.target) &&
+        !dropdownRefFood.current.contains(event.relatedTarget) &&
         dropdownRefStall.current &&
-        !dropdownRefStall.current.contains(event.target)
+        !dropdownRefStall.current.contains(event.relatedTarget)
       ) {
         setIsOpenDidi(false);
         setIsOpenFood(false);
@@ -48,10 +48,37 @@ const AdminNavBar = () => {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    // Adding mouseleave events to the dropdown containers
+    if (dropdownRefDidi.current) {
+      dropdownRefDidi.current.addEventListener("mouseleave", handleMouseLeave);
+    }
+    if (dropdownRefFood.current) {
+      dropdownRefFood.current.addEventListener("mouseleave", handleMouseLeave);
+    }
+    if (dropdownRefStall.current) {
+      dropdownRefStall.current.addEventListener("mouseleave", handleMouseLeave);
+    }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      // Cleanup event listeners
+      if (dropdownRefDidi.current) {
+        dropdownRefDidi.current.removeEventListener(
+          "mouseleave",
+          handleMouseLeave
+        );
+      }
+      if (dropdownRefFood.current) {
+        dropdownRefFood.current.removeEventListener(
+          "mouseleave",
+          handleMouseLeave
+        );
+      }
+      if (dropdownRefStall.current) {
+        dropdownRefStall.current.removeEventListener(
+          "mouseleave",
+          handleMouseLeave
+        );
+      }
     };
   }, []);
   const navigate = useNavigate();
@@ -168,7 +195,7 @@ const AdminNavBar = () => {
         {/* desktop menu */}
         <section className="z-50 bg-white d-none d-md-block">
           <div className="border-b-2 border-[#A24C4A]">
-            <div className="mx-4 flex justify-between items-center">
+            <div className="mx-4 flex justify-between items-center py-1">
               <Link
                 className="block py-1 px-4 text-[#A24C4A] text-gray-700 font-bold no-underline text-xl"
                 to="/admin"
@@ -185,7 +212,10 @@ const AdminNavBar = () => {
                   </span>
                 </button>
                 {isOpenFood && (
-                  <div className="absolute left-0 mt-2 w-56 rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5">
+                  <div
+                    className="absolute left-0 pt-2 w-56 rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <div className="py-2">
                       <Link
                         className="block w-full px-4 text-xl py-1 text-left text-sm text-gray-700 no-underline"
@@ -215,7 +245,10 @@ const AdminNavBar = () => {
                   </span>
                 </button>
                 {isOpenDidi && (
-                  <div className="absolute left-0 mt-2 w-56 rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5">
+                  <div
+                    className="absolute left-0 pt-2 w-56 rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <div className="py-1">
                       <Link
                         className="block w-full px-4 text-xl  py-1 text-left text-sm text-gray-700 no-underline"
@@ -245,7 +278,10 @@ const AdminNavBar = () => {
                   </span>
                 </button>
                 {isOpenStall && (
-                  <div className="absolute left-0 mt-2 w-56 rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5">
+                  <div
+                    className="absolute left-0 pt-2 w-56 rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <div className="py-1">
                       <Link
                         className="block w-full px-4 text-xl py-1 text-left text-sm text-gray-700 no-underline"

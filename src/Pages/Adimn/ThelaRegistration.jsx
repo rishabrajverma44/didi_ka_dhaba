@@ -128,9 +128,9 @@ const ThelaRegistration = () => {
       : defaultCenter;
 
   return (
-    <div className="bg-gray-50 py-8 px-4">
+    <div className="bg-gray-50 py-2 px-24">
       {console.log(mapCenter)}
-      <h2 className="text-3xl font-semibold text-center text-slate-600">
+      <h2 className="text-2xl font-bold mb-4 text-slate-600">
         Registration for Stall
       </h2>
 

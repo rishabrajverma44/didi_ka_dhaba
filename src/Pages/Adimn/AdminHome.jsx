@@ -234,12 +234,12 @@ const AdminHome = () => {
   };
 
   return (
-    <div className="bg-gray-50 py-2 px-4" style={{ height: "99vh" }}>
+    <div className="bg-gray-50 py-2 px-24" style={{ height: "99vh" }}>
       <ToastContainer />
-      <h2 className="text-2xl font-bold text-center text-slate-600">
+      <h2 className="text-2xl font-bold text-start text-slate-600">
         Admin Home
       </h2>
-      <div className="border rounded-lg bg-white text-center p-12">
+      <div className="my-8 border rounded-lg bg-white text-center p-12">
         Graph section
       </div>
 
@@ -273,99 +273,78 @@ const AdminHome = () => {
 
       {loading ? (
         <p>Loading data...</p>
+      ) : data.length === 0 ? (
+        <p className="text-center text-gray-500">No data available</p>
       ) : (
         <>
-          <div className="overflow-auto border rounded-lg bg-white">
-            <table {...getTableProps()} className="w-full text-left">
-              <thead className="bg-gray-100">
-                {headerGroups.map((headerGroup) => (
-                  <tr {...headerGroup.getHeaderGroupProps()}>
-                    {headerGroup.headers.map((column) => (
-                      <th
-                        {...column.getHeaderProps(
-                          column.getSortByToggleProps()
-                        )}
-                        className="p-2 border-b cursor-pointer"
-                      >
-                        {column.render("Header")}
-                        <span>
-                          {column.isSorted
-                            ? column.isSortedDesc
-                              ? " ▼"
-                              : " ▲"
-                            : ""}
-                        </span>
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody {...getTableBodyProps()}>
-                {page.map((row) => {
-                  prepareRow(row);
-                  return (
-                    <tr {...row.getRowProps()} className="hover:bg-gray-50">
-                      {row.cells.map((cell) => (
-                        <td {...cell.getCellProps()} className="p-2 border-b">
-                          {cell.render("Cell")}
-                        </td>
+          <div className="border rounded-lg bg-white text-center p-2">
+            <div className="overflow-auto border rounded-lg bg-white">
+              <table {...getTableProps()} className="w-full text-left">
+                <thead className="bg-gray-100">
+                  {headerGroups.map((headerGroup) => (
+                    <tr {...headerGroup.getHeaderGroupProps()}>
+                      {headerGroup.headers.map((column) => (
+                        <th
+                          {...column.getHeaderProps(
+                            column.getSortByToggleProps()
+                          )}
+                          className="p-2 border-b cursor-pointer"
+                        >
+                          {column.render("Header")}
+                          <span>
+                            {column.isSorted
+                              ? column.isSortedDesc
+                                ? " ▼"
+                                : " ▲"
+                              : ""}
+                          </span>
+                        </th>
                       ))}
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="flex items-center justify-between mt-4">
-            <button
-              onClick={() => previousPage()}
-              disabled={!canPreviousPage}
-              className="px-4 py-2 bg-[#A24C4A] text-white rounded disabled:opacity-50"
-            >
-              Previous
-            </button>
-
-            <span>
-              Page{" "}
-              <strong>
-                {pageIndex + 1} of {pageOptions.length}
-              </strong>
-            </span>
-
-            <button
-              onClick={() => nextPage()}
-              disabled={!canNextPage}
-              className="px-4 py-2 bg-[#A24C4A] text-white rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-
-          <Modal
-            isOpen={modalIsOpen}
-            onRequestClose={() => setModalIsOpen(false)}
-            contentLabel="Row Details"
-            className="bg-white rounded-lg shadow-lg w-full max-w-screen-lg h-full max-h-[90vh] relative"
-            overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-6"
-          >
-            <div className="overflow-y-auto max-h-[calc(100%-4rem)] mb-16">
-              <div>
-                {selectedRowData && (
-                  <FoodDetails selectedRowData={selectedRowData} />
-                )}
-              </div>
+                  ))}
+                </thead>
+                <tbody {...getTableBodyProps()}>
+                  {page.map((row) => {
+                    prepareRow(row);
+                    return (
+                      <tr {...row.getRowProps()} className="hover:bg-gray-50">
+                        {row.cells.map((cell) => (
+                          <td {...cell.getCellProps()} className="p-2 border-b">
+                            {cell.render("Cell")}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
 
-            <div className="absolute bottom-0 left-0 w-full bg-white p-2 shadow-lg flex justify-end space-x-4">
+            <div className="flex items-center justify-between mt-4">
               <button
-                onClick={() => setModalIsOpen(false)}
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                onClick={() => previousPage()}
+                disabled={!canPreviousPage}
+                className="px-4 py-2 bg-[#A24C4A] text-white rounded disabled:opacity-50"
               >
-                Close
+                Previous
+              </button>
+
+              <span>
+                Page{" "}
+                <strong>
+                  {pageIndex + 1} of {pageOptions.length}
+                </strong>
+              </span>
+
+              <button
+                onClick={() => nextPage()}
+                disabled={!canNextPage}
+                className="px-4 py-2 bg-[#A24C4A] text-white rounded disabled:opacity-50"
+              >
+                Next
               </button>
             </div>
-          </Modal>
+          </div>
         </>
       )}
     </div>
