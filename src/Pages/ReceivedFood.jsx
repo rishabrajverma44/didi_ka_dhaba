@@ -89,7 +89,7 @@ const ReceivedFood = () => {
   };
 
   const handleReceivedChange = (mealType, itemIndex, value, image = null) => {
-    const parsedValue = value === "" ? 0 : parseFloat(value);
+    const parsedValue = value === "" ? "" : parseFloat(value);
     let errorMessage = "";
     setHasUnsavedChanges(true);
     const currentItem =
