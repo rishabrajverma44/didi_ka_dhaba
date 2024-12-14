@@ -4,9 +4,11 @@ import { FiX } from "react-icons/fi";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import ConfirmNavigation from "../Components/prebuiltComponent/ConfirmNavigation";
 
 const IssueFood = () => {
   const navigate = useNavigate();
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [status, setStatus] = useState(null);
   const [namesDidi, setDidiName] = useState([]);
   const [currentFoodData, setCurrentFoodData] = useState([]);
@@ -62,6 +64,7 @@ const IssueFood = () => {
     setSelectedDidi(name.didi_id);
     setSearchTerm(name.didi_name_and_thela_code);
     setIsDropdownOpen(false);
+    setHasUnsavedChanges(true);
   };
 
   const handleRemoveItem = (item, meal) => {
@@ -188,10 +191,6 @@ const IssueFood = () => {
       return false;
     }
   };
-  const checkConnectionStatus = async () => {
-    const actualStatus = await checkInternetConnection();
-    setStatus(actualStatus);
-  };
 
   const MealSection = ({ title, items, handleRemoveItem, mealType }) => (
     <>
@@ -306,6 +305,11 @@ const IssueFood = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center">
+      <ConfirmNavigation
+        targetUrl="/mobilehome"
+        hasUnsavedChanges={hasUnsavedChanges}
+      />
+
       <div className="container py-4">
         <div>
           <h3 className="text-center mb-4">Issue Food</h3>

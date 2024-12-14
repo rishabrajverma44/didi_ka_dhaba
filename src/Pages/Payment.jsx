@@ -33,11 +33,11 @@ const Payment = () => {
   };
 
   const toggleCamera = () => {
-    setIsInitializingCamera(true); // Set to true when starting camera
+    setIsInitializingCamera(true);
     setTimeout(() => {
       setIsCameraOn(true);
-      setIsInitializingCamera(false); // Set to false after camera is on
-    }, 2000); // Simulate delay for camera initialization
+      setIsInitializingCamera(false);
+    }, 2000);
   };
 
   const toggleCameraType = () => {
@@ -206,23 +206,12 @@ const Payment = () => {
     }
   };
 
-  // useEffect(() => {
-  //   checkConnectionStatus();
-  // }, []);
-  // useEffect(() => {
-  //   console.log(status);
-  //   if (status === false) {
-  //     Swal.fire({
-  //       html: `<b>Check Internet connection!</b>`,
-  //       allowOutsideClick: false,
-  //       confirmButtonColor: "#A24C4A",
-  //     });
-  //   }
-  // }, [status]);
-
   return (
     <div className="bg-gray-50" style={{ minHeight: "100vh" }}>
-      <ConfirmNavigation targetUrl="/" hasUnsavedChanges={hasUnsavedChanges} />
+      <ConfirmNavigation
+        targetUrl="/mobilehome"
+        hasUnsavedChanges={hasUnsavedChanges}
+      />
       <div className="container py-4">
         <h3 className="text-center mb-4">Payment Details</h3>
 
