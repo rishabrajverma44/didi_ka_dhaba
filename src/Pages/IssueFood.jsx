@@ -61,7 +61,7 @@ const IssueFood = () => {
   }, [mealType]);
 
   const handleSelectDidi = (name) => {
-    setSelectedDidi(name.didi_id);
+    setSelectedDidi(name.didi_thela_id);
     setSearchTerm(name.didi_name_and_thela_code);
     setIsDropdownOpen(false);
     setHasUnsavedChanges(true);
@@ -300,6 +300,7 @@ const IssueFood = () => {
         },
       ],
     };
+
     postFoodItem(payload);
   };
 

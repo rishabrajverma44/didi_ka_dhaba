@@ -147,15 +147,17 @@ const Payment = () => {
           });
 
           const payload = {
-            didi_id: formData.get("didi_id"),
-            thela_id: formData.get("thela_id"),
-            upi: online,
-            cash: cash,
+            didi_id: Number(formData.get("didi_id")),
+            thela_id: Number(formData.get("thela_id")),
+            upi: Number(online),
+            cash: Number(cash),
             image: Array.from({ length: photos.length }).map((_, i) => {
               const photo = formData.get(`photo${i + 1}`);
               return photo.replace(/^data:image\/jpeg;base64,\/9j\//, "");
             }),
           };
+
+          console.log(payload);
 
           try {
             const response = await axios.post(
@@ -175,6 +177,8 @@ const Payment = () => {
           } finally {
             setIsLoading(false);
           }
+
+          setIsLoading(false);
         } else {
           toast.info("Submission cancelled.");
         }
@@ -244,7 +248,7 @@ const Payment = () => {
                     className="p-2 hover:bg-blue-100 cursor-pointer"
                     onClick={() => {
                       setSelectedDidi(name.didi_id);
-                      setSelectedThela_id(name.thela_id);
+                      setSelectedThela_id(name.didi_thela_id);
                       setSearchTermDidi(name.didi_name_and_thela_code);
                       setIsDropdownOpenDidi(false);
                       setHasUnsavedChanges(true);

@@ -44,13 +44,14 @@ const routes = [
         ),
       },
       {
-        path: "admin/:id",
+        path: "admin/:id/:date",
         element: (
           <AdminRoute>
             <HomeEdit />
           </AdminRoute>
         ),
       },
+
       {
         path: "didireg",
         element: (

@@ -237,9 +237,13 @@ const ListAssigned = () => {
                       <span>
                         {column.isSorted ? (
                           column.isSortedDesc ? (
-                            <i className="fa fa-arrow-down px-2"></i>
+                            <span className="ml-2 border p-1 rounded text-white">
+                              <i className="fa">&#xf150;</i>{" "}
+                            </span>
                           ) : (
-                            <i className="fa fa-arrow-up px-2"></i>
+                            <span className="ml-2 border p-1 rounded text-white">
+                              <i className="fa">&#xf0d8;</i>{" "}
+                            </span>
                           )
                         ) : (
                           ""

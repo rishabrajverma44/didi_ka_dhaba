@@ -1,41 +1,43 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import Breadcrumb from "../../../Components/prebuiltComponent/Breadcrumb";
+import { toast } from "react-toastify";
 
 const HomeEdit = () => {
-  const [selectedRowData, setSelectedRowData] = useState(null);
+  const [didiDetails, setDidiDetails] = useState([]);
   const [data, setData] = useState(null);
-  const { id } = useParams();
+
+  const { id, date } = useParams();
 
   useEffect(() => {
     const fetchProduct = async () => {
-      const response = await fetch(`https://api.example.com/products/${id}`);
-      const data = await response.json();
-      setData(data);
+      axios
+        .post(
+          "https://didikadhababackend.indevconsultancy.in/dhaba/details-by-meal-type/",
+          { didi_id: Number(id), date: date }
+        )
+        .then((res) => {
+          if (res.status === 200) {
+            setData(res.data);
+            setDidiDetails(res.data.didi_details);
+          }
+        })
+        .catch((error) => {
+          if (error.status === 404 && error.error === "Didi not found.") {
+            setData(null);
+            toast.error("did not found");
+          }
+          console.log("error in post", error);
+        });
     };
 
     fetchProduct();
-  }, [id]);
-
-  const handleViewDetails = async (row) => {
-    try {
-      const res = await axios.post(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/details-by-meal-type/"
-      );
-      setSelectedRowData(res.data);
-      console.log(res.data);
-    } catch (error) {
-      console.error("Error fetching details:", error);
-    }
-  };
+  }, [id, date]);
 
   const FoodDetails = ({ selectedRowData }) => {
     return (
       <div className="p-1 w-full bg-white mb-8 rounded-md pb-4">
-        <h2 className="text-2xl font-bold mb-4 text-[#A24C4A] text-center">
-          Food Summary
-        </h2>
         {selectedRowData ? (
           <div className="space-y-6 px-3">
             {selectedRowData.issued_food || selectedRowData.returned_food ? (
@@ -155,7 +157,7 @@ const HomeEdit = () => {
 
   const breadcrumbItems = [
     { label: "Home", href: "/admin" },
-    { label: "Didi Details", href: `/admin/${id}` },
+    { label: "Didi Details", href: `/admin/` },
   ];
   return (
     <div className="px-12 py-2">
@@ -173,35 +175,41 @@ const HomeEdit = () => {
         </div>
       </div>
 
-      <div className="border border-1 rounded px-2 py-4 shadow-sm border-bottom-4">
-        {" "}
+      <div className="border border-1 rounded px-8 py-3 shadow-sm border-bottom-4">
         <div className="row mb-2">
-          <div className="col md-6 fw-bold" style={{ color: "#5E6E82" }}>
-            Name :-
+          <div className="col md-6">
+            <span className="fw-bold" style={{ color: "#5E6E82" }}>
+              Name : -
+            </span>
+            <sapn style={{ color: "#5E6E82" }}> {didiDetails.didi_name}</sapn>
           </div>
-          <div className="col md-6" style={{ color: "#5E6E82" }}>
-            John Doe
-          </div>
-          <div className="col md-6 fw-bold" style={{ color: "#5E6E82" }}>
-            {" "}
-            Date :-
-          </div>
-          <div className="col md-6" style={{ color: "#5E6E82" }}>
-            13-12-2024
+          <div className="col md-6">
+            <span className="fw-bold" style={{ color: "#5E6E82" }}>
+              Date : -
+            </span>
+            <sapn style={{ color: "#5E6E82" }}> {date}</sapn>
           </div>
         </div>
         <div className="row">
-          <div className="col md-6 fw-bold" style={{ color: "#5E6E82" }}>
-            Stall Name :-
-          </div>
-          <div className="col md-6" style={{ color: "#5E6E82" }}>
-            Fresh Farm Produce
-          </div>
-          <div className="col md-6 fw-bold" style={{ color: "#5E6E82" }}>
-            Total Sale :-
-          </div>
-          <div className="col md-6" style={{ color: "#5E6E82" }}>
-            2 Lakh
+          <div className="row mb-2">
+            <div className="col md-6">
+              <span className="fw-bold" style={{ color: "#5E6E82" }}>
+                Stall Name : -
+              </span>
+              <sapn style={{ color: "#5E6E82" }}>
+                {" "}
+                {didiDetails.thela_code}
+              </sapn>
+            </div>
+            <div className="col md-6">
+              <span className="fw-bold" style={{ color: "#5E6E82" }}>
+                Total Sale : -
+              </span>
+              <sapn style={{ color: "#5E6E82" }}>
+                {" "}
+                {didiDetails.total_payment}
+              </sapn>
+            </div>
           </div>
         </div>
       </div>
@@ -217,6 +225,7 @@ const HomeEdit = () => {
           >
             Log
           </legend>
+          <FoodDetails selectedRowData={data} />
         </fieldset>
       </div>
     </div>

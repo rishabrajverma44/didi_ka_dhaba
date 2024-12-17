@@ -20,9 +20,9 @@ const AdminHome = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await axios.post(
+      const res = await axios.get(
         "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela_summary/",
-        { date: selectedDate }
+        { params: { date: selectedDate } }
       );
       setData(res.data);
     } catch (error) {
@@ -42,18 +42,26 @@ const AdminHome = () => {
     setLoading(true);
   };
 
+  const filteredData = useMemo(() => {
+    if (!selectedCity) return data;
+    return data.filter((item) => item.city === selectedCity);
+  }, [data, selectedCity]);
+
   const columns = useMemo(
     () => [
-      { Header: "Sl.No" },
+      { Header: "S. No", Cell: ({ row }) => row.index + 1 },
       { Header: "Date", accessor: "date" },
       { Header: "Didi Name", accessor: "full_name" },
+      { Header: "City", accessor: "city" },
       { Header: "Amount Sold (INR)", accessor: "total_payment" },
-      { Header: "Remuneration", accessor: "Remuneration" },
+      { Header: "Remuneration", accessor: "remuneration" },
       {
         Header: "Action",
         Cell: ({ row }) => (
           <button
-            onClick={() => navigate(`/admin/${row.original.didi_id}`)}
+            onClick={() =>
+              navigate(`/admin/${row.original.didi_id}/${row.original.date}`)
+            }
             className="text-center w-full"
           >
             <i className="fas fa-eye"></i>
@@ -61,7 +69,7 @@ const AdminHome = () => {
         ),
       },
     ],
-    []
+    [navigate]
   );
 
   const {
@@ -74,7 +82,7 @@ const AdminHome = () => {
   } = useTable(
     {
       columns,
-      data,
+      data: filteredData,
       initialState: {
         pageIndex: 0,
         sortBy: [
@@ -99,7 +107,7 @@ const AdminHome = () => {
   };
 
   return (
-    <div className=" py-2 px-12">
+    <div className="py-2 px-12">
       <ToastContainer />
 
       <div className="row py-4 px-2">
@@ -107,58 +115,57 @@ const AdminHome = () => {
           <input
             type="date"
             id="selectDate"
-            style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
-            className="form-control"
+            className="form-control w-full py-2 px-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             name="date"
             value={selectedDate}
             onChange={handleDateChange}
           />
         </div>
 
-        <div className="col-md-3 px-1">
-          <select
-            id="selectDidi1"
-            className="form-control"
-            name="didi"
-            style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
-            value={selectedDidi}
-            onChange={(e) => setSelectedDidi(e.target.value)}
-          >
-            <option value="" disabled={true}>
-              Select Didi
-            </option>
-            <option value="parul goyal">parul goyal</option>
-            <option value="lipika Mohapatro">lipika Mohapatro</option>
-            <option value="Rita Devi">Rita Devi</option>
-          </select>
+        <div className="col-md-4 px-1">
+          <div className="relative">
+            <select
+              id="selectDidi1"
+              className="form-control pl-3 pr-8 py-2 w-full"
+              name="didi"
+              style={{ boxShadow: "0px 1px 1px #e4e4e4" }}
+              value={selectedDidi}
+              onChange={(e) => setSelectedDidi(e.target.value)}
+            >
+              <option value="" disabled>
+                Select Didi
+              </option>
+              <option value="parul goyal">parul goyal</option>
+              <option value="lipika Mohapatro">lipika Mohapatro</option>
+              <option value="Rita Devi">Rita Devi</option>
+            </select>
+            <div className="absolute right-3 top-2">
+              <i className="fas fa-chevron-down text-gray-500"></i>
+            </div>
+          </div>
         </div>
 
-        <div className="col-md-3 px-1">
-          <select
-            id="selectCity"
-            className="form-control"
-            name="city"
-            style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
-            value={selectedCity}
-            onChange={(e) => setSelectedCity(e.target.value)}
-          >
-            <option value="" disabled={true}>
-              Select City
-            </option>
-            <option value="Gurugram">Gurugram</option>
-            <option value="Delhi">Delhi</option>
-            <option value="Noida">Noida</option>
-          </select>
-        </div>
-
-        <div className="col-md-2 d-flex align-items-end px-1">
-          <button
-            type="button"
-            className="btn btn-primary w-100"
-            style={{ backgroundColor: "#682c13", borderColor: "#682c13" }}
-          >
-            Search
-          </button>
+        <div className="col-md-4 px-1">
+          <div className="relative">
+            <select
+              id="selectCity"
+              className="form-control pl-3 pr-8 py-2 w-full"
+              name="city"
+              style={{ boxShadow: "0px 1px 1px #e4e4e4" }}
+              value={selectedCity}
+              onChange={(e) => setSelectedCity(e.target.value)}
+            >
+              <option value="" disabled>
+                Select City
+              </option>
+              <option value="Gurugram">Gurugram</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Noida">Noida</option>
+            </select>
+            <div className="absolute right-3 top-2">
+              <i className="fas fa-chevron-down text-gray-500"></i>
+            </div>
+          </div>
         </div>
 
         <div className="col-md-1 d-flex align-items-end px-1">
@@ -175,67 +182,68 @@ const AdminHome = () => {
       {loading ? (
         <p>Loading data...</p>
       ) : (
-        <>
-          <div className="">
-            <div className="overflow-auto">
-              <table
-                {...getTableProps()}
-                className="w-full table table-bordered table-hover"
-              >
-                <thead className="">
-                  {headerGroups.map((headerGroup) => (
-                    <tr
-                      {...headerGroup.getHeaderGroupProps()}
-                      className="border border-2"
+        <div className="overflow-auto">
+          <table
+            {...getTableProps()}
+            className="w-full table table-bordered table-hover"
+          >
+            <thead>
+              {headerGroups.map((headerGroup) => (
+                <tr {...headerGroup.getHeaderGroupProps()}>
+                  {headerGroup.headers.map((column) => (
+                    <th
+                      {...column.getHeaderProps(column.getSortByToggleProps())}
+                      className="p-2 cursor-pointer text-md font-normal"
+                      style={{ backgroundColor: "#682C13", color: "white" }}
                     >
-                      {headerGroup.headers.map((column) => (
-                        <th
-                          {...column.getHeaderProps(
-                            column.getSortByToggleProps()
-                          )}
-                          className="p-2 cursor-pointer text-md font-normal text-center"
-                          style={{ backgroundColor: "#682C13", color: "white" }}
-                        >
-                          {column.render("Header")}
-                          <span>
-                            {column.isSorted ? (
-                              column.isSortedDesc ? (
-                                <i className="fa fa-arrow-down px-2"></i>
-                              ) : (
-                                <i className="fa fa-arrow-up px-2"></i>
-                              )
-                            ) : (
-                              ""
-                            )}
-                          </span>
-                        </th>
+                      {column.render("Header")}
+                      <span>
+                        {column.isSorted ? (
+                          column.isSortedDesc ? (
+                            <span className="ml-2 border p-1 rounded text-white">
+                              <i className="fa">&#xf150;</i>
+                            </span>
+                          ) : (
+                            <span className="ml-2 border p-1 rounded text-white">
+                              <i className="fa">&#xf0d8;</i>
+                            </span>
+                          )
+                        ) : (
+                          ""
+                        )}
+                      </span>
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody {...getTableBodyProps()}>
+              {page.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={headerGroups[0].headers.length}
+                    className="text-center p-2"
+                  >
+                    No data available
+                  </td>
+                </tr>
+              ) : (
+                page.map((row) => {
+                  prepareRow(row);
+                  return (
+                    <tr {...row.getRowProps()}>
+                      {row.cells.map((cell) => (
+                        <td {...cell.getCellProps()} className="p-2 border">
+                          {cell.render("Cell")}
+                        </td>
                       ))}
                     </tr>
-                  ))}
-                </thead>
-
-                <tbody {...getTableBodyProps()}>
-                  {page.map((row) => {
-                    prepareRow(row);
-                    return (
-                      <tr {...row.getRowProps()} className="hover:bg-gray-200">
-                        {row.cells.map((cell) => (
-                          <td
-                            {...cell.getCellProps()}
-                            className="p-2 border border-2"
-                            style={{ color: "#5E6E82" }}
-                          >
-                            {cell.render("Cell")}
-                          </td>
-                        ))}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

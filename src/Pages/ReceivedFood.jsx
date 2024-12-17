@@ -739,7 +739,7 @@ const ReceivedFood = () => {
                                       audio={false}
                                       ref={webcamRef}
                                       screenshotFormat="image/jpeg"
-                                      className="rounded shadow-md"
+                                      className="w-48 h-48 rounded shadow-md"
                                       videoConstraints={videoConstraints}
                                     />
                                     <div className="absolute bottom-3 flex space-x-8 z-10 w-full items-center justify-center">
@@ -887,7 +887,7 @@ const ReceivedFood = () => {
                                       audio={false}
                                       ref={webcamRef}
                                       screenshotFormat="image/jpeg"
-                                      className="rounded shadow-md"
+                                      className="w-48 h-48 rounded shadow-md"
                                       videoConstraints={videoConstraints}
                                     />
                                     <div className="absolute bottom-3 flex space-x-8 z-10 w-full items-center justify-center">
