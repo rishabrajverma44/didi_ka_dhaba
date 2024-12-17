@@ -6,7 +6,7 @@ import {
   usePagination,
   useGlobalFilter,
 } from "react-table";
-import { FaTrashAlt } from "react-icons/fa";
+import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -15,8 +15,8 @@ const ListAssigned = () => {
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedDidi, setSelectedDidi] = useState("");
   const [selectedStall, setSelectedStall] = useState("");
-  const [fromDate, setFromDate] = useState(""); // State for 'From Date'
-  const [toDate, setToDate] = useState(""); // State for 'To Date'
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -55,7 +55,7 @@ const ListAssigned = () => {
 
   const columns = useMemo(
     () => [
-      { Header: "Sl. No", accessor: "serialNumber" },
+      { Header: "S. No", accessor: "serialNumber" },
       { Header: "From Date", accessor: "from_date" },
       { Header: "To Date", accessor: "to_date" },
       { Header: "Didi Name", accessor: "full_name" },
@@ -63,13 +63,13 @@ const ListAssigned = () => {
       {
         Header: "Action",
         Cell: ({ row }) => (
-          <span>
-            {/* <button
-              onClick={() => navigate(`/admin/${row.original.didi_id}`)}
-              className="px-2"
+          <div className="d-flex justify-content-around">
+            <button
+              onClick={() => navigate(`/assign_list/${row.original.didi_id}`)}
+              className="text-blue-500 hover:text-blue-700"
             >
-              <i className="fas fa-eye"></i>
-            </button> */}
+              <FaPencilAlt />
+            </button>
 
             <button
               onClick={() => handleDelete(row.original.didi_thela_id)}
@@ -77,7 +77,7 @@ const ListAssigned = () => {
             >
               <FaTrashAlt />
             </button>
-          </span>
+          </div>
         ),
       },
     ],
@@ -106,7 +106,6 @@ const ListAssigned = () => {
   const handleSearch = () => {
     let filteredData = data;
 
-    // Apply date range filter
     if (fromDate) {
       filteredData = filteredData.filter((item) => item.from_date >= fromDate);
     }
@@ -230,7 +229,7 @@ const ListAssigned = () => {
                   {headerGroup.headers.map((column) => (
                     <th
                       {...column.getHeaderProps(column.getSortByToggleProps())}
-                      className="p-2 cursor-pointer text-md font-normal text-center"
+                      className="p-2 cursor-pointer text-md font-normal"
                       style={{ backgroundColor: "#682C13", color: "white" }}
                     >
                       {column.render("Header")}
@@ -269,9 +268,7 @@ const ListAssigned = () => {
                   prepareRow(row);
                   return (
                     <tr {...row.getRowProps()} className="hover:bg-gray-200">
-                      <td className="p-2 border border-2 text-center">
-                        {index + 1}
-                      </td>
+                      <td className="p-2 border border-2">{index + 1}</td>
                       {row.cells.map((cell, idx) => {
                         if (idx === 0) return null;
                         return (

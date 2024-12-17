@@ -9,8 +9,10 @@ import {
   useSortBy,
 } from "react-table";
 import Pagination from "../../../Components/prebuiltComponent/Pagination";
+import { useNavigate } from "react-router-dom";
 
 const ListFood = () => {
+  const navigate = useNavigate();
   const [foodData, setFoodData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
@@ -37,7 +39,7 @@ const ListFood = () => {
   const columns = React.useMemo(
     () => [
       {
-        Header: "Sl",
+        Header: "S. No.",
       },
       {
         Header: "Food Name",
@@ -58,7 +60,13 @@ const ListFood = () => {
       {
         Header: "Actions",
         Cell: ({ row }) => (
-          <div className="text-center">
+          <div className="d-flex justify-content-around">
+            <button
+              onClick={() => navigate(`${row.original.food_id}`)}
+              className="text-blue-500 hover:text-blue-700"
+            >
+              <FaPencilAlt />
+            </button>
             <button
               onClick={() => handleDelete(row.original.food_id)}
               className="text-red-500 hover:text-red-700"
@@ -162,7 +170,7 @@ const ListFood = () => {
                         {...column.getHeaderProps(
                           column.getSortByToggleProps()
                         )}
-                        className="p-2 cursor-pointer text-md font-normal text-center"
+                        className="p-2 cursor-pointer text-md font-normal"
                         style={{ backgroundColor: "#682C13", color: "white" }}
                       >
                         {column.render("Header")}
@@ -205,9 +213,7 @@ const ListFood = () => {
                         key={row.id}
                         className="hover:bg-gray-200"
                       >
-                        <td className="p-2 border border-2 text-center">
-                          {index + 1}
-                        </td>
+                        <td className="p-2 border border-2">{index + 1}</td>
                         {row.cells.map((cell, idx) => {
                           if (idx === 0) return null;
                           return (

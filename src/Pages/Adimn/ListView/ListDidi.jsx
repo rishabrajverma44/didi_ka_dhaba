@@ -168,7 +168,7 @@ const ListDidi = () => {
                     {headerGroup.headers.map((column) => (
                       <th
                         {...column.getHeaderProps()}
-                        className="py-2 px-4 border-b text-center text-white"
+                        className="py-2 px-4 border-b  text-white"
                         style={{ backgroundColor: "#682C13", color: "white" }}
                       >
                         {column.render("Header")}
@@ -198,7 +198,7 @@ const ListDidi = () => {
                   <tr>
                     <td
                       colSpan={columns.length}
-                      className="py-2 text-center text-slate-600"
+                      className="py-2  text-slate-600"
                     >
                       No data found
                     </td>

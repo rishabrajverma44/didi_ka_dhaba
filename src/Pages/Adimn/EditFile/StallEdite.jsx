@@ -12,7 +12,7 @@ const mapContainerStyle = {
 
 const defaultCenter = { lat: 28.536482, lng: 77.270955 };
 
-const ThelaRegistration = () => {
+const StallEdite = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [address, setAddress] = useState("");
@@ -436,4 +436,4 @@ const ThelaRegistration = () => {
   );
 };
 
-export default ThelaRegistration;
+export default StallEdite;

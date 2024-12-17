@@ -43,9 +43,13 @@ const AdminHome = () => {
   };
 
   const filteredData = useMemo(() => {
-    if (!selectedCity) return data;
-    return data.filter((item) => item.city === selectedCity);
-  }, [data, selectedCity]);
+    return data.filter((item) => {
+      const isCityMatch = selectedCity ? item.city === selectedCity : true;
+      const isDidiMatch = selectedDidi ? item.full_name === selectedDidi : true;
+      const isDateMatch = selectedDate ? item.date === selectedDate : true;
+      return isCityMatch && isDidiMatch && isDateMatch;
+    });
+  }, [data, selectedCity, selectedDidi, selectedDate]);
 
   const columns = useMemo(
     () => [
@@ -85,12 +89,6 @@ const AdminHome = () => {
       data: filteredData,
       initialState: {
         pageIndex: 0,
-        sortBy: [
-          {
-            id: "total_payment",
-            desc: true,
-          },
-        ],
       },
     },
     useGlobalFilter,
@@ -109,7 +107,6 @@ const AdminHome = () => {
   return (
     <div className="py-2 px-12">
       <ToastContainer />
-
       <div className="row py-4 px-2">
         <div className="col-md-3 px-1">
           <input
@@ -233,7 +230,11 @@ const AdminHome = () => {
                   return (
                     <tr {...row.getRowProps()}>
                       {row.cells.map((cell) => (
-                        <td {...cell.getCellProps()} className="p-2 border">
+                        <td
+                          {...cell.getCellProps()}
+                          className="p-2 border"
+                          style={{ color: "#5E6E82" }}
+                        >
                           {cell.render("Cell")}
                         </td>
                       ))}

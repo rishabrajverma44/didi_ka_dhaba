@@ -19,6 +19,9 @@ import ListAssigned from "../Pages/Adimn/ListView/ListAssigned";
 import ListFood from "../Pages/Adimn/ListView/ListFood";
 import ListDidi from "../Pages/Adimn/ListView/ListDidi";
 import ListStall from "../Pages/Adimn/ListView/ListStall";
+import FoodEdit from "../Pages/Adimn/EditFile/FoodEdit";
+import StallEdite from "../Pages/Adimn/EditFile/StallEdite";
+import AssignEdit from "../Pages/Adimn/EditFile/AssignEdit";
 
 const routes = [
   {
@@ -26,20 +29,11 @@ const routes = [
     element: <Layout />,
     children: [
       { path: "/", element: <Login /> },
-
       {
         path: "admin",
         element: (
           <AdminRoute>
             <AdminHome />
-          </AdminRoute>
-        ),
-      },
-      {
-        path: "dailylog",
-        element: (
-          <AdminRoute>
-            <DailyLog />
           </AdminRoute>
         ),
       },
@@ -51,52 +45,20 @@ const routes = [
           </AdminRoute>
         ),
       },
+      {
+        path: "dailylog",
+        element: (
+          <AdminRoute>
+            <DailyLog />
+          </AdminRoute>
+        ),
+      },
 
       {
         path: "didireg",
         element: (
           <AdminRoute>
             <DidiRegistration />
-          </AdminRoute>
-        ),
-      },
-      {
-        path: "thelareg",
-        element: (
-          <AdminRoute>
-            <ThelaRegistration />
-          </AdminRoute>
-        ),
-      },
-      {
-        path: "assign",
-        element: (
-          <AdminRoute>
-            <DidiAssignment />
-          </AdminRoute>
-        ),
-      },
-      {
-        path: "assign_list",
-        element: (
-          <AdminRoute>
-            <ListAssigned />
-          </AdminRoute>
-        ),
-      },
-      {
-        path: "listfood",
-        element: (
-          <AdminRoute>
-            <ListFood />
-          </AdminRoute>
-        ),
-      },
-      {
-        path: "addfood",
-        element: (
-          <AdminRoute>
-            <AddFood />
           </AdminRoute>
         ),
       },
@@ -117,10 +79,74 @@ const routes = [
         ),
       },
       {
+        path: "thelareg",
+        element: (
+          <AdminRoute>
+            <ThelaRegistration />
+          </AdminRoute>
+        ),
+      },
+      {
         path: "stall_list",
         element: (
           <AdminRoute>
             <ListStall />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "stall_list/:id",
+        element: (
+          <AdminRoute>
+            <StallEdite />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "assign",
+        element: (
+          <AdminRoute>
+            <DidiAssignment />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "assign_list",
+        element: (
+          <AdminRoute>
+            <ListAssigned />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "assign_list/:id",
+        element: (
+          <AdminRoute>
+            <AssignEdit />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "addfood",
+        element: (
+          <AdminRoute>
+            <AddFood />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "listfood",
+        element: (
+          <AdminRoute>
+            <ListFood />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "listfood/:id",
+        element: (
+          <AdminRoute>
+            <FoodEdit />
           </AdminRoute>
         ),
       },

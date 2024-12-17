@@ -1,13 +1,52 @@
 import axios from "axios";
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import Breadcrumb from "../../../Components/prebuiltComponent/Breadcrumb";
 
 const mealCategories = [{ Breakfast: 1 }, { Lunch: 2 }, { Dinner: 3 }];
 const unitTypes = [{ kg: 1 }, { liter: 2 }, { pieces: 3 }];
 
-const AddFood = () => {
+const FoodEdit = () => {
   const navigate = useNavigate();
+  const [food, setFood] = useState();
+  const { id } = useParams();
+
+  const getData = (id) => {
+    axios
+      .get(
+        `https://didikadhababackend.indevconsultancy.in/dhaba/foodmaster/${id}`
+      )
+      .then((res) => {
+        const fetchedCategoryId = res.data.data.food_category;
+        const category = mealCategories.find(
+          (category) => Object.values(category)[0] === fetchedCategoryId
+        );
+
+        if (category) {
+          setSelectedCategory(Object.keys(category)[0]);
+        }
+
+        const fetchedUniteId = res.data.data.unit_id;
+        const unite = unitTypes.find(
+          (unite) => Object.values(unite)[0] === fetchedUniteId
+        );
+
+        if (unite) {
+          setSelectedUnit(Object.keys(unite)[0]);
+        }
+
+        setFoodName(res.data.data.food_name);
+        setFoodPrice(res.data.data.per_unit_price);
+      })
+      .catch((err) => {
+        console.log("error in get", err);
+      });
+  };
+
+  useEffect(() => {
+    getData(id);
+  }, [id]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedUnit, setSelectedUnit] = useState("");
@@ -61,7 +100,7 @@ const AddFood = () => {
   const sendData = async (payload) => {
     try {
       const res = axios
-        .post(
+        .put(
           "https://didikadhababackend.indevconsultancy.in/dhaba/foodmaster/",
           payload
         )
@@ -101,10 +140,26 @@ const AddFood = () => {
       await sendData(payload);
     }
   };
-
+  const breadcrumbItems = [
+    { label: "Food List", href: "/listfood" },
+    { label: "Edit Food", href: `` },
+  ];
   return (
     <div className="py-2 px-12">
       <ToastContainer />
+      <div className="d-flex justify-content-between">
+        <div>
+          <b
+            style={{ color: "#5E6E82", fontWeight: "bolder", fontSize: "18px" }}
+          >
+            Edite Food
+          </b>
+        </div>
+
+        <div className="">
+          <Breadcrumb items={breadcrumbItems} />
+        </div>
+      </div>
       <div className="mx-auto mt-6">
         <form onSubmit={handleSubmit}>
           <div className="flex flex-wrap -mx-2">
@@ -260,4 +315,4 @@ const AddFood = () => {
   );
 };
 
-export default AddFood;
+export default FoodEdit;

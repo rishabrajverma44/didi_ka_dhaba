@@ -42,7 +42,37 @@ const DidiRegistration = () => {
     selectedCity: Yup.string().required("City is required"),
   });
 
-  ///cammera
+  //adhar
+
+  const [imagesAdhar, setImagesAdhar] = useState([]);
+  const [isCameraOpenAdhar, setIsCameraOpenAdhar] = useState(false);
+  const [isBackCameraAdhar, setIsBackCameraAdhar] = useState(true);
+
+  const captureImageAdhar = () => {
+    if (webcamRef.current) {
+      const screenshot = webcamRef.current.getScreenshot();
+      setImagesAdhar((prevImages) => {
+        if (prevImages.length < 2) {
+          return [...prevImages, screenshot];
+        }
+        return prevImages;
+      });
+    }
+  };
+
+  const removeImageAdhar = (index) => {
+    setImagesAdhar((prevImages) => prevImages.filter((_, i) => i !== index));
+  };
+
+  const toggleCameraAdhar = () => {
+    setIsCameraOpenAdhar(!isCameraOpenAdhar);
+  };
+
+  const toggleCameraMode = () => {
+    setIsBackCameraAdhar(!isBackCameraAdhar);
+  };
+
+  //cammera
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isCaptured, setIsCaptured] = useState(false);
   const [imageSrc, setImageSrc] = useState("");
@@ -142,7 +172,8 @@ const DidiRegistration = () => {
   }, [initialValues.selectedDistrict]);
 
   const handleSubmit = async (values, { resetForm }) => {
-    const payload = { ...values };
+    const payload = { ...values, image: imageSrc };
+
     console.log(payload);
 
     setIsLoading(true);
@@ -151,7 +182,6 @@ const DidiRegistration = () => {
         "https://didikadhababackend.indevconsultancy.in/dhaba/didi/",
         payload
       );
-
       if (res.status === 201) {
         toast.success("Registration successfully done");
         resetForm();
@@ -210,27 +240,6 @@ const DidiRegistration = () => {
 
                   <div className="mb-2">
                     <label
-                      htmlFor="last_name"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Last Name
-                    </label>
-                    <Field
-                      type="text"
-                      id="last_name"
-                      name="last_name"
-                      placeholder="Enter your last name"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <ErrorMessage
-                      name="last_name"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
-
-                  <div className="mb-2">
-                    <label
                       htmlFor="husband_name"
                       className="block text-slate-600 mb-1"
                     >
@@ -245,45 +254,6 @@ const DidiRegistration = () => {
                     />
                     <ErrorMessage
                       name="husband_name"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
-
-                  <div className="mb-2">
-                    <label
-                      htmlFor="selectedState"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Select state
-                    </label>
-                    <select
-                      id="selectedState"
-                      name="selectedState"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      value={values.selectedState}
-                      onChange={(e) => {
-                        const selectedStateValue = parseInt(e.target.value, 10);
-                        setFieldValue("selectedState", selectedStateValue);
-                        setFieldValue("selectedDistrict", "");
-                        setFieldValue("selectedCity", "");
-                        getDistrict(selectedStateValue);
-                      }}
-                    >
-                      <option value="" disabled>
-                        Select State
-                      </option>
-                      {state.map((stateItem) => (
-                        <option
-                          key={stateItem.state_id}
-                          value={stateItem.state_id}
-                        >
-                          {stateItem.state_name}
-                        </option>
-                      ))}
-                    </select>
-                    <ErrorMessage
-                      name="selectedState"
                       component="div"
                       className="text-red-500 text-sm"
                     />
@@ -336,6 +306,104 @@ const DidiRegistration = () => {
 
                   <div className="mb-2">
                     <label
+                      htmlFor="mobile_no"
+                      className="block text-slate-600 mb-1"
+                    >
+                      Mobile Number
+                    </label>
+                    <Field
+                      type="number"
+                      id="mobile_no"
+                      name="mobile_no"
+                      placeholder="Enter your mobile number"
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <ErrorMessage
+                      name="mobile_no"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                  </div>
+
+                  <div className="mb-2">
+                    <label
+                      htmlFor="remarks"
+                      className="block text-slate-600 mb-1"
+                    >
+                      Remarks
+                    </label>
+                    <Field
+                      type="text"
+                      id="remarks"
+                      name="remarks"
+                      placeholder="Enter your Remarks"
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                  </div>
+                </div>
+                <div className="w-full md:w-1/2 px-4">
+                  <div className="mb-2">
+                    <label
+                      htmlFor="last_name"
+                      className="block text-slate-600 mb-1"
+                    >
+                      Last Name
+                    </label>
+                    <Field
+                      type="text"
+                      id="last_name"
+                      name="last_name"
+                      placeholder="Enter your last name"
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <ErrorMessage
+                      name="last_name"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                  </div>
+
+                  <div className="mb-2">
+                    <label
+                      htmlFor="selectedState"
+                      className="block text-slate-600 mb-1"
+                    >
+                      Select state
+                    </label>
+                    <select
+                      id="selectedState"
+                      name="selectedState"
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      value={values.selectedState}
+                      onChange={(e) => {
+                        const selectedStateValue = parseInt(e.target.value, 10);
+                        setFieldValue("selectedState", selectedStateValue);
+                        setFieldValue("selectedDistrict", "");
+                        setFieldValue("selectedCity", "");
+                        getDistrict(selectedStateValue);
+                      }}
+                    >
+                      <option value="" disabled>
+                        Select State
+                      </option>
+                      {state.map((stateItem) => (
+                        <option
+                          key={stateItem.state_id}
+                          value={stateItem.state_id}
+                        >
+                          {stateItem.state_name}
+                        </option>
+                      ))}
+                    </select>
+                    <ErrorMessage
+                      name="selectedState"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                  </div>
+
+                  <div className="mb-2">
+                    <label
                       htmlFor="selectedCity"
                       className="block text-slate-600 mb-1"
                     >
@@ -370,27 +438,6 @@ const DidiRegistration = () => {
 
                   <div className="mb-2">
                     <label
-                      htmlFor="mobile_no"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Mobile Number
-                    </label>
-                    <Field
-                      type="number"
-                      id="mobile_no"
-                      name="mobile_no"
-                      placeholder="Enter your mobile number"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <ErrorMessage
-                      name="mobile_no"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
-
-                  <div className="mb-2">
-                    <label
                       htmlFor="alternate_mobile_no"
                       className="block text-slate-600 mb-1"
                     >
@@ -412,110 +459,170 @@ const DidiRegistration = () => {
 
                   <div className="mb-2">
                     <label
-                      htmlFor="remarks"
+                      htmlFor="address"
                       className="block text-slate-600 mb-1"
                     >
-                      Remarks
+                      Address
                     </label>
                     <Field
-                      type="text"
-                      id="remarks"
-                      name="remarks"
-                      placeholder="Enter your Remarks"
+                      as="textarea"
+                      id="address"
+                      name="address"
+                      rows="2"
+                      placeholder="Enter your address"
                       className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <ErrorMessage
+                      name="address"
+                      component="div"
+                      className="text-red-500 text-sm"
                     />
                   </div>
                 </div>
-
-                <div className="md:w-1/2 inline-block w-full">
-                  {isCameraOpen && !isCaptured && (
-                    <>
+              </div>
+              <div className="row inline-block p-2">
+                {isCameraOpenAdhar && (
+                  <>
+                    <div className="relative">
                       <Webcam
                         audio={false}
                         ref={webcamRef}
                         screenshotFormat="image/jpeg"
-                        className="w-full h-96 object-cover rounded-md"
+                        className="w-full h-96 object-cover rounded-md shadow-md"
                         videoConstraints={{
-                          facingMode: isBackCamera ? "environment" : "user",
+                          facingMode: isBackCameraAdhar
+                            ? "environment"
+                            : "user",
                         }}
                       />
-                      <div className="bottom-4 mt-2 w-full flex justify-center space-x-6">
+                      <div className="absolute bottom-4 right-4 flex space-x-4">
                         <button
-                          onClick={handleCapture}
-                          className="py-1 px-1 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                          onClick={captureImageAdhar}
+                          className="py-2 px-3 rounded-full shadow-md bg-[#0B1727] text-white hover:bg-[#53230A] transition-all"
                         >
-                          <FaCamera size={30} />
+                          <FaCamera size={24} />
                         </button>
                         <button
-                          onClick={handleToggleCamera}
-                          className="py-1 px-1 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                          onClick={toggleCameraMode}
+                          className="py-2 px-3 rounded-full shadow-md bg-[#0B1727] text-white hover:bg-[#53230A] transition-all"
                         >
-                          <FiX size={30} />
+                          <FiRefreshCcw size={24} />
                         </button>
                         <button
-                          onClick={handleSwitchCamera}
-                          className="py-1 px-1 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                          onClick={toggleCameraAdhar}
+                          className="py-2 px-3 rounded-full shadow-md bg-red-500 text-white hover:bg-red-600 transition-all"
                         >
-                          <FiRefreshCcw size={30} />
+                          <FiX size={24} />
                         </button>
                       </div>
-                    </>
-                  )}
-                  {!isCameraOpen && !isCaptured && (
-                    <div className="w-full h-96 bg-gray-300 flex flex-col items-center justify-between rounded-md">
-                      {" "}
-                      <div className="flex-grow flex items-center justify-center">
-                        <p className="text-gray-500">Camera is off</p>
-                      </div>
-                      <button
-                        onClick={handleToggleCamera}
-                        className="mt-4 mb-4 py-2 px-4 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
-                      >
-                        <FaCamera size={30} />
-                      </button>
                     </div>
-                  )}
+                  </>
+                )}
 
-                  {isCaptured && imageSrc && (
-                    <div className="mt-6">
-                      <img
-                        src={imageSrc}
-                        alt="Captured"
-                        className="w-full h-96 object-cover rounded-md"
-                      />
-                      <div className="flex justify-center mt-4">
-                        <button
-                          onClick={handleRetake}
-                          className="py-2 px-4 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
-                        >
-                          Retake
-                        </button>
-                      </div>
+                {!isCameraOpenAdhar && (
+                  <div className="h-96 bg-gray-300 flex flex-col items-center justify-center rounded-md">
+                    <h2 className="text-gray-500 mb-4">Capture Identity</h2>
+                    <p className="text-gray-500 mb-4">Camera is off</p>
+                    <button
+                      onClick={toggleCameraAdhar}
+                      className="py-2 px-4 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A] transition-all"
+                    >
+                      <FaCamera size={30} />
+                    </button>
+                  </div>
+                )}
+
+                <div className="mt-1">
+                  {imagesAdhar.length > 0 && (
+                    <div className="grid grid-cols-2 gap-4 mt-6">
+                      {imagesAdhar.map((image, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={image}
+                            alt={`Captured ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-md shadow-md"
+                          />
+                          <button
+                            onClick={() => removeImageAdhar(index)}
+                            className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                          >
+                            <FiX size={20} />
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="w-full px-4">
-                <label htmlFor="address" className="block text-slate-600 mb-1">
-                  Address
-                </label>
-                <Field
-                  as="textarea"
-                  id="address"
-                  name="address"
-                  rows="3"
-                  placeholder="Enter your address"
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-                <ErrorMessage
-                  name="address"
-                  component="div"
-                  className="text-red-500 text-sm"
-                />
+              <div className="row inline-block p-2">
+                {isCameraOpen && !isCaptured && (
+                  <>
+                    <Webcam
+                      audio={false}
+                      ref={webcamRef}
+                      screenshotFormat="image/jpeg"
+                      className="w-full h-96 object-cover rounded-md"
+                      videoConstraints={{
+                        facingMode: isBackCamera ? "environment" : "user",
+                      }}
+                    />
+                    <div className="bottom-4 mt-2 w-full flex justify-center space-x-6">
+                      <button
+                        onClick={handleCapture}
+                        className="py-1 px-1 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                      >
+                        <FaCamera size={30} />
+                      </button>
+                      <button
+                        onClick={handleToggleCamera}
+                        className="py-1 px-1 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                      >
+                        <FiX size={30} />
+                      </button>
+                      <button
+                        onClick={handleSwitchCamera}
+                        className="py-1 px-1 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                      >
+                        <FiRefreshCcw size={30} />
+                      </button>
+                    </div>
+                  </>
+                )}
+                {!isCameraOpen && !isCaptured && (
+                  <div className="h-96 bg-gray-300 flex flex-col items-center justify-between rounded-md">
+                    <div className="flex-grow flex items-center flex-col justify-center">
+                      <h2 className="text-gray-500 mb-4">Capture Face</h2>
+                      <p className="text-gray-500">Camera is off</p>
+                    </div>
+                    <button
+                      onClick={handleToggleCamera}
+                      className="py-2 px-4 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                    >
+                      <FaCamera size={30} />
+                    </button>
+                  </div>
+                )}
+
+                {isCaptured && imageSrc && (
+                  <div className="mt-6">
+                    <img
+                      src={imageSrc}
+                      alt="Captured"
+                      className="w-full h-96 object-cover rounded-md"
+                    />
+                    <div className="flex justify-center mt-4">
+                      <button
+                        onClick={handleRetake}
+                        className="py-2 px-4 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                      >
+                        Retake
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Submit Button */}
               <div className="mt-6 flex justify-end w-full">
                 <button
                   type="submit"

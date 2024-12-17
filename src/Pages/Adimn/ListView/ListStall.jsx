@@ -43,13 +43,13 @@ const ListStall = () => {
       {
         Header: "Actions",
         Cell: ({ row }) => (
-          <div className="text-center">
-            {/* <button
+          <div className="d-flex justify-content-around">
+            <button
               onClick={() => handleEdit(row.original.food_id)}
               className="text-blue-500 hover:text-blue-700"
             >
               <FaPencilAlt />
-            </button> */}
+            </button>
             <button
               onClick={() => handleDelete(row.original.food_id)}
               className="text-red-500 hover:text-red-700"
