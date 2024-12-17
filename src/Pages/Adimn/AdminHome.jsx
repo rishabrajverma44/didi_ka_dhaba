@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import axios from "axios";
 import {
   useTable,
@@ -6,69 +6,57 @@ import {
   usePagination,
   useGlobalFilter,
 } from "react-table";
-import Modal from "react-modal";
-import { FaFilePdf } from "react-icons/fa";
-import { toast, ToastContainer } from "react-toastify";
-Modal.setAppElement("#root");
+import { ToastContainer } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const AdminHome = () => {
+  const navigate = useNavigate();
   const today = new Date().toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState(today);
-
+  const [selectedDidi, setSelectedDidi] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [selectedRowData, setSelectedRowData] = useState(null);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await axios.post(
+        "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela_summary/",
+        { date: selectedDate }
+      );
+      setData(res.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedDate]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.post(
-          "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela_summary/",
-          { date: selectedDate }
-        );
-        setData(res.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    setLoading(true);
     fetchData();
-  }, [selectedDate]);
+  }, [selectedDate, fetchData]);
+
   const handleDateChange = (e) => {
     setSelectedDate(e.target.value);
     setLoading(true);
   };
 
-  const handleViewDetails = async (row) => {
-    try {
-      const res = await axios.post(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/details-by-meal-type/",
-        { didi_id: row.original.didi_id, date: selectedDate }
-      );
-      setSelectedRowData(res.data);
-      console.log(selectedRowData);
-      setModalIsOpen(true);
-    } catch (error) {
-      console.error("Error fetching details:", error);
-    }
-  };
-
   const columns = useMemo(
     () => [
+      { Header: "Sl.No" },
+      { Header: "Date", accessor: "date" },
       { Header: "Didi Name", accessor: "full_name" },
-      { Header: "Stall", accessor: "thela_code" },
-      { Header: "Amount", accessor: "total_payment" },
+      { Header: "Amount Sold (INR)", accessor: "total_payment" },
+      { Header: "Remuneration", accessor: "Remuneration" },
       {
-        Header: "View",
+        Header: "Action",
         Cell: ({ row }) => (
           <button
-            onClick={() => handleViewDetails(row)}
-            className="tracking-wide font-semibold bg-white text-[#A24C4A] px-2 h-6 rounded border-1 border-[#A24C4A]"
+            onClick={() => navigate(`/admin/${row.original.didi_id}`)}
+            className="text-center w-full"
           >
-            View
+            <i className="fas fa-eye"></i>
           </button>
         ),
       },
@@ -83,12 +71,6 @@ const AdminHome = () => {
     page,
     prepareRow,
     state,
-    setGlobalFilter,
-    previousPage,
-    nextPage,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
   } = useTable(
     {
       columns,
@@ -110,206 +92,139 @@ const AdminHome = () => {
 
   const { globalFilter, pageIndex } = state;
 
-  const FoodDetails = ({ selectedRowData }) => {
-    return (
-      <div className="p-1 w-full bg-white mb-8 rounded-md pb-4">
-        <h2 className="text-2xl font-bold mb-4 text-[#A24C4A] text-center">
-          Food Summary
-        </h2>
-        {selectedRowData ? (
-          <div className="space-y-6 px-3">
-            {selectedRowData.issued_food || selectedRowData.returned_food ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-200 rounded-md">
-                  <thead>
-                    <tr className="bg-gray-100">
-                      <th className="py-2 px-4 border-b text-left text-slate-600">
-                        Meal Type
-                      </th>
-                      <th className="py-2 px-4 border-b text-center text-slate-600">
-                        Issued
-                      </th>
-                      <th className="py-2 px-4 border-b text-center text-slate-600">
-                        Returned
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.keys({
-                      ...selectedRowData.issued_food,
-                      ...selectedRowData.returned_food,
-                    }).map((mealType) => {
-                      const issuedItems =
-                        selectedRowData.issued_food?.[mealType] || [];
-                      const returnedItems =
-                        selectedRowData.returned_food?.[mealType] || [];
-
-                      return (
-                        <tr key={mealType}>
-                          <td className="py-2 px-4 border-b capitalize text-gray-800">
-                            {mealType.replace("-", " ")}
-                          </td>
-                          <td className="py-2 px-4 border-b">
-                            {issuedItems.length > 0 ? (
-                              <ul className="list-disc ml-4">
-                                {issuedItems.map((item) => (
-                                  <li
-                                    key={item.issue_food_id}
-                                    className="text-gray-800"
-                                  >
-                                    {item.food_name} - {item.quantity}{" "}
-                                    {item.unit_name}
-                                  </li>
-                                ))}
-                              </ul>
-                            ) : (
-                              <span className="text-gray-500">
-                                No issued food data available
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-2 px-4 border-b">
-                            {returnedItems.length > 0 ? (
-                              <ul className="list-disc ml-4">
-                                {returnedItems.map((item) => (
-                                  <li
-                                    key={item.issue_food_id}
-                                    className="text-gray-800"
-                                  >
-                                    {item.food_name} - {item.returned_quantity}{" "}
-                                    {item.unit_name}
-                                  </li>
-                                ))}
-                              </ul>
-                            ) : (
-                              <span className="text-gray-500">
-                                No returned food data available
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p className="text-gray-500">No food data available.</p>
-            )}
-
-            {selectedRowData.payment_details &&
-            selectedRowData.payment_details.length > 0 ? (
-              <div>
-                <h3 className="text-xl font-semibold mb-2 text-gray-700">
-                  Payment Details
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 px-3">
-                  {selectedRowData.payment_details.map((payment, index) => (
-                    <div
-                      key={index}
-                      className="px-3 border border-gray-200 rounded-md"
-                    >
-                      <p className="font-medium text-gray-800 my-1">
-                        <span className="text-gray-500">UPI Amount: </span>₹{" "}
-                        {payment.upi_amount}
-                      </p>
-                      <p className="font-medium text-gray-800 my-1">
-                        <span className="text-gray-500">Cash Amount: </span>₹{" "}
-                        {payment.cash_amount}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <p className="text-gray-500">No payment details available.</p>
-            )}
-          </div>
-        ) : (
-          <p className="text-gray-500">No data available.</p>
-        )}
-      </div>
-    );
+  const handleReset = () => {
+    setSelectedDate(today);
+    setSelectedDidi("");
+    setSelectedCity("");
   };
 
   return (
-    <div className="bg-gray-50 py-2 px-24" style={{ height: "99vh" }}>
+    <div className=" py-2 px-12">
       <ToastContainer />
-      <h2 className="text-2xl font-bold text-start text-slate-600">
-        Admin Home
-      </h2>
-      <div className="my-8 border rounded-lg bg-white text-center p-12">
-        Graph section
-      </div>
 
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 mt-3">
-        <input
-          type="text"
-          placeholder="Search by Didi Name or Stall Code"
-          value={globalFilter || ""}
-          onChange={(e) => {
-            const value = e.target.value.toLowerCase();
-            setGlobalFilter(value);
-          }}
-          className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A24C4A] w-full md:w-80 transition duration-200"
-        />
-
-        <div className="md:w-60">
+      <div className="row py-4 px-2">
+        <div className="col-md-3 px-1">
           <input
             type="date"
-            id="date"
+            id="selectDate"
+            style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
+            className="form-control"
+            name="date"
             value={selectedDate}
             onChange={handleDateChange}
-            className="w-full p-2 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
           />
         </div>
 
-        <button className="flex items-center gap-2 text-[#A24C4A] font-semibold py-2 px-5 rounded-md border border-[#A24C4A] hover:bg-[#A24C4A] hover:text-white transition duration-200">
-          <FaFilePdf size={20} />
-          Download PDF
-        </button>
+        <div className="col-md-3 px-1">
+          <select
+            id="selectDidi1"
+            className="form-control"
+            name="didi"
+            style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
+            value={selectedDidi}
+            onChange={(e) => setSelectedDidi(e.target.value)}
+          >
+            <option value="" disabled={true}>
+              Select Didi
+            </option>
+            <option value="parul goyal">parul goyal</option>
+            <option value="lipika Mohapatro">lipika Mohapatro</option>
+            <option value="Rita Devi">Rita Devi</option>
+          </select>
+        </div>
+
+        <div className="col-md-3 px-1">
+          <select
+            id="selectCity"
+            className="form-control"
+            name="city"
+            style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
+            value={selectedCity}
+            onChange={(e) => setSelectedCity(e.target.value)}
+          >
+            <option value="" disabled={true}>
+              Select City
+            </option>
+            <option value="Gurugram">Gurugram</option>
+            <option value="Delhi">Delhi</option>
+            <option value="Noida">Noida</option>
+          </select>
+        </div>
+
+        <div className="col-md-2 d-flex align-items-end px-1">
+          <button
+            type="button"
+            className="btn btn-primary w-100"
+            style={{ backgroundColor: "#682c13", borderColor: "#682c13" }}
+          >
+            Search
+          </button>
+        </div>
+
+        <div className="col-md-1 d-flex align-items-end px-1">
+          <button
+            type="reset"
+            className="btn btn-dark w-100"
+            onClick={handleReset}
+          >
+            Reset
+          </button>
+        </div>
       </div>
 
       {loading ? (
         <p>Loading data...</p>
-      ) : data.length === 0 ? (
-        <p className="text-center text-gray-500">No data available</p>
       ) : (
         <>
-          <div className="border rounded-lg bg-white text-center p-2">
-            <div className="overflow-auto border rounded-lg bg-white">
-              <table {...getTableProps()} className="w-full text-left">
-                <thead className="bg-gray-100">
+          <div className="">
+            <div className="overflow-auto">
+              <table
+                {...getTableProps()}
+                className="w-full table table-bordered table-hover"
+              >
+                <thead className="">
                   {headerGroups.map((headerGroup) => (
-                    <tr {...headerGroup.getHeaderGroupProps()}>
+                    <tr
+                      {...headerGroup.getHeaderGroupProps()}
+                      className="border border-2"
+                    >
                       {headerGroup.headers.map((column) => (
                         <th
                           {...column.getHeaderProps(
                             column.getSortByToggleProps()
                           )}
-                          className="p-2 border-b cursor-pointer"
+                          className="p-2 cursor-pointer text-md font-normal text-center"
+                          style={{ backgroundColor: "#682C13", color: "white" }}
                         >
                           {column.render("Header")}
                           <span>
-                            {column.isSorted
-                              ? column.isSortedDesc
-                                ? " ▼"
-                                : " ▲"
-                              : ""}
+                            {column.isSorted ? (
+                              column.isSortedDesc ? (
+                                <i className="fa fa-arrow-down px-2"></i>
+                              ) : (
+                                <i className="fa fa-arrow-up px-2"></i>
+                              )
+                            ) : (
+                              ""
+                            )}
                           </span>
                         </th>
                       ))}
                     </tr>
                   ))}
                 </thead>
+
                 <tbody {...getTableBodyProps()}>
                   {page.map((row) => {
                     prepareRow(row);
                     return (
-                      <tr {...row.getRowProps()} className="hover:bg-gray-50">
+                      <tr {...row.getRowProps()} className="hover:bg-gray-200">
                         {row.cells.map((cell) => (
-                          <td {...cell.getCellProps()} className="p-2 border-b">
+                          <td
+                            {...cell.getCellProps()}
+                            className="p-2 border border-2"
+                            style={{ color: "#5E6E82" }}
+                          >
                             {cell.render("Cell")}
                           </td>
                         ))}
@@ -318,31 +233,6 @@ const AdminHome = () => {
                   })}
                 </tbody>
               </table>
-            </div>
-
-            <div className="flex items-center justify-between mt-4">
-              <button
-                onClick={() => previousPage()}
-                disabled={!canPreviousPage}
-                className="px-4 py-2 bg-[#A24C4A] text-white rounded disabled:opacity-50"
-              >
-                Previous
-              </button>
-
-              <span>
-                Page{" "}
-                <strong>
-                  {pageIndex + 1} of {pageOptions.length}
-                </strong>
-              </span>
-
-              <button
-                onClick={() => nextPage()}
-                disabled={!canNextPage}
-                className="px-4 py-2 bg-[#A24C4A] text-white rounded disabled:opacity-50"
-              >
-                Next
-              </button>
             </div>
           </div>
         </>

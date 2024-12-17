@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Webcam from "react-webcam";
@@ -8,18 +8,18 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-const DidiRegistration = () => {
+const base_url = "https://didikadhababackend.indevconsultancy.in/dhaba";
+
+const DidiEdit = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+
   const initialValues = {
     first_name: "",
     last_name: "",
     husband_name: "",
     mobile_no: "",
     alternate_mobile_no: "",
-    state: "",
-    district: "",
-    city: "",
     address: "",
   };
 
@@ -34,13 +34,11 @@ const DidiRegistration = () => {
       /^[0-9]{10}$/,
       "Alternate mobile number must be 10 digits"
     ),
-    state: Yup.string().required("state is required"),
-    district: Yup.string().required("district is required"),
-    city: Yup.string().required("city is required"),
+    address: Yup.string().required("Address is required"),
   });
 
   const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [isCaptured, setIsCaptured] = useState(false);
+  const [isCaptured, setIsCaptured] = useState(true);
   const [imageSrc, setImageSrc] = useState("");
   const [isBackCamera, setIsBackCamera] = useState(false);
   const webcamRef = useRef(null);
@@ -79,68 +77,6 @@ const DidiRegistration = () => {
     setImageSrc("");
   };
 
-  const [state, setState] = useState([]);
-  const [selectedState, setSelectedState] = useState();
-  const [district, setDistrict] = useState([]);
-  const [selectedDistrict, setSelectedDistrict] = useState();
-  const [city, setCity] = useState([]);
-  const [selectedCity, setSelectedCity] = useState();
-
-  const getState = () => {
-    axios
-      .get("https://didikadhababackend.indevconsultancy.in/dhaba/states/")
-      .then((res) => {
-        setState(res.data);
-      })
-      .catch((err) => {
-        console.log("error in state", err);
-      });
-  };
-
-  const getDistrict = (selectedState) => {
-    axios
-      .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-districts/${selectedState}`
-      )
-      .then((res) => {
-        setDistrict(res.data);
-        setSelectedDistrict("");
-      })
-      .catch((err) => {
-        console.log("error in district", err);
-      });
-  };
-
-  const getCity = (selectedDistrict) => {
-    axios
-      .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-cities/${selectedDistrict}`
-      )
-      .then((res) => {
-        setCity(res.data);
-        setSelectedCity("");
-      })
-      .catch((err) => {
-        console.log("error in city", err);
-      });
-  };
-
-  useEffect(() => {
-    getState();
-  }, []);
-
-  useEffect(() => {
-    if (selectedState) {
-      getDistrict(selectedState);
-    }
-  }, [selectedState]);
-
-  useEffect(() => {
-    if (selectedDistrict) {
-      getCity(selectedDistrict);
-    }
-  }, [selectedDistrict]);
-
   const handleSubmit = async (values, { resetForm }) => {
     const payload = { ...values, image: imageSrc };
 
@@ -171,18 +107,22 @@ const DidiRegistration = () => {
   };
 
   return (
-    <div className="py-2">
+    <div className="bg-gray-50 py-2 px-24">
       <ToastContainer />
-      <div className="bg-white  mx-2 px-2 py-4">
+      <div className="pb-6">
+        <h2 className="text-2xl font-bold mb-4 text-slate-600">
+          Registration for Didi
+        </h2>
+
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
           <Form>
-            <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="flex flex-col my-8 p-6 bg-white shadow-md rounded-md md:flex-row items-center justify-between">
               <div className="w-full md:w-1/2 px-4">
-                <div className="mb-2">
+                <div className="mb-4">
                   <label
                     htmlFor="first_name"
                     className="block text-slate-600 mb-1"
@@ -203,7 +143,7 @@ const DidiRegistration = () => {
                   />
                 </div>
 
-                <div className="mb-2">
+                <div className="mb-4">
                   <label
                     htmlFor="last_name"
                     className="block text-slate-600 mb-1"
@@ -224,7 +164,7 @@ const DidiRegistration = () => {
                   />
                 </div>
 
-                <div className="mb-2">
+                <div className="mb-4">
                   <label
                     htmlFor="husband_name"
                     className="block text-slate-600 mb-1"
@@ -245,75 +185,7 @@ const DidiRegistration = () => {
                   />
                 </div>
 
-                <div className="mb-2">
-                  <select
-                    id="selectState"
-                    className="form-control"
-                    style={{ boxShadow: "0px 1px 1px #e4e4e4" }}
-                    value={selectedState}
-                    onChange={(e) => {
-                      const selectedStateId = e.target.value;
-                      setSelectedState(selectedStateId);
-                    }}
-                  >
-                    <option value="" disabled={true}>
-                      Select State
-                    </option>
-                    {state.map((stateItem) => (
-                      <option
-                        key={stateItem.state_id}
-                        value={stateItem.state_id}
-                      >
-                        {stateItem.state_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="mb-2">
-                  <select
-                    id="selectDistrict"
-                    className="form-control"
-                    style={{ boxShadow: "0px 1px 1px #e4e4e4" }}
-                    value={selectedDistrict}
-                    onChange={(e) => setSelectedDistrict(e.target.value)}
-                    disabled={!selectedState}
-                  >
-                    <option value="" disabled={true}>
-                      Select District
-                    </option>
-                    {district.map((districtItem) => (
-                      <option
-                        key={districtItem.dist_id}
-                        value={districtItem.dist_id}
-                      >
-                        {districtItem.dist_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="mb-2">
-                  <select
-                    id="selectCity"
-                    className="form-control"
-                    style={{ boxShadow: "0px 1px 1px #e4e4e4" }}
-                    value={selectedCity}
-                    onChange={(e) => setSelectedCity(e.target.value)}
-                    disabled={!selectedDistrict}
-                  >
-                    <option value="" disabled={true}>
-                      Select City
-                    </option>
-                    {city.map((cityItem) => (
-                      <option key={cityItem.city_id} value={cityItem.city_id}>
-                        {cityItem.city_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="mb-2">
+                <div className="mb-4">
                   <label
                     htmlFor="mobile_no"
                     className="block text-slate-600 mb-1"
@@ -334,7 +206,7 @@ const DidiRegistration = () => {
                   />
                 </div>
 
-                <div className="mb-2">
+                <div className="mb-4">
                   <label
                     htmlFor="alternate_mobile_no"
                     className="block text-slate-600 mb-1"
@@ -372,19 +244,19 @@ const DidiRegistration = () => {
                       <div className="bottom-4 mt-2 w-full flex justify-center space-x-6">
                         <button
                           onClick={handleCapture}
-                          className="py-1 px-1 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                          className="py-1 px-1 rounded-lg shadow-md text-white bg-[#A24C4A] hover:bg-[#53230A]"
                         >
                           <FaCamera size={30} />
                         </button>
                         <button
                           onClick={handleToggleCamera}
-                          className="py-1 px-1 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                          className="py-1 px-1 rounded-lg shadow-md text-white bg-[#A24C4A] hover:bg-[#53230A]"
                         >
                           <FiX size={30} />
                         </button>
                         <button
                           onClick={handleSwitchCamera}
-                          className="py-1 px-1 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                          className="py-1 px-1 rounded-lg shadow-md text-white bg-[#A24C4A] hover:bg-[#53230A]"
                         >
                           <FiRefreshCcw size={30} />
                         </button>
@@ -399,7 +271,7 @@ const DidiRegistration = () => {
                       </div>
                       <button
                         onClick={handleToggleCamera}
-                        className="mt-4 mb-4 py-2 px-4 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                        className="mt-4 mb-4 py-2 px-4 rounded-lg shadow-md text-white bg-[#A24C4A] hover:bg-[#53230A]"
                       >
                         <FaCamera size={30} />
                       </button>
@@ -416,7 +288,7 @@ const DidiRegistration = () => {
                       <div className="flex justify-center mt-4">
                         <button
                           onClick={handleRetake}
-                          className="py-2 px-4 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                          className="py-2 px-4 rounded-lg shadow-md text-white bg-[#A24C4A] hover:bg-[#53230A]"
                         >
                           Retake
                         </button>
@@ -426,7 +298,7 @@ const DidiRegistration = () => {
                 </div>
               </div>
             </div>
-            <div className="w-full px-4">
+            <div className="w-full mt-6">
               <label htmlFor="address" className="block text-slate-600 mb-1">
                 Address
               </label>
@@ -444,10 +316,10 @@ const DidiRegistration = () => {
                 className="text-red-500 text-sm"
               />
             </div>
-            <div className="mt-6 flex justify-end w-full">
+            <div className="mt-6 flex justify-center w-full">
               <button
                 type="submit"
-                className="py-2 px-6 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                className="py-2 px-6 rounded-lg shadow-md text-white bg-[#A24C4A] hover:bg-[#53230A]"
               >
                 Submit
               </button>
@@ -459,4 +331,4 @@ const DidiRegistration = () => {
   );
 };
 
-export default DidiRegistration;
+export default DidiEdit;

@@ -11,11 +11,14 @@ import DidiRegistration from "../Pages/Adimn/DidiRegistration";
 import ThelaRegistration from "../Pages/Adimn/ThelaRegistration";
 import AdminRoute from "./AdminRoute";
 import DidiAssignment from "../Pages/Adimn/DidiAssignment";
-import FoodMaster from "../Pages/Adimn/FoodMaster";
-import ListFood from "../Pages/Adimn/ListFood";
 import AddFood from "../Pages/Adimn/AddFood";
-import ListDidi from "../Pages/Adimn/ListDidi";
-import ListStall from "../Pages/Adimn/ListStall";
+import DidiEdit from "../Pages/Adimn/EditFile/DidiEdit";
+import HomeEdit from "../Pages/Adimn/EditFile/HomeEdit";
+import DailyLog from "../Pages/Adimn/DailyLog";
+import ListAssigned from "../Pages/Adimn/ListView/ListAssigned";
+import ListFood from "../Pages/Adimn/ListView/ListFood";
+import ListDidi from "../Pages/Adimn/ListView/ListDidi";
+import ListStall from "../Pages/Adimn/ListView/ListStall";
 
 const routes = [
   {
@@ -33,18 +36,26 @@ const routes = [
         ),
       },
       {
-        path: "didireg",
+        path: "dailylog",
         element: (
           <AdminRoute>
-            <DidiRegistration />
+            <DailyLog />
           </AdminRoute>
         ),
       },
       {
-        path: "foodmaster",
+        path: "admin/:id",
         element: (
           <AdminRoute>
-            <FoodMaster />
+            <HomeEdit />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "didireg",
+        element: (
+          <AdminRoute>
+            <DidiRegistration />
           </AdminRoute>
         ),
       },
@@ -61,6 +72,14 @@ const routes = [
         element: (
           <AdminRoute>
             <DidiAssignment />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "assign_list",
+        element: (
+          <AdminRoute>
+            <ListAssigned />
           </AdminRoute>
         ),
       },
@@ -85,6 +104,14 @@ const routes = [
         element: (
           <AdminRoute>
             <ListDidi />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "didilist/:id",
+        element: (
+          <AdminRoute>
+            <DidiEdit />
           </AdminRoute>
         ),
       },

@@ -3,6 +3,7 @@ import { GoogleMap, useLoadScript, MarkerF } from "@react-google-maps/api";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 
 const mapContainerStyle = {
   width: "100%",
@@ -32,14 +33,26 @@ const ThelaRegistration = () => {
   });
 
   const sendData = (payload) => {
-    console.log(payload);
     try {
-      const res = axios.post(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/thelas/",
-        payload
-      );
+      const res = axios
+        .post(
+          "https://didikadhababackend.indevconsultancy.in/dhaba/thelas/",
+          payload
+        )
+        .then((res) => {
+          if (res.status) {
+            toast.success("Registration Completed ");
+          }
+        })
+        .catch((err) => {
+          toast.error(err.message);
+        });
+
       setIsLoading(false);
     } catch (error) {
+      if (error) {
+        console.log(error.status);
+      }
       console.log("error in sending", error);
       setIsLoading(false);
     }
@@ -68,7 +81,6 @@ const ThelaRegistration = () => {
     };
     await sendData(payload);
     setSubmitting(false);
-    setIsLoading(true);
   };
 
   const { isLoaded, loadError } = useLoadScript({
@@ -128,11 +140,9 @@ const ThelaRegistration = () => {
       : defaultCenter;
 
   return (
-    <div className="bg-gray-50 py-2 px-24">
+    <div className="py-2 px-12">
       {console.log(mapCenter)}
-      <h2 className="text-2xl font-bold mb-4 text-slate-600">
-        Registration for Stall
-      </h2>
+      <ToastContainer />
 
       <Formik
         initialValues={initialValues}
@@ -142,7 +152,7 @@ const ThelaRegistration = () => {
       >
         {({ validateForm }) => (
           <Form>
-            <div className="my-8 p-6 bg-white shadow-md rounded-md">
+            <div className="my-8 p-6">
               <div className="mb-4">
                 <label
                   htmlFor="thela_name"
@@ -224,10 +234,10 @@ const ThelaRegistration = () => {
               </div>
             </div>
 
-            <div className="flex justify-center my-4">
+            <div className="flex justify-end my-4">
               <button
                 type="submit"
-                className={`p-2 rounded-lg ${
+                className={`p-2 rounded-lg btn btn-dark hover:bg-[#53230A] ${
                   isLoading ? "bg-gray-300" : "bg-[#A24C4A] text-white"
                 }`}
                 onClick={() => validateForm()}
@@ -240,9 +250,15 @@ const ThelaRegistration = () => {
         )}
       </Formik>
 
-      <div className="border rounded-lg shadow-lg overflow-hidden">
+      <div
+        className="border rounded-lg shadow-lg relative"
+        style={{ zIndex: -10 }}
+      >
         <GoogleMap
-          mapContainerStyle={mapContainerStyle}
+          mapContainerStyle={{
+            ...mapContainerStyle,
+            position: "relative",
+          }}
           zoom={20}
           center={mapCenter}
         >

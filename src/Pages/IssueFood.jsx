@@ -249,9 +249,9 @@ const IssueFood = () => {
             setDinner([]);
             setBreakFast([]);
             setLunch([]);
-            setTimeout(() => {
-              navigate("/mobilehome");
-            }, 2000);
+
+            navigate("/mobilehome");
+
             setIsLoading(false);
           }
         })

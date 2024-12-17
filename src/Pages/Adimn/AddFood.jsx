@@ -103,12 +103,9 @@ const AddFood = () => {
   };
 
   return (
-    <div className="bg-gray-50 py-2 px-24">
+    <div className="py-2 px-12">
       <ToastContainer />
-      <h2 className="text-2xl font-bold text-start text-slate-600">
-        Food Master
-      </h2>
-      <div className="mx-auto my-8 p-6 bg-white shadow-md rounded-md">
+      <div className="mx-auto mt-6">
         <form onSubmit={handleSubmit}>
           <div className="flex flex-wrap -mx-2">
             <div className="w-full sm:w-1/2 px-2 mb-4">
@@ -117,6 +114,7 @@ const AddFood = () => {
               </label>
               <input
                 type="text"
+                style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
                 placeholder="Enter Food Name..."
                 className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
                 value={foodName}
@@ -135,6 +133,7 @@ const AddFood = () => {
               </label>
               <input
                 type="text"
+                style={{ "box-shadow": "0px 1px  #e4e4e4" }}
                 placeholder="Select Meal Category..."
                 className="cursor-pointer w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
                 value={selectedCategory}
@@ -147,7 +146,8 @@ const AddFood = () => {
               {isDropdownOpenCategory && (
                 <ul
                   ref={dropdownRefCategory}
-                  className="absolute z-10 bg-white border border-gray-300 shadow-lg rounded-lg mt-2 max-h-40 w-full overflow-y-auto"
+                  style={{ width: "540px" }}
+                  className="absolute z-10 bg-white border border-gray-300 shadow-sm rounded-lg mt-2 max-h-40 w-full overflow-y-auto"
                 >
                   {mealCategories.map((category, index) => (
                     <li
@@ -178,6 +178,7 @@ const AddFood = () => {
               </label>
               <input
                 type="number"
+                style={{ "box-shadow": "0px 1px  #e4e4e4" }}
                 placeholder="Enter Food Price..."
                 className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
                 value={foodPrice}
@@ -203,6 +204,7 @@ const AddFood = () => {
               </label>
               <input
                 type="text"
+                style={{ "box-shadow": "0px 1px  #e4e4e4" }}
                 placeholder="Select Unit Type..."
                 className="cursor-pointer w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
                 value={selectedUnit}
@@ -215,7 +217,7 @@ const AddFood = () => {
               {isDropdownOpenUnit && (
                 <ul
                   ref={dropdownRefUnit}
-                  className="absolute z-10 bg-white border border-gray-300 shadow-lg rounded-lg mt-2 max-h-40 w-full overflow-y-auto"
+                  className="absolute z-10 bg-white border border-gray-300 shadow-sm rounded-lg mt-2 max-h-40 w-full overflow-y-auto"
                 >
                   {unitTypes.map((unit, index) => (
                     <li
@@ -242,7 +244,7 @@ const AddFood = () => {
           <div className="flex justify-end my-4">
             <button
               type="submit"
-              className={`p-2 rounded-lg hover:bg-[#53230A] ${
+              className={`p-2 rounded-lg btn btn-dark hover:bg-[#53230A] ${
                 isLoading ? "bg-gray-300" : "bg-[#A24C4A] text-white"
               }`}
               onClick={() => validateForm()}

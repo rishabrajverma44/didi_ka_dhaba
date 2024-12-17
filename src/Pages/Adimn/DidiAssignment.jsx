@@ -1,8 +1,10 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 
 const DidiAssignment = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [searchTermDidi, setSearchTermDidi] = useState("");
   const [isDropdownOpenDidi, setIsDropdownOpenDidi] = useState(false);
@@ -13,7 +15,6 @@ const DidiAssignment = () => {
   const [selectedDateFrom, setSelectedDateFrom] = useState("");
   const [selectedDateTo, setSelectedDateTo] = useState("");
   const [formErrors, setFormErrors] = useState({});
-
   const [didiOptions, setDidiOptions] = useState([]);
   const [stallOptions, setStallOptions] = useState([]);
 
@@ -128,9 +129,13 @@ const DidiAssignment = () => {
             toast.success(
               `Successfully assigned ${searchTermDidi} to ${searchTermStall}`
             );
+            navigate("/assign_list");
           }
         })
         .catch((err) => {
+          if (err.status === 400) {
+            toast.error("This Didi and Stall allready Assigned");
+          }
           console.log("ree", err);
         });
     } catch (error) {
@@ -170,16 +175,10 @@ const DidiAssignment = () => {
   };
 
   return (
-    <div className="bg-gray-50 py-2 px-24" style={{ height: "99vh" }}>
+    <div className="py-2 px-12">
       <ToastContainer />
       <div>
-        <h2 className="text-2xl font-bold mb-4 text-slate-600">
-          <div className="">
-            <span className="mx-2">Assign Didi to Stall</span>
-          </div>
-        </h2>
-
-        <div className="mx-auto my-8 p-6 bg-white shadow-md rounded-md">
+        <div className="mx-auto my-8 p-6">
           <h2 className="text-xl font-bold flex flex-row   mb-6 text-slate-600">
             <span className="mx-4 w-50 text-center">
               <span>From </span>
@@ -191,7 +190,7 @@ const DidiAssignment = () => {
                 className="mx-2 p-2 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
               />
               {formErrors.dateFrom && (
-                <div className="text-red-500 text-sm mt-1">
+                <div className="text-red-500 text-sm">
                   {formErrors.dateFrom}
                 </div>
               )}
@@ -206,9 +205,7 @@ const DidiAssignment = () => {
                 className="mx-2 p-2 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
               />
               {formErrors.dateTo && (
-                <div className="text-red-500 text-sm mt-1">
-                  {formErrors.dateTo}
-                </div>
+                <div className="text-red-500 text-sm">{formErrors.dateTo}</div>
               )}
             </span>
           </h2>
@@ -314,11 +311,11 @@ const DidiAssignment = () => {
               </div>
             </div>
 
-            <div className="flex justify-center items-center pt-12">
+            <div className="flex justify-end items-center pt-12">
               <button
                 type="submit"
                 onClick={handleSubmit}
-                className="bg-[#A24C4A] text-white px-4 py-2 rounded-md hover:bg-[#53230A] transition-colors"
+                className="btn btn-dark hover:bg-[#53230A] text-white px-4 py-2 rounded-md transition-colors"
               >
                 Assign
               </button>

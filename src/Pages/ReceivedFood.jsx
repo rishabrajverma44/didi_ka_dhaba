@@ -287,7 +287,6 @@ const ReceivedFood = () => {
         payload
       );
       if (res.status === 201) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
         toast.success(`Food Received by ${searchTermDidi}`);
         setIsLoading(false);
         setSearchTermDidi("");
@@ -299,9 +298,7 @@ const ReceivedFood = () => {
           Lunch: [],
           Dinner: [],
         });
-        setTimeout(() => {
-          navigate("/mobilehome");
-        }, 2000);
+        navigate("/mobilehome");
       }
     } catch (e) {
       console.log("Error in sending received food:", e);

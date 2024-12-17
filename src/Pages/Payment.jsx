@@ -34,10 +34,9 @@ const Payment = () => {
 
   const toggleCamera = () => {
     setIsInitializingCamera(true);
-    setTimeout(() => {
-      setIsCameraOn(true);
-      setIsInitializingCamera(false);
-    }, 2000);
+
+    setIsCameraOn(true);
+    setIsInitializingCamera(false);
   };
 
   const toggleCameraType = () => {
@@ -169,9 +168,7 @@ const Payment = () => {
             setSelectedDidi(null);
             setOnline("");
             setCash("");
-            setTimeout(() => {
-              navigate("/mobilehome");
-            }, 2000);
+            navigate("/mobilehome");
           } catch (error) {
             toast.error("Submission failed. Please try again.");
             console.error("Error:", error);
