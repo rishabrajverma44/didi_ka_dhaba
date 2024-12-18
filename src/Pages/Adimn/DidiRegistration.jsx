@@ -202,7 +202,7 @@ const DidiRegistration = () => {
       setIsLoading(false);
     }
 
-    resetForm();
+    // resetForm();
   };
 
   return (
@@ -217,271 +217,270 @@ const DidiRegistration = () => {
         >
           {({ values, setFieldValue }) => (
             <Form>
-              <div className="flex flex-col md:flex-row items-center justify-between">
-                <div className="w-full md:w-1/2 px-4">
-                  <div className="mb-2">
-                    <label
-                      htmlFor="first_name"
-                      className="block text-slate-600 mb-1"
-                    >
-                      First Name
-                    </label>
-                    <Field
-                      type="text"
-                      id="first_name"
-                      name="first_name"
-                      placeholder="Enter your first name"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <ErrorMessage
-                      name="first_name"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
-
-                  <div className="mb-2">
-                    <label
-                      htmlFor="husband_name"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Husband/Father's Name
-                    </label>
-                    <Field
-                      type="text"
-                      id="husband_name"
-                      name="husband_name"
-                      placeholder="Enter husband's or father's name"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <ErrorMessage
-                      name="husband_name"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
-
-                  <div className="mb-2">
-                    <label
-                      htmlFor="selectedDistrict"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Select District
-                    </label>
-                    <select
-                      id="selectedDistrict"
-                      name="selectedDistrict"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      value={values.selectedDistrict}
-                      onChange={(e) => {
-                        const selectedDistrictValue = parseInt(
-                          e.target.value,
-                          10
-                        );
-                        setFieldValue(
-                          "selectedDistrict",
-                          selectedDistrictValue
-                        );
-                        setFieldValue("selectedCity", "");
-                        getCity(selectedDistrictValue);
-                      }}
-                      disabled={!values.selectedState}
-                    >
-                      <option value="" disabled>
-                        Select District
-                      </option>
-                      {district.map((districtItem) => (
-                        <option
-                          key={districtItem.dist_id}
-                          value={districtItem.dist_id}
-                        >
-                          {districtItem.dist_name}
-                        </option>
-                      ))}
-                    </select>
-                    <ErrorMessage
-                      name="selectedDistrict"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
-
-                  <div className="mb-2">
-                    <label
-                      htmlFor="mobile_no"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Mobile Number
-                    </label>
-                    <Field
-                      type="number"
-                      id="mobile_no"
-                      name="mobile_no"
-                      placeholder="Enter your mobile number"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <ErrorMessage
-                      name="mobile_no"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
-
-                  <div className="mb-2">
-                    <label
-                      htmlFor="remarks"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Remarks
-                    </label>
-                    <Field
-                      type="text"
-                      id="remarks"
-                      name="remarks"
-                      placeholder="Enter your Remarks"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                  </div>
+              <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-3">
+                <div className="w-full">
+                  <label
+                    htmlFor="first_name"
+                    className="block text-slate-600 mb-1"
+                  >
+                    First Name
+                  </label>
+                  <Field
+                    type="text"
+                    id="first_name"
+                    name="first_name"
+                    placeholder="Enter your first name"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="first_name"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
                 </div>
-                <div className="w-full md:w-1/2 px-4">
-                  <div className="mb-2">
-                    <label
-                      htmlFor="last_name"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Last Name
-                    </label>
-                    <Field
-                      type="text"
-                      id="last_name"
-                      name="last_name"
-                      placeholder="Enter your last name"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <ErrorMessage
-                      name="last_name"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
 
-                  <div className="mb-2">
-                    <label
-                      htmlFor="selectedState"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Select state
-                    </label>
-                    <select
-                      id="selectedState"
-                      name="selectedState"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      value={values.selectedState}
-                      onChange={(e) => {
-                        const selectedStateValue = parseInt(e.target.value, 10);
-                        setFieldValue("selectedState", selectedStateValue);
-                        setFieldValue("selectedDistrict", "");
-                        setFieldValue("selectedCity", "");
-                        getDistrict(selectedStateValue);
-                      }}
-                    >
-                      <option value="" disabled>
-                        Select State
+                <div className="w-full">
+                  <label
+                    htmlFor="last_name"
+                    className="block text-slate-600 mb-1"
+                  >
+                    Last Name
+                  </label>
+                  <Field
+                    type="text"
+                    id="last_name"
+                    name="last_name"
+                    placeholder="Enter your last name"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="last_name"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label
+                    htmlFor="husband_name"
+                    className="block text-slate-600 mb-1"
+                  >
+                    Husband/Father's Name
+                  </label>
+                  <Field
+                    type="text"
+                    id="husband_name"
+                    name="husband_name"
+                    placeholder="Enter husband's or father's name"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="husband_name"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label
+                    htmlFor="selectedState"
+                    className="block text-slate-600 mb-1"
+                  >
+                    Select State
+                  </label>
+                  <select
+                    id="selectedState"
+                    name="selectedState"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    value={values.selectedState}
+                    onChange={(e) => {
+                      const selectedStateValue = parseInt(e.target.value, 10);
+                      setFieldValue("selectedState", selectedStateValue);
+                      setFieldValue("selectedDistrict", "");
+                      setFieldValue("selectedCity", "");
+                      getDistrict(selectedStateValue);
+                    }}
+                  >
+                    <option value="" disabled>
+                      Select State
+                    </option>
+                    {state.map((stateItem) => (
+                      <option
+                        key={stateItem.state_id}
+                        value={stateItem.state_id}
+                      >
+                        {stateItem.state_name}
                       </option>
-                      {state.map((stateItem) => (
-                        <option
-                          key={stateItem.state_id}
-                          value={stateItem.state_id}
-                        >
-                          {stateItem.state_name}
-                        </option>
-                      ))}
-                    </select>
-                    <ErrorMessage
-                      name="selectedState"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
+                    ))}
+                  </select>
+                  <ErrorMessage
+                    name="selectedState"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
 
-                  <div className="mb-2">
-                    <label
-                      htmlFor="selectedCity"
-                      className="block text-slate-600 mb-1"
-                    >
+                <div className="w-full">
+                  <label
+                    htmlFor="selectedDistrict"
+                    className="block text-slate-600 mb-1"
+                  >
+                    Select District
+                  </label>
+                  <select
+                    id="selectedDistrict"
+                    name="selectedDistrict"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    value={values.selectedDistrict}
+                    onChange={(e) => {
+                      const selectedDistrictValue = parseInt(
+                        e.target.value,
+                        10
+                      );
+                      setFieldValue("selectedDistrict", selectedDistrictValue);
+                      setFieldValue("selectedCity", "");
+                      getCity(selectedDistrictValue);
+                    }}
+                    disabled={!values.selectedState}
+                  >
+                    <option value="" disabled>
+                      Select District
+                    </option>
+                    {district.map((districtItem) => (
+                      <option
+                        key={districtItem.dist_id}
+                        value={districtItem.dist_id}
+                      >
+                        {districtItem.dist_name}
+                      </option>
+                    ))}
+                  </select>
+                  <ErrorMessage
+                    name="selectedDistrict"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label
+                    htmlFor="selectedCity"
+                    className="block text-slate-600 mb-1"
+                  >
+                    Select City
+                  </label>
+                  <select
+                    id="selectedCity"
+                    name="selectedCity"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    value={values.selectedCity}
+                    onChange={(e) => {
+                      const selectedCityValue = parseInt(e.target.value, 10);
+                      setFieldValue("selectedCity", selectedCityValue);
+                    }}
+                    disabled={!values.selectedDistrict}
+                  >
+                    <option value="" disabled>
                       Select City
-                    </label>
-                    <select
-                      id="selectedCity"
-                      name="selectedCity"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      value={values.selectedCity}
-                      onChange={(e) => {
-                        const selectedCityValue = parseInt(e.target.value, 10);
-                        setFieldValue("selectedCity", selectedCityValue);
-                      }}
-                      disabled={!values.selectedDistrict}
-                    >
-                      <option value="" disabled>
-                        Select City
+                    </option>
+                    {city.map((cityItem) => (
+                      <option key={cityItem.city_id} value={cityItem.city_id}>
+                        {cityItem.city_name}
                       </option>
-                      {city.map((cityItem) => (
-                        <option key={cityItem.city_id} value={cityItem.city_id}>
-                          {cityItem.city_name}
-                        </option>
-                      ))}
-                    </select>
-                    <ErrorMessage
-                      name="selectedCity"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
+                    ))}
+                  </select>
+                  <ErrorMessage
+                    name="selectedCity"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
 
-                  <div className="mb-2">
-                    <label
-                      htmlFor="alternate_mobile_no"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Alternate Mobile Number
-                    </label>
-                    <Field
-                      type="number"
-                      id="alternate_mobile_no"
-                      name="alternate_mobile_no"
-                      placeholder="Enter your alternate mobile number"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <ErrorMessage
-                      name="alternate_mobile_no"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
+                <div className="w-full">
+                  <label
+                    htmlFor="mobile_no"
+                    className="block text-slate-600 mb-1"
+                  >
+                    Mobile Number
+                  </label>
+                  <Field
+                    type="number"
+                    id="mobile_no"
+                    name="mobile_no"
+                    placeholder="Enter your mobile number"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="mobile_no"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
 
-                  <div className="mb-2">
-                    <label
-                      htmlFor="address"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Address
-                    </label>
-                    <Field
-                      as="textarea"
-                      id="address"
-                      name="address"
-                      rows="2"
-                      placeholder="Enter your address"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <ErrorMessage
-                      name="address"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
+                <div className="w-full">
+                  <label
+                    htmlFor="alternate_mobile_no"
+                    className="block text-slate-600 mb-1"
+                  >
+                    Alternate Mobile Number
+                  </label>
+                  <Field
+                    type="number"
+                    id="alternate_mobile_no"
+                    name="alternate_mobile_no"
+                    placeholder="Enter your alternate mobile number"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="alternate_mobile_no"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label
+                    htmlFor="remarks"
+                    className="block text-slate-600 mb-1"
+                  >
+                    Remarks
+                  </label>
+                  <Field
+                    type="text"
+                    id="remarks"
+                    name="remarks"
+                    placeholder="Enter any remarks here"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="remarks"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label
+                    htmlFor="address"
+                    className="block text-slate-600 mb-1"
+                  >
+                    Address
+                  </label>
+                  <Field
+                    as="textarea"
+                    id="address"
+                    name="address"
+                    placeholder="Enter any address here"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="address"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
                 </div>
               </div>
+
               <div className="row inline-block p-2">
                 {isCameraOpenAdhar && (
                   <>
