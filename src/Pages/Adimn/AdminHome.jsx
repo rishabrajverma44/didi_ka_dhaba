@@ -21,8 +21,7 @@ const AdminHome = () => {
   const fetchData = useCallback(async () => {
     try {
       const res = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela_summary/",
-        { params: { date: selectedDate } }
+        "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela_summary/"
       );
       setData(res.data);
     } catch (error) {
@@ -99,7 +98,6 @@ const AdminHome = () => {
   const { globalFilter, pageIndex } = state;
 
   const handleReset = () => {
-    setSelectedDate(today);
     setSelectedDidi("");
     setSelectedCity("");
   };

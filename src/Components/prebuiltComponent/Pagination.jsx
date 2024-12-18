@@ -6,79 +6,59 @@ const Pagination = ({
   pageIndex,
   pageSize,
   pageCount,
-  gotoPage,
   previousPage,
   nextPage,
   setPageSize,
 }) => {
+  const safePageCount = pageCount > 0 ? pageCount : 1; // Ensure pageCount is never 0 or NaN
+  const safePageIndex = pageIndex + 1; // Page index should start from 1, not 0
+
   return (
-    <div className="pagination-container">
-      <nav aria-label="Page navigation">
-        <ul className="pagination justify-content-center">
-          <li className={`page-item ${!canPreviousPage ? "disabled" : ""}`}>
-            <a
-              className="page-link"
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                if (canPreviousPage) previousPage();
-              }}
-              tabIndex="-1"
-              style={{
-                boxShadow: "0px 1px  #e4e4e4",
-                color: "#212529",
-                textDecoration: "none",
-              }}
-            >
-              Previous
-            </a>
-          </li>
+    <div className="flex items-center justify-between py-4">
+      <button
+        className={`px-4 py-2 rounded-md border ${
+          canPreviousPage
+            ? "bg-blue-500 text-white hover:bg-blue-600"
+            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+        }`}
+        onClick={previousPage}
+        disabled={!canPreviousPage}
+      >
+        Previous
+      </button>
 
-          {[...Array(pageCount)].map((_, index) => (
-            <li
-              key={index}
-              className={`page-item ${pageIndex === index ? "active" : ""}`}
-            >
-              <a
-                className="page-link"
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  gotoPage(index);
-                }}
-                style={{
-                  boxShadow: "0px 1px  #e4e4e4",
-                  backgroundColor: pageIndex === index ? "#344050" : "",
-                  textDecoration: "none",
-                }}
-              >
-                {index + 1}
-                {pageIndex === index && (
-                  <span className="sr-only">(current)</span>
-                )}
-              </a>
-            </li>
-          ))}
+      {/* Page Information */}
+      <div className="px-4 py-2 rounded-md border bg-gray-100">
+        Page{" "}
+        <strong>
+          {safePageIndex} of {safePageCount}
+        </strong>
+      </div>
 
-          <li className={`page-item ${!canNextPage ? "disabled" : ""}`}>
-            <a
-              className="page-link"
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                if (canNextPage) nextPage();
-              }}
-              style={{
-                boxShadow: "0px 1px  #e4e4e4",
-                color: "#212529",
-                textDecoration: "none",
-              }}
-            >
-              Next
-            </a>
-          </li>
-        </ul>
-      </nav>
+      <button
+        className={`px-4 py-2 rounded-md border ${
+          canNextPage
+            ? "bg-blue-500 text-white hover:bg-blue-600"
+            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+        }`}
+        onClick={nextPage}
+        disabled={!canNextPage}
+      >
+        Next
+      </button>
+
+      {/* Page Size Selector */}
+      <select
+        className="form-select px-4 py-2 rounded-md border bg-white text-gray-700"
+        value={pageSize}
+        onChange={(e) => setPageSize(Number(e.target.value))}
+      >
+        {[3, 5, 10, 20].map((size) => (
+          <option key={size} value={size}>
+            Show {size}
+          </option>
+        ))}
+      </select>
     </div>
   );
 };
