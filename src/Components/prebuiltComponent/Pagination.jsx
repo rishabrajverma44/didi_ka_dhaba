@@ -10,8 +10,8 @@ const Pagination = ({
   nextPage,
   setPageSize,
 }) => {
-  const safePageCount = pageCount > 0 ? pageCount : 1; // Ensure pageCount is never 0 or NaN
-  const safePageIndex = pageIndex + 1; // Page index should start from 1, not 0
+  const safePageCount = pageCount > 0 ? pageCount : 1;
+  const safePageIndex = pageIndex + 1;
 
   return (
     <div className="flex items-center justify-between py-4">
@@ -46,19 +46,6 @@ const Pagination = ({
       >
         Next
       </button>
-
-      {/* Page Size Selector */}
-      <select
-        className="form-select px-4 py-2 rounded-md border bg-white text-gray-700"
-        value={pageSize}
-        onChange={(e) => setPageSize(Number(e.target.value))}
-      >
-        {[3, 5, 10, 20].map((size) => (
-          <option key={size} value={size}>
-            Show {size}
-          </option>
-        ))}
-      </select>
     </div>
   );
 };

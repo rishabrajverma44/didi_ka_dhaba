@@ -37,6 +37,7 @@ const ListDidi = () => {
 
   const columns = React.useMemo(
     () => [
+      { Header: "S. No", Cell: ({ row }) => row.index + 1 },
       { Header: "Full Name", accessor: "full_name" },
       { Header: "Mobile No", accessor: "mobile_no" },
       { Header: "Alternate Mobile No", accessor: "alternate_mobile_no" },
@@ -168,7 +169,7 @@ const ListDidi = () => {
                     {headerGroup.headers.map((column) => (
                       <th
                         {...column.getHeaderProps()}
-                        className="py-2 px-4 border-b  text-white"
+                        className="py-2 border-b  text-white"
                         style={{ backgroundColor: "#682C13", color: "white" }}
                       >
                         {column.render("Header")}
@@ -198,7 +199,7 @@ const ListDidi = () => {
                   <tr>
                     <td
                       colSpan={columns.length}
-                      className="py-2  text-slate-600"
+                      className="py-2 text-slate-600"
                     >
                       No data found
                     </td>
@@ -215,7 +216,7 @@ const ListDidi = () => {
                         {row.cells.map((cell) => (
                           <td
                             {...cell.getCellProps()}
-                            className="py-2 px-4 border-b"
+                            className="py-2 border-b"
                             style={{ color: "#5E6E82" }}
                           >
                             {cell.render("Cell")}

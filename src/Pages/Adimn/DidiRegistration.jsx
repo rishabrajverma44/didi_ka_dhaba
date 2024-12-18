@@ -49,14 +49,16 @@ const DidiRegistration = () => {
   const [isBackCameraAdhar, setIsBackCameraAdhar] = useState(true);
 
   const captureImageAdhar = () => {
+    if (imagesAdhar.length >= 2) {
+      toast.error("You can only capture 2 images.");
+      return;
+    }
+
     if (webcamRef.current) {
       const screenshot = webcamRef.current.getScreenshot();
-      setImagesAdhar((prevImages) => {
-        if (prevImages.length < 2) {
-          return [...prevImages, screenshot];
-        }
-        return prevImages;
-      });
+      if (screenshot) {
+        setImagesAdhar((prevImages) => [...prevImages, screenshot]);
+      }
     }
   };
 
@@ -172,7 +174,7 @@ const DidiRegistration = () => {
   }, [initialValues.selectedDistrict]);
 
   const handleSubmit = async (values, { resetForm }) => {
-    const payload = { ...values, image: imageSrc };
+    const payload = { ...values, image: imageSrc, document: imagesAdhar };
 
     console.log(payload);
 
@@ -623,12 +625,15 @@ const DidiRegistration = () => {
                 )}
               </div>
 
-              <div className="mt-6 flex justify-end w-full">
+              <div className="flex justify-end my-4">
                 <button
                   type="submit"
-                  className="py-2 px-6 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                  className={`p-2 rounded-lg btn btn-dark hover:bg-[#53230A] ${
+                    isLoading ? "bg-gray-300" : "bg-[#A24C4A] text-white"
+                  }`}
+                  disabled={isLoading}
                 >
-                  Submit
+                  {isLoading ? "Submitting..." : "Submit"}
                 </button>
               </div>
             </Form>

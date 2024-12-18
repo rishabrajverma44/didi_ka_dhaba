@@ -8,11 +8,11 @@ import {
 } from "react-table";
 import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import Pagination from "../../Components/prebuiltComponent/Pagination";
 
 const AdminHome = () => {
   const navigate = useNavigate();
-  const today = new Date().toISOString().split("T")[0];
-  const [selectedDate, setSelectedDate] = useState(today);
+  const [selectedDate, setSelectedDate] = useState("");
   const [selectedDidi, setSelectedDidi] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [data, setData] = useState([]);
@@ -82,12 +82,20 @@ const AdminHome = () => {
     page,
     prepareRow,
     state,
+    canPreviousPage,
+    canNextPage,
+    pageCount,
+    gotoPage,
+    nextPage,
+    previousPage,
+    setPageSize,
   } = useTable(
     {
       columns,
       data: filteredData,
       initialState: {
         pageIndex: 0,
+        pageSize: 10,
       },
     },
     useGlobalFilter,
@@ -95,11 +103,12 @@ const AdminHome = () => {
     usePagination
   );
 
-  const { globalFilter, pageIndex } = state;
+  const { globalFilter, pageIndex, pageSize } = state;
 
   const handleReset = () => {
     setSelectedDidi("");
     setSelectedCity("");
+    setSelectedDate("");
   };
 
   return (
@@ -244,6 +253,19 @@ const AdminHome = () => {
           </table>
         </div>
       )}
+
+      {/* Pagination Component */}
+      <Pagination
+        canPreviousPage={canPreviousPage}
+        canNextPage={canNextPage}
+        pageIndex={pageIndex}
+        pageSize={pageSize}
+        pageCount={Math.ceil(filteredData.length / pageSize)}
+        gotoPage={gotoPage}
+        previousPage={previousPage}
+        nextPage={nextPage}
+        setPageSize={setPageSize}
+      />
     </div>
   );
 };
