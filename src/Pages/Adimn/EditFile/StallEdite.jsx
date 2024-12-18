@@ -204,7 +204,7 @@ const StallEdite = () => {
       : defaultCenter;
 
   return (
-    <div className="py-2 px-12">
+    <div className="py-2 md:px-12">
       {console.log(mapCenter)}
       <ToastContainer />
 

@@ -27,7 +27,6 @@ const Pagination = ({
         Previous
       </button>
 
-      {/* Page Information */}
       <div className="px-4 py-2 rounded-md border bg-gray-100">
         Page{" "}
         <strong>

@@ -95,8 +95,8 @@ const AdminNavBar = () => {
   return (
     <>
       <div className="sticky top-0 z-50">
-        <main className=" z-500 bg-[#F7F7F7] border-b-4 border-[#682C13] shadow-sm">
-          <nav className="flex justify-between items-center border-0 relative z-500">
+        <main className="sticky top-0 z-50 bg-white border-b-4 border-[#A24C4A] shadow-sm">
+          <nav className="flex justify-between items-center border-0 relative z-50">
             <div className="flex items-center w-full justify-between">
               <section className="flex justify-between items-center w-full py-2 px-2">
                 <div className="flex items-center justify-center">
@@ -146,11 +146,11 @@ const AdminNavBar = () => {
 
             <div
               className={clsx(
-                "fixed h-full w-screen lg:hidden bg-black/50 backdrop-blur-sm top-0 left-0 z-400 transition-all transform",
+                "fixed h-full w-screen lg:hidden bg-black/50 backdrop-blur-sm top-0 left-0 z-40 transition-all transform",
                 isSideMenuOpen ? "translate-y-0" : "translate-x-full"
               )}
             >
-              <section className="text-black bg-white flex-col absolute right-0 top-0 h-screen py-8 gap-8 z-500 w-70">
+              <section className="text-black bg-white flex-col absolute right-0 top-0 h-screen py-8 gap-8 z-50 w-70">
                 <IoCloseOutline
                   onClick={() => setMenu(false)}
                   className="mt-0 mx-3 mb-12 text-3xl cursor-pointer text-6xl"
@@ -158,15 +158,15 @@ const AdminNavBar = () => {
                 <div className="mx-1">
                   <Link
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
-                    to="/"
+                    to="/admin"
                   >
                     Home
                   </Link>
                   <Link
                     className="block w-full py-1 px-4 text-[#682C13] text-left text-gray-700 font-bold no-underline text-xl"
-                    to="/foodmaster"
+                    to="/listfood"
                   >
-                    Food Master
+                    Food List
                   </Link>
                   <Link
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
@@ -176,9 +176,22 @@ const AdminNavBar = () => {
                   </Link>
                   <Link
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
-                    to="/issuefood"
+                    to="/didilist"
                   >
-                    Thela Registration
+                    Didi List
+                  </Link>
+                  <Link
+                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
+                    to="/thelareg"
+                  >
+                    Stall Registration
+                  </Link>
+
+                  <Link
+                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
+                    to="/stall_list"
+                  >
+                    Stall List
                   </Link>
                   <Link
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
@@ -198,7 +211,7 @@ const AdminNavBar = () => {
             </div>
           </nav>
         </main>
-        <section className="z-500 py-1 bg-[#682C13] d-none d-md-block">
+        <section className="z-50 py-1 bg-[#682C13] d-none d-md-block">
           <div className="border-b-2 border-[#682C13]">
             <div className="mx-4 flex justify-start items-center">
               <Link

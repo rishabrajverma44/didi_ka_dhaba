@@ -27,6 +27,7 @@ const Payment = () => {
   const [isLoading, setIsLoading] = useState(false);
   const webcamRef = useRef(null);
   const [isInitializingCamera, setIsInitializingCamera] = useState(false);
+  const [remuneration, setRemuneration] = useState(0);
 
   const videoConstraints = {
     facingMode: isUsingFrontCamera ? "user" : "environment",
@@ -101,6 +102,25 @@ const Payment = () => {
       .includes(searchTermDidi.toLowerCase())
   );
 
+  useEffect(() => {
+    const onlineAmount = parseFloat(online) || 0;
+    const cashAmount = parseFloat(cash) || 0;
+
+    const total = onlineAmount + cashAmount;
+
+    let newRemuneration = 0;
+
+    if (total >= 1500) {
+      newRemuneration = 300 + Math.floor((total - 1500) / 500) * 100;
+    } else if (total >= 1000 && total < 1500) {
+      newRemuneration = 300;
+    } else if (total > 1000) {
+      newRemuneration = 200;
+    }
+
+    setRemuneration(newRemuneration);
+  }, [online, cash]);
+
   const submitFinal = async () => {
     if (!selectedDidi) {
       toast.warning("Please select Didi");
@@ -122,12 +142,17 @@ const Payment = () => {
           <p>Do you want to confirm the submission?</p>
           <p>${currentDate}</p>
           <ul style="text-align: left; margin-top: 1rem;">
-            <li>Didi Name:<strong> ${searchTermDidi}</strong></li>
-            <li>Online Amount:<strong> ${online || "Not provided"}</strong></li>
-            <li>Cash Amount:<strong> ${cash || "Not provided"}</strong></li>
-            <li>Total Amount:<strong> ${
-              Number(cash) + Number(online) || "Not provided"
+            <li>Didi Name :<strong> ${searchTermDidi}</strong></li>
+            <li>Online Amount :<strong> ${
+              online || "Not provided"
             }</strong></li>
+            <li>Cash Amount :<strong> ${cash || "Not provided"}</strong></li>
+            <li>Total Amount :<strong> ${
+              Number(cash) + Number(online) || "0"
+            }</strong></li>
+             <li>Your Remuneration :<strong> ${
+               remuneration || "0"
+             }</strong></li>
           </ul>
         `,
         icon: "warning",
@@ -151,6 +176,7 @@ const Payment = () => {
             thela_id: Number(formData.get("thela_id")),
             upi: Number(online),
             cash: Number(cash),
+            remuneration: Number(remuneration),
             image: Array.from({ length: photos.length }).map((_, i) => {
               const photo = formData.get(`photo${i + 1}`);
               return photo.replace(/^data:image\/jpeg;base64,\/9j\//, "");
@@ -275,11 +301,11 @@ const Payment = () => {
             <input
               type="number"
               placeholder="UPI Payment"
-              min="1"
+              min="0"
               value={online}
               onChange={(e) => {
                 const newValue = e.target.value;
-                if (newValue === "" || Number(newValue) > 0) {
+                if (newValue === "" || !isNaN(newValue)) {
                   setOnline(newValue);
                   setHasUnsavedChanges(true);
                 }
@@ -292,11 +318,11 @@ const Payment = () => {
             <input
               type="number"
               placeholder="Cash Payment"
-              min="1"
+              min="0"
               value={cash}
               onChange={(e) => {
                 const newValue = e.target.value;
-                if (newValue === "" || Number(newValue) > 0) {
+                if (newValue === "" || !isNaN(newValue)) {
                   setCash(newValue);
                   setHasUnsavedChanges(true);
                 }

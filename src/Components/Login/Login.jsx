@@ -1,12 +1,33 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { ToastContainer, toast } from "react-toastify";
+import { CaptchaBox, validateCaptcha, reloadCaptcha } from "react-captcha-lite";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [captchaInput, setCaptchaInput] = useState("");
+
+  useEffect(() => {
+    const refreshButton = document.getElementById("captcha_lite_reload_btn");
+    if (refreshButton) {
+      refreshButton.style.display = "none";
+    }
+
+    const captchaContainerImg = document.getElementById("captcha_lite_canvas");
+    if (captchaContainerImg) {
+      captchaContainerImg.style.color = "";
+      captchaContainerImg.style.width = "200px";
+      captchaContainerImg.style.height = "30px";
+      captchaContainerImg.style.marginTop = "15px";
+      captchaContainerImg.style.marginBottom = "5px";
+      captchaContainerImg.style.objectFit = "cover";
+      captchaContainerImg.style.border = "0px";
+      captchaContainerImg.style.background = "none";
+    }
+  }, []);
 
   const validationSchema = Yup.object({
     email: Yup.string()
@@ -17,50 +38,34 @@ const Login = () => {
       .required("Password is required"),
   });
 
-  const checkInternetConnection = async () => {
-    try {
-      const response = await fetch(
-        "https://api.allorigins.win/raw?url=https://www.google.com",
-        {
-          method: "HEAD",
-          cache: "no-cache",
-        }
-      );
-      return response.ok;
-    } catch (error) {
-      return false;
+  const handleSubmit = async (values) => {
+    const isCaptchaValid = validateCaptcha(captchaInput);
+
+    if (!isCaptchaValid) {
+      toast.error("CAPTCHA is incorrect. Please try again.");
+      return;
     }
-  };
 
-  const handleSubmit = async (values, { resetForm }) => {
-    const actualStatus = true;
-
-    if (actualStatus) {
-      if (
-        values.email === "rishab@gmail.com" &&
-        values.password === "Rishab@123"
-      ) {
-        localStorage.setItem(
-          "userCredentials",
-          JSON.stringify({ email: values.email, password: values.password })
-        );
-        navigate("/mobilehome");
-      } else if (
-        values.email === "admin@gmail.com" &&
-        values.password === "Rishab@123"
-      ) {
-        localStorage.setItem(
-          "userCredentials",
-          JSON.stringify({ email: values.email, password: values.password })
-        );
-        navigate("/admin");
-      }
+    if (
+      values.email === "rishab@gmail.com" &&
+      values.password === "Rishab@123"
+    ) {
+      localStorage.setItem(
+        "userCredentials",
+        JSON.stringify({ email: values.email, password: values.password })
+      );
+      navigate("/mobilehome");
+    } else if (
+      values.email === "admin@gmail.com" &&
+      values.password === "Rishab@123"
+    ) {
+      localStorage.setItem(
+        "userCredentials",
+        JSON.stringify({ email: values.email, password: values.password })
+      );
+      navigate("/admin");
     } else {
-      Swal.fire({
-        html: `<b>Check Internet connection!</b>`,
-        allowOutsideClick: false,
-        confirmButtonColor: "#A24C4A",
-      });
+      toast.error("Wrong credentials !");
     }
   };
 
@@ -92,7 +97,7 @@ const Login = () => {
           <div className="px-2 w-full md:w-3/4 lg:w-1/2">
             <form
               id="login-form"
-              className="bg-white p-6 rounded-2xl border-2"
+              className="bg-white px-6 rounded-2xl border-2"
               onSubmit={formik.handleSubmit}
             >
               <div className="text-center">
@@ -101,7 +106,7 @@ const Login = () => {
                 </a>
               </div>
 
-              <div className="mt-1">
+              <div className="mt-0">
                 <div className="form-group mb-2">
                   <label
                     htmlFor="email"
@@ -114,7 +119,7 @@ const Login = () => {
                     id="email"
                     name="email"
                     placeholder="Enter email ID"
-                    className="form-control w-full p-2 border border-gray-300 rounded"
+                    className="form-control w-full p-2 border border-gray-300 shadow-sm focus:outline-none"
                     value={formik.values.email}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -126,7 +131,7 @@ const Login = () => {
                   )}
                 </div>
 
-                <div className="form-group mb-4">
+                <div className="form-group mb-2">
                   <label
                     htmlFor="password"
                     className="mb-2 block text-sm text-dark"
@@ -138,7 +143,7 @@ const Login = () => {
                     id="password"
                     name="password"
                     placeholder="Enter Password"
-                    className="form-control w-full p-2 border border-gray-300 rounded"
+                    className="form-control w-full p-2 border border-gray-300 shadow-sm focus:outline-none"
                     value={formik.values.password}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -150,7 +155,29 @@ const Login = () => {
                   )}
                 </div>
 
-                <div className="form-group mb-6">
+                <div className="captcha-container mb-4">
+                  <div className="captcha-box bg-light md:flex-row items-center gap-4 md:gap-8">
+                    <CaptchaBox />
+                    <div className="flex items-center justify-content-center gap-4">
+                      <button
+                        type="button"
+                        className="btn btn-secondary text-sm py-1"
+                        onClick={reloadCaptcha}
+                      >
+                        Refresh
+                      </button>
+                      <input
+                        type="text"
+                        placeholder="Enter CAPTCHA"
+                        className="form-control w-50 border border-gray-300 shadow-sm focus:outline-none"
+                        value={captchaInput}
+                        onChange={(e) => setCaptchaInput(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-group mb-1">
                   <button
                     type="submit"
                     className="w-full py-2 rounded-lg bg-btn-primary hover:bg-btn-hover text-white"

@@ -101,7 +101,7 @@ const FoodEdit = () => {
     try {
       const res = axios
         .put(
-          "https://didikadhababackend.indevconsultancy.in/dhaba/foodmaster/",
+          `https://didikadhababackend.indevconsultancy.in/dhaba/foodmaster/${id}/`,
           payload
         )
         .then((res) => {
@@ -145,7 +145,7 @@ const FoodEdit = () => {
     { label: "Edit Food", href: `` },
   ];
   return (
-    <div className="py-2 px-12">
+    <div className="py-2 md:px-12">
       <ToastContainer />
       <div className="d-flex justify-content-between">
         <div>

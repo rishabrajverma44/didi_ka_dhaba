@@ -160,7 +160,7 @@ const HomeEdit = () => {
     { label: "Didi Details", href: `/admin/` },
   ];
   return (
-    <div className="px-12 py-2">
+    <div className="md:px-12 py-2">
       <div className="d-flex justify-content-between">
         <div>
           <b

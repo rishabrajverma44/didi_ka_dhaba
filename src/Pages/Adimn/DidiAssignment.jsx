@@ -175,10 +175,19 @@ const DidiAssignment = () => {
   };
 
   return (
-    <div className="py-2 px-12">
+    <div className="py-2 px-2 md:px-12">
       <ToastContainer />
+      <div className="d-flex justify-content-between">
+        <div>
+          <b
+            style={{ color: "#5E6E82", fontWeight: "bolder", fontSize: "18px" }}
+          >
+            Add Didi Assignment
+          </b>
+        </div>
+      </div>
       <div>
-        <div className="mx-auto my-8 p-6">
+        <div className="mx-auto p-6">
           <h2 className="text-xl font-bold flex flex-row   mb-6 text-slate-600">
             <span className="mx-4 w-50 text-center">
               <span>From </span>

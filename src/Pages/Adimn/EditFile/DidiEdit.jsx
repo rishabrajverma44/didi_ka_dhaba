@@ -1,50 +1,60 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
-import Webcam from "react-webcam";
 import { FaCamera } from "react-icons/fa";
 import { FiRefreshCcw, FiX } from "react-icons/fi";
-import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
 import { useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import axios from "axios";
+import { Formik, Form, ErrorMessage, Field } from "formik";
+import * as Yup from "yup";
+import { ToastContainer, toast } from "react-toastify";
+import Webcam from "react-webcam";
+import Breadcrumb from "../../../Components/prebuiltComponent/Breadcrumb";
 
 const DidiEdit = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-
+  const [data, setData] = useState([]);
   const { id } = useParams();
-  const [item, setItem] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [imageSrc, setImageSrc] = useState(null);
+  const [isCaptured, setIsCaptured] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [isBackCamera, setIsBackCamera] = useState(false);
+  const webcamRef = useRef(null);
 
-  const fetchData = async () => {
-    try {
-      const response = await fetch(
-        `"https://didikadhababackend.indevconsultancy.in/dhaba/didi/${id}`
-      );
-      const data = await response.json();
-      setItem(data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
+  const getData = () => {
+    axios
+      .get(`https://didikadhababackend.indevconsultancy.in/dhaba/didi/${id}`)
+      .then((res) => {
+        if (res.status === 200) {
+          setData(res.data);
+          if (res.data.image) {
+            setImageSrc(
+              `https://didikadhababackend.indevconsultancy.in/dhaba/${res.data.image}`
+            );
+          }
+          setIsCaptured(true);
+        }
+      })
+      .catch((err) => {
+        console.log("getting error", err);
+        toast.error("Error fetching data. Please try again.");
+      });
   };
 
   useEffect(() => {
-    fetchData();
+    getData();
   }, [id]);
 
   const initialValues = {
-    first_name: "",
-    last_name: "",
-    husband_name: "",
-    mobile_no: "",
-    alternate_mobile_no: "",
-    selectedState: "",
-    selectedDistrict: "",
-    selectedCity: "",
-    address: "",
-    remarks: "",
+    first_name: data.first_name || "",
+    last_name: data.last_name || "",
+    husband_name: data.husband_name || "",
+    mobile_no: data.mobile_no || "",
+    alternate_mobile_no: data.alternate_mobile_no || "",
+    state: data.state || "",
+    district: data.district || "",
+    city: data.city || "",
+    address: data.address || "",
+    remarks: data.remarks || "",
   };
 
   const validationSchema = Yup.object({
@@ -59,56 +69,16 @@ const DidiEdit = () => {
       "Alternate mobile number must be 10 digits"
     ),
     address: Yup.string().required("Address is required"),
-    selectedState: Yup.string().required("State is required"),
-    selectedDistrict: Yup.string().required("District is required"),
-    selectedCity: Yup.string().required("City is required"),
+    state: Yup.string().required("State is required"),
+    district: Yup.string().required("District is required"),
+    city: Yup.string().required("City is required"),
   });
 
-  //adhar
-
-  const [imagesAdhar, setImagesAdhar] = useState([]);
-  const [isCameraOpenAdhar, setIsCameraOpenAdhar] = useState(false);
-  const [isBackCameraAdhar, setIsBackCameraAdhar] = useState(true);
-
-  const captureImageAdhar = () => {
-    if (webcamRef.current) {
-      const screenshot = webcamRef.current.getScreenshot();
-      setImagesAdhar((prevImages) => {
-        if (prevImages.length < 2) {
-          return [...prevImages, screenshot];
-        }
-        return prevImages;
-      });
-    }
-  };
-
-  const removeImageAdhar = (index) => {
-    setImagesAdhar((prevImages) => prevImages.filter((_, i) => i !== index));
-  };
-
-  const toggleCameraAdhar = () => {
-    setIsCameraOpenAdhar(!isCameraOpenAdhar);
-  };
-
-  const toggleCameraMode = () => {
-    setIsBackCameraAdhar(!isBackCameraAdhar);
-  };
-
-  //cammera
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [isCaptured, setIsCaptured] = useState(false);
-  const [imageSrc, setImageSrc] = useState("");
-  const [isBackCamera, setIsBackCamera] = useState(false);
-  const webcamRef = useRef(null);
-
   const handleToggleCamera = () => {
-    setIsCameraOpen((prev) => {
-      const newCameraState = !prev;
-      if (!newCameraState) {
-        resetCaptureState();
-      }
-      return newCameraState;
-    });
+    setIsCameraOpen((prev) => !prev);
+    if (isCameraOpen) {
+      resetCaptureState();
+    }
   };
 
   const handleCapture = () => {
@@ -117,12 +87,14 @@ const DidiEdit = () => {
       setImageSrc(capturedImage);
       setIsCaptured(true);
       setIsCameraOpen(false);
+    } else {
+      toast.error("Failed to capture image. Please try again.");
     }
   };
 
   const handleRetake = () => {
     setIsCaptured(false);
-    setImageSrc("");
+    setImageSrc(null);
     setIsCameraOpen(true);
   };
 
@@ -132,7 +104,7 @@ const DidiEdit = () => {
 
   const resetCaptureState = () => {
     setIsCaptured(false);
-    setImageSrc("");
+    setImageSrc(null);
   };
 
   // State management
@@ -151,10 +123,10 @@ const DidiEdit = () => {
       });
   };
 
-  const getDistrict = (selectedState) => {
+  const getDistrict = (state) => {
     axios
       .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-districts/${selectedState}`
+        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-districts/${state}`
       )
       .then((res) => {
         setDistrict(res.data);
@@ -164,10 +136,10 @@ const DidiEdit = () => {
       });
   };
 
-  const getCity = (selectedDistrict) => {
+  const getCity = (district) => {
     axios
       .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-cities/${selectedDistrict}`
+        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-cities/${district}`
       )
       .then((res) => {
         setCity(res.data);
@@ -182,30 +154,62 @@ const DidiEdit = () => {
   }, []);
 
   useEffect(() => {
-    if (initialValues.selectedState) {
-      getDistrict(initialValues.selectedState);
+    if (initialValues.state) {
+      getDistrict(initialValues.state);
     }
-  }, [initialValues.selectedState]);
+  }, [initialValues.state]);
+
+  const convertImageToBase64 = (url) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        const base64Image = canvas.toDataURL("image/jpeg");
+        resolve(base64Image);
+      };
+      img.onerror = (error) => {
+        reject("Error loading image for base64 conversion");
+      };
+      img.src = url;
+    });
+  };
 
   useEffect(() => {
-    if (initialValues.selectedDistrict) {
-      getCity(initialValues.selectedDistrict);
+    if (initialValues.district) {
+      getCity(initialValues.district);
     }
-  }, [initialValues.selectedDistrict]);
+  }, [initialValues.district]);
 
   const handleSubmit = async (values, { resetForm }) => {
-    const payload = { ...values, image: imageSrc };
+    let finalImage = imageSrc;
 
-    console.log(payload);
+    if (!imageSrc.startsWith("data:image")) {
+      try {
+        finalImage = await convertImageToBase64(imageSrc);
+      } catch (error) {
+        toast.error("Failed to convert image to base64");
+        return;
+      }
+    }
+
+    const payload = {
+      ...values,
+      image: finalImage || null,
+    };
 
     setIsLoading(true);
     try {
-      const res = await axios.post(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/didi/",
+      const res = await axios.put(
+        `https://didikadhababackend.indevconsultancy.in/dhaba/didi/${id}/`,
         payload
       );
-      if (res.status === 201) {
-        toast.success("Registration successfully done");
+      if (res.status === 200) {
+        toast.success("Updated successfully done");
         resetForm();
         handleRetake();
         handleToggleCamera();
@@ -222,13 +226,31 @@ const DidiEdit = () => {
       setIsLoading(false);
     }
 
-    resetForm();
+    // resetForm();
   };
 
+  const breadcrumbItems = [
+    { label: "Didi List", href: "/didilist" },
+    { label: "Didi", href: `` },
+  ];
+
   return (
-    <div className="py-2">
+    <div className="py-2 md:px-12">
       <ToastContainer />
-      <div className="bg-white mx-2 px-2 py-4">
+      <div className="d-flex justify-content-between">
+        <div>
+          <b
+            style={{ color: "#5E6E82", fontWeight: "bolder", fontSize: "18px" }}
+          >
+            Edite Registration
+          </b>
+        </div>
+
+        <div className="">
+          <Breadcrumb items={breadcrumbItems} />
+        </div>
+      </div>
+      <div className="bg-white">
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
@@ -237,346 +259,269 @@ const DidiEdit = () => {
         >
           {({ values, setFieldValue }) => (
             <Form>
-              <div className="flex flex-col md:flex-row items-center justify-between">
-                <div className="w-full md:w-1/2 px-4">
-                  <div className="mb-2">
-                    <label
-                      htmlFor="first_name"
-                      className="block text-slate-600 mb-1"
-                    >
-                      First Name
-                    </label>
-                    <Field
-                      type="text"
-                      id="first_name"
-                      name="first_name"
-                      placeholder="Enter your first name"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <ErrorMessage
-                      name="first_name"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
+              <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-3">
+                <div className="w-full">
+                  <label
+                    htmlFor="first_name"
+                    className="block text-slate-600 mb-1 font-medium"
+                  >
+                    First Name
+                  </label>
+                  <Field
+                    type="text"
+                    id="first_name"
+                    name="first_name"
+                    placeholder="Enter your first name"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="first_name"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
 
-                  <div className="mb-2">
-                    <label
-                      htmlFor="husband_name"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Husband/Father's Name
-                    </label>
-                    <Field
-                      type="text"
-                      id="husband_name"
-                      name="husband_name"
-                      placeholder="Enter husband's or father's name"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <ErrorMessage
-                      name="husband_name"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
+                <div className="w-full">
+                  <label
+                    htmlFor="last_name"
+                    className="block text-slate-600 mb-1 font-medium"
+                  >
+                    Last Name
+                  </label>
+                  <Field
+                    type="text"
+                    id="last_name"
+                    name="last_name"
+                    placeholder="Enter your last name"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="last_name"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
 
-                  <div className="mb-2">
-                    <label
-                      htmlFor="selectedDistrict"
-                      className="block text-slate-600 mb-1"
-                    >
+                <div className="w-full">
+                  <label
+                    htmlFor="husband_name"
+                    className="block text-slate-600 mb-1 font-medium"
+                  >
+                    Husband/Father's Name
+                  </label>
+                  <Field
+                    type="text"
+                    id="husband_name"
+                    name="husband_name"
+                    placeholder="Enter husband's or father's name"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="husband_name"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label
+                    htmlFor="state"
+                    className="block text-slate-600 mb-1 font-medium"
+                  >
+                    Select State
+                  </label>
+                  <select
+                    id="state"
+                    name="state"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    value={values.state}
+                    onChange={(e) => {
+                      const selectedStateValue = parseInt(e.target.value, 10);
+                      setFieldValue("state", selectedStateValue);
+                      setFieldValue("district", "");
+                      setFieldValue("city", "");
+                      getDistrict(selectedStateValue);
+                    }}
+                  >
+                    <option value="" disabled>
+                      Select State
+                    </option>
+                    {state.map((stateItem) => (
+                      <option
+                        key={stateItem.state_id}
+                        value={stateItem.state_id}
+                      >
+                        {stateItem.state_name}
+                      </option>
+                    ))}
+                  </select>
+                  <ErrorMessage
+                    name="state"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label
+                    htmlFor="district"
+                    className="block text-slate-600 mb-1 font-medium"
+                  >
+                    Select District
+                  </label>
+                  <select
+                    id="district"
+                    name="district"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    value={values.district}
+                    onChange={(e) => {
+                      const selectedDistrictValue = parseInt(
+                        e.target.value,
+                        10
+                      );
+                      setFieldValue("district", selectedDistrictValue);
+                      setFieldValue("city", "");
+                      getCity(selectedDistrictValue);
+                    }}
+                    disabled={!values.state}
+                  >
+                    <option value="" disabled>
                       Select District
-                    </label>
-                    <select
-                      id="selectedDistrict"
-                      name="selectedDistrict"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      value={values.selectedDistrict}
-                      onChange={(e) => {
-                        const selectedDistrictValue = parseInt(
-                          e.target.value,
-                          10
-                        );
-                        setFieldValue(
-                          "selectedDistrict",
-                          selectedDistrictValue
-                        );
-                        setFieldValue("selectedCity", "");
-                        getCity(selectedDistrictValue);
-                      }}
-                      disabled={!values.selectedState}
-                    >
-                      <option value="" disabled>
-                        Select District
+                    </option>
+                    {district.map((districtItem) => (
+                      <option
+                        key={districtItem.dist_id}
+                        value={districtItem.dist_id}
+                      >
+                        {districtItem.dist_name}
                       </option>
-                      {district.map((districtItem) => (
-                        <option
-                          key={districtItem.dist_id}
-                          value={districtItem.dist_id}
-                        >
-                          {districtItem.dist_name}
-                        </option>
-                      ))}
-                    </select>
-                    <ErrorMessage
-                      name="selectedDistrict"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
-
-                  <div className="mb-2">
-                    <label
-                      htmlFor="mobile_no"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Mobile Number
-                    </label>
-                    <Field
-                      type="number"
-                      id="mobile_no"
-                      name="mobile_no"
-                      placeholder="Enter your mobile number"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <ErrorMessage
-                      name="mobile_no"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
-
-                  <div className="mb-2">
-                    <label
-                      htmlFor="remarks"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Remarks
-                    </label>
-                    <Field
-                      type="text"
-                      id="remarks"
-                      name="remarks"
-                      placeholder="Enter your Remarks"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                  </div>
+                    ))}
+                  </select>
+                  <ErrorMessage
+                    name="district"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
                 </div>
-                <div className="w-full md:w-1/2 px-4">
-                  <div className="mb-2">
-                    <label
-                      htmlFor="last_name"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Last Name
-                    </label>
-                    <Field
-                      type="text"
-                      id="last_name"
-                      name="last_name"
-                      placeholder="Enter your last name"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <ErrorMessage
-                      name="last_name"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
 
-                  <div className="mb-2">
-                    <label
-                      htmlFor="selectedState"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Select state
-                    </label>
-                    <select
-                      id="selectedState"
-                      name="selectedState"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      value={values.selectedState}
-                      onChange={(e) => {
-                        const selectedStateValue = parseInt(e.target.value, 10);
-                        setFieldValue("selectedState", selectedStateValue);
-                        setFieldValue("selectedDistrict", "");
-                        setFieldValue("selectedCity", "");
-                        getDistrict(selectedStateValue);
-                      }}
-                    >
-                      <option value="" disabled>
-                        Select State
-                      </option>
-                      {state.map((stateItem) => (
-                        <option
-                          key={stateItem.state_id}
-                          value={stateItem.state_id}
-                        >
-                          {stateItem.state_name}
-                        </option>
-                      ))}
-                    </select>
-                    <ErrorMessage
-                      name="selectedState"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
-
-                  <div className="mb-2">
-                    <label
-                      htmlFor="selectedCity"
-                      className="block text-slate-600 mb-1"
-                    >
+                <div className="w-full">
+                  <label
+                    htmlFor="city"
+                    className="block text-slate-600 mb-1 font-medium"
+                  >
+                    Select City
+                  </label>
+                  <select
+                    id="city"
+                    name="city"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    value={values.city}
+                    onChange={(e) => {
+                      const selectedCityValue = parseInt(e.target.value, 10);
+                      setFieldValue("city", selectedCityValue);
+                    }}
+                    disabled={!values.district}
+                  >
+                    <option value="" disabled>
                       Select City
-                    </label>
-                    <select
-                      id="selectedCity"
-                      name="selectedCity"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      value={values.selectedCity}
-                      onChange={(e) => {
-                        const selectedCityValue = parseInt(e.target.value, 10);
-                        setFieldValue("selectedCity", selectedCityValue);
-                      }}
-                      disabled={!values.selectedDistrict}
-                    >
-                      <option value="" disabled>
-                        Select City
+                    </option>
+                    {city.map((cityItem) => (
+                      <option key={cityItem.city_id} value={cityItem.city_id}>
+                        {cityItem.city_name}
                       </option>
-                      {city.map((cityItem) => (
-                        <option key={cityItem.city_id} value={cityItem.city_id}>
-                          {cityItem.city_name}
-                        </option>
-                      ))}
-                    </select>
-                    <ErrorMessage
-                      name="selectedCity"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
+                    ))}
+                  </select>
+                  <ErrorMessage
+                    name="selectedCity"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
 
-                  <div className="mb-2">
-                    <label
-                      htmlFor="alternate_mobile_no"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Alternate Mobile Number
-                    </label>
-                    <Field
-                      type="number"
-                      id="alternate_mobile_no"
-                      name="alternate_mobile_no"
-                      placeholder="Enter your alternate mobile number"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <ErrorMessage
-                      name="alternate_mobile_no"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
+                <div className="w-full">
+                  <label
+                    htmlFor="mobile_no"
+                    className="block text-slate-600 mb-1 font-medium"
+                  >
+                    Mobile Number
+                  </label>
+                  <Field
+                    type="number"
+                    id="mobile_no"
+                    name="mobile_no"
+                    placeholder="Enter your mobile number"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="mobile_no"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
 
-                  <div className="mb-2">
-                    <label
-                      htmlFor="address"
-                      className="block text-slate-600 mb-1"
-                    >
-                      Address
-                    </label>
-                    <Field
-                      as="textarea"
-                      id="address"
-                      name="address"
-                      rows="2"
-                      placeholder="Enter your address"
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <ErrorMessage
-                      name="address"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
+                <div className="w-full">
+                  <label
+                    htmlFor="alternate_mobile_no"
+                    className="block text-slate-600 mb-1 font-medium"
+                  >
+                    Alternate Mobile Number
+                  </label>
+                  <Field
+                    type="number"
+                    id="alternate_mobile_no"
+                    name="alternate_mobile_no"
+                    placeholder="Enter your alternate mobile number"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="alternate_mobile_no"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label
+                    htmlFor="remarks"
+                    className="block text-slate-600 mb-1 font-medium"
+                  >
+                    Remarks
+                  </label>
+                  <Field
+                    type="text"
+                    id="remarks"
+                    name="remarks"
+                    placeholder="Enter any remarks here"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="remarks"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label
+                    htmlFor="address"
+                    className="block text-slate-600 mb-1 font-medium"
+                  >
+                    Address
+                  </label>
+                  <Field
+                    as="textarea"
+                    id="address"
+                    name="address"
+                    placeholder="Enter any address here"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="address"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
                 </div>
               </div>
-              <div className="row inline-block p-2">
-                {isCameraOpenAdhar && (
-                  <>
-                    <div className="relative">
-                      <Webcam
-                        audio={false}
-                        ref={webcamRef}
-                        screenshotFormat="image/jpeg"
-                        className="w-full h-96 object-cover rounded-md shadow-md"
-                        videoConstraints={{
-                          facingMode: isBackCameraAdhar
-                            ? "environment"
-                            : "user",
-                        }}
-                      />
-                      <div className="absolute bottom-4 right-4 flex space-x-4">
-                        <button
-                          onClick={captureImageAdhar}
-                          className="py-2 px-3 rounded-full shadow-md bg-[#0B1727] text-white hover:bg-[#53230A] transition-all"
-                        >
-                          <FaCamera size={24} />
-                        </button>
-                        <button
-                          onClick={toggleCameraMode}
-                          className="py-2 px-3 rounded-full shadow-md bg-[#0B1727] text-white hover:bg-[#53230A] transition-all"
-                        >
-                          <FiRefreshCcw size={24} />
-                        </button>
-                        <button
-                          onClick={toggleCameraAdhar}
-                          className="py-2 px-3 rounded-full shadow-md bg-red-500 text-white hover:bg-red-600 transition-all"
-                        >
-                          <FiX size={24} />
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {!isCameraOpenAdhar && (
-                  <div className="h-96 bg-gray-300 flex flex-col items-center justify-center rounded-md">
-                    <h2 className="text-gray-500 mb-4">Capture Identity</h2>
-                    <p className="text-gray-500 mb-4">Camera is off</p>
-                    <button
-                      onClick={toggleCameraAdhar}
-                      className="py-2 px-4 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A] transition-all"
-                    >
-                      <FaCamera size={30} />
-                    </button>
-                  </div>
-                )}
-
-                <div className="mt-1">
-                  {imagesAdhar.length > 0 && (
-                    <div className="grid grid-cols-2 gap-4 mt-6">
-                      {imagesAdhar.map((image, index) => (
-                        <div key={index} className="relative group">
-                          <img
-                            src={image}
-                            alt={`Captured ${index + 1}`}
-                            className="w-full h-32 object-cover rounded-md shadow-md"
-                          />
-                          <button
-                            onClick={() => removeImageAdhar(index)}
-                            className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
-                          >
-                            <FiX size={20} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
               <div className="row inline-block p-2">
                 {isCameraOpen && !isCaptured && (
                   <>
@@ -645,12 +590,15 @@ const DidiEdit = () => {
                 )}
               </div>
 
-              <div className="mt-6 flex justify-end w-full">
+              <div className="flex justify-end my-4">
                 <button
                   type="submit"
-                  className="py-2 px-6 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                  className={`p-2 rounded-lg btn btn-dark hover:bg-[#53230A] ${
+                    isLoading ? "bg-gray-300" : "bg-[#A24C4A] text-white"
+                  }`}
+                  disabled={isLoading}
                 >
-                  Submit
+                  {isLoading ? "Submitting..." : "Submit"}
                 </button>
               </div>
             </Form>

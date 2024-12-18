@@ -204,9 +204,18 @@ const ThelaRegistration = () => {
       : defaultCenter;
 
   return (
-    <div className="py-2 px-12">
-      {console.log(mapCenter)}
+    <div className="py-2 px-2 md:px-12">
       <ToastContainer />
+
+      <div className="d-flex justify-content-between">
+        <div>
+          <b
+            style={{ color: "#5E6E82", fontWeight: "bolder", fontSize: "18px" }}
+          >
+            Add Stall
+          </b>
+        </div>
+      </div>
 
       <Formik
         initialValues={initialValues}
@@ -216,11 +225,11 @@ const ThelaRegistration = () => {
       >
         {({ values, setFieldValue, validateForm, handleSubmit }) => (
           <Form onSubmit={handleSubmit}>
-            <div className="my-8 p-6">
-              <div className="mb-4">
+            <div className="mt-6">
+              <div className="mb-2">
                 <label
                   htmlFor="thela_name"
-                  className="block text-slate-600 mb-1"
+                  className="block text-slate-600 mb-1 font-medium"
                 >
                   Stall Name
                 </label>
@@ -241,7 +250,7 @@ const ThelaRegistration = () => {
               <div className="mb-2">
                 <label
                   htmlFor="selectedState"
-                  className="block text-slate-600 mb-1"
+                  className="block text-slate-600 mb-1 font-medium"
                 >
                   Select state
                 </label>
@@ -277,7 +286,7 @@ const ThelaRegistration = () => {
               <div className="mb-2">
                 <label
                   htmlFor="selectedDistrict"
-                  className="block text-slate-600 mb-1"
+                  className="block text-slate-600 mb-1 font-medium"
                 >
                   Select District
                 </label>
@@ -316,7 +325,7 @@ const ThelaRegistration = () => {
               <div className="mb-2">
                 <label
                   htmlFor="selectedCity"
-                  className="block text-slate-600 mb-1"
+                  className="block text-slate-600 mb-1 font-medium"
                 >
                   Select City
                 </label>
@@ -347,7 +356,10 @@ const ThelaRegistration = () => {
               </div>
 
               <div className="mb-4">
-                <label htmlFor="address" className="block text-slate-600 mb-1">
+                <label
+                  htmlFor="address"
+                  className="block text-slate-600 mb-1 font-medium"
+                >
                   Address
                 </label>
                 <Field
@@ -369,7 +381,7 @@ const ThelaRegistration = () => {
               <div className="mb-4">
                 <label
                   htmlFor="longitude"
-                  className="block text-slate-600 mb-1"
+                  className="block text-slate-600 mb-1 font-medium"
                 >
                   Longitude
                 </label>
@@ -388,7 +400,10 @@ const ThelaRegistration = () => {
               </div>
 
               <div className="mb-4">
-                <label htmlFor="latitude" className="block text-slate-600 mb-1">
+                <label
+                  htmlFor="latitude"
+                  className="block text-slate-600 mb-1 font-medium"
+                >
                   Latitude
                 </label>
                 <Field
@@ -408,7 +423,7 @@ const ThelaRegistration = () => {
               <div className="my-4">
                 <GoogleMap
                   center={mapCenter}
-                  zoom={15}
+                  zoom={18}
                   mapContainerStyle={mapContainerStyle}
                 >
                   {location.latitude && location.longitude && (
@@ -422,13 +437,18 @@ const ThelaRegistration = () => {
                 </GoogleMap>
               </div>
             </div>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white py-2 px-4 rounded-md"
-              disabled={isLoading}
-            >
-              {isLoading ? "Registering..." : "Register"}
-            </button>
+
+            <div className="flex justify-end my-4">
+              <button
+                type="submit"
+                className={`p-2 rounded-lg btn btn-dark hover:bg-[#53230A] ${
+                  isLoading ? "bg-gray-300" : "bg-[#A24C4A] text-white"
+                }`}
+                disabled={isLoading}
+              >
+                {isLoading ? "Submitting..." : "Submit"}
+              </button>
+            </div>
           </Form>
         )}
       </Formik>

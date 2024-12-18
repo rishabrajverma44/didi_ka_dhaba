@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import Breadcrumb from "../../../Components/prebuiltComponent/Breadcrumb";
 
 const AssignEdit = () => {
   const navigate = useNavigate();
@@ -174,11 +175,29 @@ const AssignEdit = () => {
     await sendData(payload);
   };
 
+  const breadcrumbItems = [
+    { label: "Assign List", href: "/assign_list" },
+    { label: "Assign", href: `` },
+  ];
+
   return (
-    <div className="py-2 px-12">
+    <div className="py-2 md:px-12">
       <ToastContainer />
+      <div className="d-flex justify-content-between">
+        <div>
+          <b
+            style={{ color: "#5E6E82", fontWeight: "bolder", fontSize: "18px" }}
+          >
+            Edite Assign
+          </b>
+        </div>
+
+        <div className="">
+          <Breadcrumb items={breadcrumbItems} />
+        </div>
+      </div>
       <div>
-        <div className="mx-auto my-8 p-6">
+        <div className="mx-auto p-6">
           <h2 className="text-xl font-bold flex flex-row   mb-6 text-slate-600">
             <span className="mx-4 w-50 text-center">
               <span>From </span>

@@ -139,7 +139,7 @@ const ListDidi = () => {
   );
 
   return (
-    <div className="py-2 px-12">
+    <div className="py-2 md:px-12">
       <ToastContainer />
       <div className="mb-4">
         <input
@@ -169,7 +169,7 @@ const ListDidi = () => {
                     {headerGroup.headers.map((column) => (
                       <th
                         {...column.getHeaderProps()}
-                        className="py-2 border-b  text-white"
+                        className="py-2 border-b text-white"
                         style={{ backgroundColor: "#682C13", color: "white" }}
                       >
                         {column.render("Header")}

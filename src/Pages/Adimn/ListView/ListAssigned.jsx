@@ -129,7 +129,7 @@ const ListAssigned = () => {
   };
 
   return (
-    <div className=" py-2 px-12" style={{ height: "99vh" }}>
+    <div className=" py-2 md:px-12" style={{ height: "99vh" }}>
       <ToastContainer />
 
       <div className="row px-2">
@@ -268,7 +268,12 @@ const ListAssigned = () => {
                   prepareRow(row);
                   return (
                     <tr {...row.getRowProps()} className="hover:bg-gray-200">
-                      <td className="p-2 border border-2">{index + 1}</td>
+                      <td
+                        className="p-2 border border-2"
+                        style={{ color: "#5E6E82" }}
+                      >
+                        {index + 1}
+                      </td>
                       {row.cells.map((cell, idx) => {
                         if (idx === 0) return null;
                         return (

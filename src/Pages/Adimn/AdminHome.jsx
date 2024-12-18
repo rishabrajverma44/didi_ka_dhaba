@@ -112,7 +112,7 @@ const AdminHome = () => {
   };
 
   return (
-    <div className="py-2 px-12">
+    <div className="py-2 px-2 md:px-12">
       <ToastContainer />
       <div className="row py-4 px-2">
         <div className="col-md-3 px-1">

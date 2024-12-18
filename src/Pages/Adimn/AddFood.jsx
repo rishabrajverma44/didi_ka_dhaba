@@ -103,8 +103,17 @@ const AddFood = () => {
   };
 
   return (
-    <div className="py-2 px-12">
+    <div className="py-2 px-2 md:px-12">
       <ToastContainer />
+      <div className="d-flex justify-content-between">
+        <div>
+          <b
+            style={{ color: "#5E6E82", fontWeight: "bolder", fontSize: "18px" }}
+          >
+            Add Food
+          </b>
+        </div>
+      </div>
       <div className="mx-auto mt-6">
         <form onSubmit={handleSubmit}>
           <div className="flex flex-wrap -mx-2">
@@ -174,7 +183,7 @@ const AddFood = () => {
           <div className="flex flex-wrap -mx-2">
             <div className="w-full sm:w-1/2 px-2 mb-4">
               <label className="block text-slate-600 mb-1 font-medium">
-                Food Price (₹)
+                Food Price Per Unite (₹)
               </label>
               <input
                 type="number"

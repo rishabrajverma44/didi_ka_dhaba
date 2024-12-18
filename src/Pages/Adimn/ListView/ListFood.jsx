@@ -133,7 +133,7 @@ const ListFood = () => {
   );
 
   return (
-    <div className="py-2 px-12">
+    <div className="py-2 md:px-12">
       <ToastContainer />
       <div className="mb-4 flex items-center justify-between space-x-4">
         <div className="flex-1 w-full max-w-xs">
@@ -213,7 +213,12 @@ const ListFood = () => {
                         key={row.id}
                         className="hover:bg-gray-200"
                       >
-                        <td className="p-2 border border-2">{index + 1}</td>
+                        <td
+                          className="p-2 border border-2"
+                          style={{ color: "#5E6E82" }}
+                        >
+                          {index + 1}
+                        </td>
                         {row.cells.map((cell, idx) => {
                           if (idx === 0) return null;
                           return (
