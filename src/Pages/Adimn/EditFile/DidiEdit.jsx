@@ -1,28 +1,60 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
-import Webcam from "react-webcam";
 import { FaCamera } from "react-icons/fa";
 import { FiRefreshCcw, FiX } from "react-icons/fi";
+import { useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Formik, Form, ErrorMessage, Field } from "formik";
+import * as Yup from "yup";
+import { ToastContainer, toast } from "react-toastify";
+import Webcam from "react-webcam";
+import Breadcrumb from "../../../Components/prebuiltComponent/Breadcrumb";
 
-const DidiRegistration = () => {
+const DidiEdit = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const { id } = useParams();
+  const [imageSrc, setImageSrc] = useState(null);
+  const [isCaptured, setIsCaptured] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [isBackCamera, setIsBackCamera] = useState(false);
+  const webcamRef = useRef(null);
+
+  const getData = () => {
+    axios
+      .get(`https://didikadhababackend.indevconsultancy.in/dhaba/didi/${id}`)
+      .then((res) => {
+        if (res.status === 200) {
+          setData(res.data);
+          if (res.data.image) {
+            setImageSrc(
+              `https://didikadhababackend.indevconsultancy.in/dhaba/${res.data.image}`
+            );
+          }
+          setIsCaptured(true);
+        }
+      })
+      .catch((err) => {
+        console.log("getting error", err);
+        toast.error("Error fetching data. Please try again.");
+      });
+  };
+
+  useEffect(() => {
+    getData();
+  }, [id]);
 
   const initialValues = {
-    first_name: "",
-    last_name: "",
-    husband_name: "",
-    mobile_no: "",
-    alternate_mobile_no: "",
-    state: "",
-    district: "",
-    city: "",
-    address: "",
-    remarks: "",
+    first_name: data.first_name || "",
+    last_name: data.last_name || "",
+    husband_name: data.husband_name || "",
+    mobile_no: data.mobile_no || "",
+    alternate_mobile_no: data.alternate_mobile_no || "",
+    state: data.state || "",
+    district: data.district || "",
+    city: data.city || "",
+    address: data.address || "",
+    remarks: data.remarks || "",
   };
 
   const validationSchema = Yup.object({
@@ -42,66 +74,21 @@ const DidiRegistration = () => {
     city: Yup.string().required("City is required"),
   });
 
-  //adhar
-
-  const [imagesAdhar, setImagesAdhar] = useState([]);
-  const [isCameraOpenAdhar, setIsCameraOpenAdhar] = useState(false);
-  const [isBackCameraAdhar, setIsBackCameraAdhar] = useState(true);
-  const webcamRef2 = useRef(null);
-
-  const captureImageAdhar = () => {
-    if (imagesAdhar.length >= 2) {
-      toast.error("You can only capture 2 images.");
-      return;
-    }
-
-    if (webcamRef2.current) {
-      const screenshot = webcamRef2.current.getScreenshot();
-      if (screenshot) {
-        setImagesAdhar((prevImages) => [...prevImages, screenshot]);
-      }
-    }
-  };
-
-  const removeImageAdhar = (index) => {
-    setImagesAdhar((prevImages) => prevImages.filter((_, i) => i !== index));
-  };
-
-  const toggleCameraAdhar = () => {
-    setIsCameraOpenAdhar(!isCameraOpenAdhar);
-  };
-
-  const toggleCameraMode = () => {
-    setIsBackCameraAdhar(!isBackCameraAdhar);
-  };
-
-  //cammera
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [isCaptured, setIsCaptured] = useState(false);
-  const [imageSrc, setImageSrc] = useState(null);
-  const [isBackCamera, setIsBackCamera] = useState(true);
-  const webcamRef1 = useRef(null);
-
   const handleToggleCamera = () => {
-    setIsCameraOpen((prev) => {
-      const newCameraState = !prev;
-      if (!newCameraState) {
-        resetCaptureState();
-      }
-      return newCameraState;
-    });
+    setIsCameraOpen((prev) => !prev);
+    if (isCameraOpen) {
+      resetCaptureState();
+    }
   };
 
   const handleCapture = () => {
-    if (webcamRef1.current) {
-      const capturedImage = webcamRef1.current.getScreenshot();
-      if (capturedImage) {
-        setImageSrc(capturedImage);
-        setIsCaptured(true);
-        setIsCameraOpen(false);
-      } else {
-        setImageSrc(null);
-      }
+    const capturedImage = webcamRef.current.getScreenshot();
+    if (capturedImage) {
+      setImageSrc(capturedImage);
+      setIsCaptured(true);
+      setIsCameraOpen(false);
+    } else {
+      toast.error("Failed to capture image. Please try again.");
     }
   };
 
@@ -172,6 +159,26 @@ const DidiRegistration = () => {
     }
   }, [initialValues.state]);
 
+  const convertImageToBase64 = (url) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        const base64Image = canvas.toDataURL("image/jpeg");
+        resolve(base64Image);
+      };
+      img.onerror = (error) => {
+        reject("Error loading image for base64 conversion");
+      };
+      img.src = url;
+    });
+  };
+
   useEffect(() => {
     if (initialValues.district) {
       getCity(initialValues.district);
@@ -179,24 +186,30 @@ const DidiRegistration = () => {
   }, [initialValues.district]);
 
   const handleSubmit = async (values, { resetForm }) => {
-    const cleanedDocuments = imagesAdhar.map(
-      (doc) => `"${doc.replace("/9j/4AAQSkZJRgABAQAAAQABAAD/", "")}"`
-    );
+    let finalImage = imageSrc;
+
+    if (!imageSrc.startsWith("data:image")) {
+      try {
+        finalImage = await convertImageToBase64(imageSrc);
+      } catch (error) {
+        toast.error("Failed to convert image to base64");
+        return;
+      }
+    }
 
     const payload = {
       ...values,
-      image: imageSrc ? imageSrc : null,
-      document: cleanedDocuments.length === 0 ? "" : cleanedDocuments,
+      image: finalImage || null,
     };
 
     setIsLoading(true);
     try {
-      const res = await axios.post(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/didi/",
+      const res = await axios.put(
+        `https://didikadhababackend.indevconsultancy.in/dhaba/didi/${id}/`,
         payload
       );
-      if (res.status === 201) {
-        toast.success("Registration successfully done");
+      if (res.status === 200) {
+        toast.success("Updated successfully done");
         resetForm();
         handleRetake();
         handleToggleCamera();
@@ -216,19 +229,28 @@ const DidiRegistration = () => {
     // resetForm();
   };
 
+  const breadcrumbItems = [
+    { label: "Didi List", href: "/didilist" },
+    { label: "Didi", href: `` },
+  ];
+
   return (
-    <div className="py-2 px-2 md:px-12">
+    <div className="py-2 md:px-12">
       <ToastContainer />
       <div className="d-flex justify-content-between">
         <div>
           <b
             style={{ color: "#5E6E82", fontWeight: "bolder", fontSize: "18px" }}
           >
-            Add New Didi
+            Edite Registration
           </b>
         </div>
+
+        <div className="">
+          <Breadcrumb items={breadcrumbItems} />
+        </div>
       </div>
-      <div className="bg-white py-4">
+      <div className="bg-white">
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
@@ -500,13 +522,12 @@ const DidiRegistration = () => {
                   />
                 </div>
               </div>
-
               <div className="row inline-block p-2">
                 {isCameraOpen && !isCaptured && (
                   <>
                     <Webcam
                       audio={false}
-                      ref={webcamRef1}
+                      ref={webcamRef}
                       screenshotFormat="image/jpeg"
                       className="w-full h-96 object-cover rounded-md"
                       videoConstraints={{
@@ -569,81 +590,6 @@ const DidiRegistration = () => {
                 )}
               </div>
 
-              <div className="row inline-block p-2">
-                {isCameraOpenAdhar && (
-                  <>
-                    <div className="relative">
-                      <Webcam
-                        audio={false}
-                        ref={webcamRef2}
-                        screenshotFormat="image/jpeg"
-                        className="w-full h-96 object-cover rounded-md shadow-md"
-                        videoConstraints={{
-                          facingMode: isBackCameraAdhar
-                            ? "environment"
-                            : "user",
-                        }}
-                      />
-                      <div className="absolute bottom-4 right-4 flex space-x-4">
-                        <button
-                          onClick={captureImageAdhar}
-                          className="py-2 px-3 rounded-full shadow-md bg-[#0B1727] text-white hover:bg-[#53230A] transition-all"
-                        >
-                          <FaCamera size={24} />
-                        </button>
-                        <button
-                          onClick={toggleCameraMode}
-                          className="py-2 px-3 rounded-full shadow-md bg-[#0B1727] text-white hover:bg-[#53230A] transition-all"
-                        >
-                          <FiRefreshCcw size={24} />
-                        </button>
-                        <button
-                          onClick={toggleCameraAdhar}
-                          className="py-2 px-3 rounded-full shadow-md bg-red-500 text-white hover:bg-red-600 transition-all"
-                        >
-                          <FiX size={24} />
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {!isCameraOpenAdhar && (
-                  <div className="h-96 bg-gray-300 flex flex-col items-center justify-center rounded-md">
-                    <h2 className="text-gray-500 mb-4">Capture Identity</h2>
-                    <p className="text-gray-500 mb-4">Camera is off</p>
-                    <button
-                      onClick={toggleCameraAdhar}
-                      className="py-2 px-4 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A] transition-all"
-                    >
-                      <FaCamera size={30} />
-                    </button>
-                  </div>
-                )}
-
-                <div className="mt-1">
-                  {imagesAdhar.length > 0 && (
-                    <div className="grid grid-cols-2 gap-4 mt-6">
-                      {imagesAdhar.map((image, index) => (
-                        <div key={index} className="relative group">
-                          <img
-                            src={image}
-                            alt={`Captured ${index + 1}`}
-                            className="w-full h-32 object-cover rounded-md shadow-md"
-                          />
-                          <button
-                            onClick={() => removeImageAdhar(index)}
-                            className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
-                          >
-                            <FiX size={20} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
               <div className="flex justify-end my-4">
                 <button
                   type="submit"
@@ -663,4 +609,4 @@ const DidiRegistration = () => {
   );
 };
 
-export default DidiRegistration;
+export default DidiEdit;

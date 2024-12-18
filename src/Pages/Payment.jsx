@@ -27,17 +27,17 @@ const Payment = () => {
   const [isLoading, setIsLoading] = useState(false);
   const webcamRef = useRef(null);
   const [isInitializingCamera, setIsInitializingCamera] = useState(false);
+  const [remuneration, setRemuneration] = useState(0);
 
   const videoConstraints = {
     facingMode: isUsingFrontCamera ? "user" : "environment",
   };
 
   const toggleCamera = () => {
-    setIsInitializingCamera(true); // Set to true when starting camera
-    setTimeout(() => {
-      setIsCameraOn(true);
-      setIsInitializingCamera(false); // Set to false after camera is on
-    }, 2000); // Simulate delay for camera initialization
+    setIsInitializingCamera(true);
+
+    setIsCameraOn(true);
+    setIsInitializingCamera(false);
   };
 
   const toggleCameraType = () => {
@@ -102,6 +102,25 @@ const Payment = () => {
       .includes(searchTermDidi.toLowerCase())
   );
 
+  useEffect(() => {
+    const onlineAmount = parseFloat(online) || 0;
+    const cashAmount = parseFloat(cash) || 0;
+
+    const total = onlineAmount + cashAmount;
+
+    let newRemuneration = 0;
+
+    if (total >= 1500) {
+      newRemuneration = 300 + Math.floor((total - 1500) / 500) * 100;
+    } else if (total >= 1000 && total < 1500) {
+      newRemuneration = 300;
+    } else if (total > 1000) {
+      newRemuneration = 200;
+    }
+
+    setRemuneration(newRemuneration);
+  }, [online, cash]);
+
   const submitFinal = async () => {
     if (!selectedDidi) {
       toast.warning("Please select Didi");
@@ -123,12 +142,17 @@ const Payment = () => {
           <p>Do you want to confirm the submission?</p>
           <p>${currentDate}</p>
           <ul style="text-align: left; margin-top: 1rem;">
-            <li>Didi Name:<strong> ${searchTermDidi}</strong></li>
-            <li>Online Amount:<strong> ${online || "Not provided"}</strong></li>
-            <li>Cash Amount:<strong> ${cash || "Not provided"}</strong></li>
-            <li>Total Amount:<strong> ${
-              Number(cash) + Number(online) || "Not provided"
+            <li>Didi Name :<strong> ${searchTermDidi}</strong></li>
+            <li>Online Amount :<strong> ${
+              online || "Not provided"
             }</strong></li>
+            <li>Cash Amount :<strong> ${cash || "Not provided"}</strong></li>
+            <li>Total Amount :<strong> ${
+              Number(cash) + Number(online) || "0"
+            }</strong></li>
+             <li>Your Remuneration :<strong> ${
+               remuneration || "0"
+             }</strong></li>
           </ul>
         `,
         icon: "warning",
@@ -148,15 +172,18 @@ const Payment = () => {
           });
 
           const payload = {
-            didi_id: formData.get("didi_id"),
-            thela_id: formData.get("thela_id"),
-            upi: online,
-            cash: cash,
+            didi_id: Number(formData.get("didi_id")),
+            thela_id: Number(formData.get("thela_id")),
+            upi: Number(online),
+            cash: Number(cash),
+            remuneration: Number(remuneration),
             image: Array.from({ length: photos.length }).map((_, i) => {
               const photo = formData.get(`photo${i + 1}`);
               return photo.replace(/^data:image\/jpeg;base64,\/9j\//, "");
             }),
           };
+
+          console.log(payload);
 
           try {
             const response = await axios.post(
@@ -169,15 +196,15 @@ const Payment = () => {
             setSelectedDidi(null);
             setOnline("");
             setCash("");
-            setTimeout(() => {
-              navigate("/mobilehome");
-            }, 2000);
+            navigate("/mobilehome");
           } catch (error) {
             toast.error("Submission failed. Please try again.");
             console.error("Error:", error);
           } finally {
             setIsLoading(false);
           }
+
+          setIsLoading(false);
         } else {
           toast.info("Submission cancelled.");
         }
@@ -206,23 +233,12 @@ const Payment = () => {
     }
   };
 
-  // useEffect(() => {
-  //   checkConnectionStatus();
-  // }, []);
-  // useEffect(() => {
-  //   console.log(status);
-  //   if (status === false) {
-  //     Swal.fire({
-  //       html: `<b>Check Internet connection!</b>`,
-  //       allowOutsideClick: false,
-  //       confirmButtonColor: "#A24C4A",
-  //     });
-  //   }
-  // }, [status]);
-
   return (
     <div className="bg-gray-50" style={{ minHeight: "100vh" }}>
-      <ConfirmNavigation targetUrl="/" hasUnsavedChanges={hasUnsavedChanges} />
+      <ConfirmNavigation
+        targetUrl="/mobilehome"
+        hasUnsavedChanges={hasUnsavedChanges}
+      />
       <div className="container py-4">
         <h3 className="text-center mb-4">Payment Details</h3>
 
@@ -258,7 +274,7 @@ const Payment = () => {
                     className="p-2 hover:bg-blue-100 cursor-pointer"
                     onClick={() => {
                       setSelectedDidi(name.didi_id);
-                      setSelectedThela_id(name.thela_id);
+                      setSelectedThela_id(name.didi_thela_id);
                       setSearchTermDidi(name.didi_name_and_thela_code);
                       setIsDropdownOpenDidi(false);
                       setHasUnsavedChanges(true);
@@ -285,11 +301,11 @@ const Payment = () => {
             <input
               type="number"
               placeholder="UPI Payment"
-              min="1"
+              min="0"
               value={online}
               onChange={(e) => {
                 const newValue = e.target.value;
-                if (newValue === "" || Number(newValue) > 0) {
+                if (newValue === "" || !isNaN(newValue)) {
                   setOnline(newValue);
                   setHasUnsavedChanges(true);
                 }
@@ -302,11 +318,11 @@ const Payment = () => {
             <input
               type="number"
               placeholder="Cash Payment"
-              min="1"
+              min="0"
               value={cash}
               onChange={(e) => {
                 const newValue = e.target.value;
-                if (newValue === "" || Number(newValue) > 0) {
+                if (newValue === "" || !isNaN(newValue)) {
                   setCash(newValue);
                   setHasUnsavedChanges(true);
                 }

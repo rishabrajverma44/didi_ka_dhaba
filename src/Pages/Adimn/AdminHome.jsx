@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import axios from "axios";
 import {
   useTable,
@@ -6,74 +6,73 @@ import {
   usePagination,
   useGlobalFilter,
 } from "react-table";
-import Modal from "react-modal";
-import { FaFilePdf } from "react-icons/fa";
-import { toast, ToastContainer } from "react-toastify";
-Modal.setAppElement("#root");
+import { ToastContainer } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import Pagination from "../../Components/prebuiltComponent/Pagination";
 
 const AdminHome = () => {
-  const today = new Date().toISOString().split("T")[0];
-  const [selectedDate, setSelectedDate] = useState(today);
-
+  const navigate = useNavigate();
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDidi, setSelectedDidi] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [selectedRowData, setSelectedRowData] = useState(null);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await axios.get(
+        "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela_summary/"
+      );
+      setData(res.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedDate]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.post(
-          "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela_summary/",
-          { date: selectedDate }
-        );
-        setData(res.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    setLoading(true);
     fetchData();
-  }, [selectedDate]);
+  }, [selectedDate, fetchData]);
+
   const handleDateChange = (e) => {
     setSelectedDate(e.target.value);
     setLoading(true);
   };
 
-  const handleViewDetails = async (row) => {
-    try {
-      const res = await axios.post(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/details-by-meal-type/",
-        { didi_id: row.original.didi_id, date: selectedDate }
-      );
-      setSelectedRowData(res.data);
-      console.log(selectedRowData);
-      setModalIsOpen(true);
-    } catch (error) {
-      console.error("Error fetching details:", error);
-    }
-  };
+  const filteredData = useMemo(() => {
+    return data.filter((item) => {
+      const isCityMatch = selectedCity ? item.city === selectedCity : true;
+      const isDidiMatch = selectedDidi ? item.full_name === selectedDidi : true;
+      const isDateMatch = selectedDate ? item.date === selectedDate : true;
+      return isCityMatch && isDidiMatch && isDateMatch;
+    });
+  }, [data, selectedCity, selectedDidi, selectedDate]);
 
   const columns = useMemo(
     () => [
+      { Header: "S. No", Cell: ({ row }) => row.index + 1 },
+      { Header: "Date", accessor: "date" },
       { Header: "Didi Name", accessor: "full_name" },
-      { Header: "Stall", accessor: "thela_code" },
-      { Header: "Amount", accessor: "total_payment" },
+      { Header: "City", accessor: "city" },
+      { Header: "Amount Sold (INR)", accessor: "total_payment" },
+      { Header: "Remuneration", accessor: "remuneration" },
       {
-        Header: "View",
+        Header: "Action",
         Cell: ({ row }) => (
           <button
-            onClick={() => handleViewDetails(row)}
-            className="tracking-wide font-semibold bg-white text-[#A24C4A] px-2 h-6 rounded border-1 border-[#A24C4A]"
+            onClick={() =>
+              navigate(`/admin/${row.original.didi_id}/${row.original.date}`)
+            }
+            className="text-center w-full"
           >
-            View
+            <i className="fas fa-eye"></i>
           </button>
         ),
       },
     ],
-    []
+    [navigate]
   );
 
   const {
@@ -83,24 +82,20 @@ const AdminHome = () => {
     page,
     prepareRow,
     state,
-    setGlobalFilter,
-    previousPage,
-    nextPage,
     canPreviousPage,
     canNextPage,
-    pageOptions,
+    pageCount,
+    gotoPage,
+    nextPage,
+    previousPage,
+    setPageSize,
   } = useTable(
     {
       columns,
-      data,
+      data: filteredData,
       initialState: {
         pageIndex: 0,
-        sortBy: [
-          {
-            id: "total_payment",
-            desc: true,
-          },
-        ],
+        pageSize: 10,
       },
     },
     useGlobalFilter,
@@ -108,266 +103,169 @@ const AdminHome = () => {
     usePagination
   );
 
-  const { globalFilter, pageIndex } = state;
+  const { globalFilter, pageIndex, pageSize } = state;
 
-  const FoodDetails = ({ selectedRowData }) => {
-    return (
-      <div className="p-1 w-full bg-white mb-8 rounded-md pb-4">
-        <h2 className="text-2xl font-bold mb-4 text-[#A24C4A] text-center">
-          Food Summary
-        </h2>
-        {selectedRowData ? (
-          <div className="space-y-6 px-3">
-            {selectedRowData.issued_food || selectedRowData.returned_food ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-200 rounded-md">
-                  <thead>
-                    <tr className="bg-gray-100">
-                      <th className="py-2 px-4 border-b text-left text-slate-600">
-                        Meal Type
-                      </th>
-                      <th className="py-2 px-4 border-b text-center text-slate-600">
-                        Issued
-                      </th>
-                      <th className="py-2 px-4 border-b text-center text-slate-600">
-                        Returned
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.keys({
-                      ...selectedRowData.issued_food,
-                      ...selectedRowData.returned_food,
-                    }).map((mealType) => {
-                      const issuedItems =
-                        selectedRowData.issued_food?.[mealType] || [];
-                      const returnedItems =
-                        selectedRowData.returned_food?.[mealType] || [];
-
-                      return (
-                        <tr key={mealType}>
-                          <td className="py-2 px-4 border-b capitalize text-gray-800">
-                            {mealType.replace("-", " ")}
-                          </td>
-                          <td className="py-2 px-4 border-b">
-                            {issuedItems.length > 0 ? (
-                              <ul className="list-disc ml-4">
-                                {issuedItems.map((item) => (
-                                  <li
-                                    key={item.issue_food_id}
-                                    className="text-gray-800"
-                                  >
-                                    {item.food_name} - {item.quantity}{" "}
-                                    {item.unit_name}
-                                  </li>
-                                ))}
-                              </ul>
-                            ) : (
-                              <span className="text-gray-500">
-                                No issued food data available
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-2 px-4 border-b">
-                            {returnedItems.length > 0 ? (
-                              <ul className="list-disc ml-4">
-                                {returnedItems.map((item) => (
-                                  <li
-                                    key={item.issue_food_id}
-                                    className="text-gray-800"
-                                  >
-                                    {item.food_name} - {item.returned_quantity}{" "}
-                                    {item.unit_name}
-                                  </li>
-                                ))}
-                              </ul>
-                            ) : (
-                              <span className="text-gray-500">
-                                No returned food data available
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p className="text-gray-500">No food data available.</p>
-            )}
-
-            {selectedRowData.payment_details &&
-            selectedRowData.payment_details.length > 0 ? (
-              <div>
-                <h3 className="text-xl font-semibold mb-2 text-gray-700">
-                  Payment Details
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 px-3">
-                  {selectedRowData.payment_details.map((payment, index) => (
-                    <div
-                      key={index}
-                      className="px-3 border border-gray-200 rounded-md"
-                    >
-                      <p className="font-medium text-gray-800 my-1">
-                        <span className="text-gray-500">UPI Amount: </span>₹{" "}
-                        {payment.upi_amount}
-                      </p>
-                      <p className="font-medium text-gray-800 my-1">
-                        <span className="text-gray-500">Cash Amount: </span>₹{" "}
-                        {payment.cash_amount}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <p className="text-gray-500">No payment details available.</p>
-            )}
-          </div>
-        ) : (
-          <p className="text-gray-500">No data available.</p>
-        )}
-      </div>
-    );
+  const handleReset = () => {
+    setSelectedDidi("");
+    setSelectedCity("");
+    setSelectedDate("");
   };
 
   return (
-    <div className="bg-gray-50 py-2 px-4" style={{ height: "99vh" }}>
+    <div className="py-2 px-2 md:px-12">
       <ToastContainer />
-      <h2 className="text-2xl font-bold text-center text-slate-600">
-        Admin Home
-      </h2>
-      <div className="border rounded-lg bg-white text-center p-12">
-        Graph section
-      </div>
-
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 mt-3">
-        <input
-          type="text"
-          placeholder="Search by Didi Name or Stall Code"
-          value={globalFilter || ""}
-          onChange={(e) => {
-            const value = e.target.value.toLowerCase();
-            setGlobalFilter(value);
-          }}
-          className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A24C4A] w-full md:w-80 transition duration-200"
-        />
-
-        <div className="md:w-60">
+      <div className="row py-4 px-2">
+        <div className="col-md-3 px-1">
           <input
             type="date"
-            id="date"
+            id="selectDate"
+            className="form-control w-full py-2 px-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            name="date"
             value={selectedDate}
             onChange={handleDateChange}
-            className="w-full p-2 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
           />
         </div>
 
-        <button className="flex items-center gap-2 text-[#A24C4A] font-semibold py-2 px-5 rounded-md border border-[#A24C4A] hover:bg-[#A24C4A] hover:text-white transition duration-200">
-          <FaFilePdf size={20} />
-          Download PDF
-        </button>
+        <div className="col-md-4 px-1">
+          <div className="relative">
+            <select
+              id="selectDidi1"
+              className="form-control pl-3 pr-8 py-2 w-full"
+              name="didi"
+              style={{ boxShadow: "0px 1px 1px #e4e4e4" }}
+              value={selectedDidi}
+              onChange={(e) => setSelectedDidi(e.target.value)}
+            >
+              <option value="" disabled>
+                Select Didi
+              </option>
+              <option value="parul goyal">parul goyal</option>
+              <option value="lipika Mohapatro">lipika Mohapatro</option>
+              <option value="Rita Devi">Rita Devi</option>
+            </select>
+            <div className="absolute right-3 top-2">
+              <i className="fas fa-chevron-down text-gray-500"></i>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-md-4 px-1">
+          <div className="relative">
+            <select
+              id="selectCity"
+              className="form-control pl-3 pr-8 py-2 w-full"
+              name="city"
+              style={{ boxShadow: "0px 1px 1px #e4e4e4" }}
+              value={selectedCity}
+              onChange={(e) => setSelectedCity(e.target.value)}
+            >
+              <option value="" disabled>
+                Select City
+              </option>
+              <option value="Gurugram">Gurugram</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Noida">Noida</option>
+            </select>
+            <div className="absolute right-3 top-2">
+              <i className="fas fa-chevron-down text-gray-500"></i>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-md-1 d-flex align-items-end px-1">
+          <button
+            type="reset"
+            className="btn btn-dark w-100"
+            onClick={handleReset}
+          >
+            Reset
+          </button>
+        </div>
       </div>
 
       {loading ? (
         <p>Loading data...</p>
       ) : (
-        <>
-          <div className="overflow-auto border rounded-lg bg-white">
-            <table {...getTableProps()} className="w-full text-left">
-              <thead className="bg-gray-100">
-                {headerGroups.map((headerGroup) => (
-                  <tr {...headerGroup.getHeaderGroupProps()}>
-                    {headerGroup.headers.map((column) => (
-                      <th
-                        {...column.getHeaderProps(
-                          column.getSortByToggleProps()
+        <div className="overflow-auto">
+          <table
+            {...getTableProps()}
+            className="w-full table table-bordered table-hover"
+          >
+            <thead>
+              {headerGroups.map((headerGroup) => (
+                <tr {...headerGroup.getHeaderGroupProps()}>
+                  {headerGroup.headers.map((column) => (
+                    <th
+                      {...column.getHeaderProps(column.getSortByToggleProps())}
+                      className="p-2 cursor-pointer text-md font-normal"
+                      style={{ backgroundColor: "#682C13", color: "white" }}
+                    >
+                      {column.render("Header")}
+                      <span>
+                        {column.isSorted ? (
+                          column.isSortedDesc ? (
+                            <span className="ml-2 border p-1 rounded text-white">
+                              <i className="fa">&#xf150;</i>
+                            </span>
+                          ) : (
+                            <span className="ml-2 border p-1 rounded text-white">
+                              <i className="fa">&#xf0d8;</i>
+                            </span>
+                          )
+                        ) : (
+                          ""
                         )}
-                        className="p-2 border-b cursor-pointer"
-                      >
-                        {column.render("Header")}
-                        <span>
-                          {column.isSorted
-                            ? column.isSortedDesc
-                              ? " ▼"
-                              : " ▲"
-                            : ""}
-                        </span>
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody {...getTableBodyProps()}>
-                {page.map((row) => {
+                      </span>
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody {...getTableBodyProps()}>
+              {page.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={headerGroups[0].headers.length}
+                    className="text-center p-2"
+                  >
+                    No data available
+                  </td>
+                </tr>
+              ) : (
+                page.map((row) => {
                   prepareRow(row);
                   return (
-                    <tr {...row.getRowProps()} className="hover:bg-gray-50">
+                    <tr {...row.getRowProps()}>
                       {row.cells.map((cell) => (
-                        <td {...cell.getCellProps()} className="p-2 border-b">
+                        <td
+                          {...cell.getCellProps()}
+                          className="p-2 border"
+                          style={{ color: "#5E6E82" }}
+                        >
                           {cell.render("Cell")}
                         </td>
                       ))}
                     </tr>
                   );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="flex items-center justify-between mt-4">
-            <button
-              onClick={() => previousPage()}
-              disabled={!canPreviousPage}
-              className="px-4 py-2 bg-[#A24C4A] text-white rounded disabled:opacity-50"
-            >
-              Previous
-            </button>
-
-            <span>
-              Page{" "}
-              <strong>
-                {pageIndex + 1} of {pageOptions.length}
-              </strong>
-            </span>
-
-            <button
-              onClick={() => nextPage()}
-              disabled={!canNextPage}
-              className="px-4 py-2 bg-[#A24C4A] text-white rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-
-          <Modal
-            isOpen={modalIsOpen}
-            onRequestClose={() => setModalIsOpen(false)}
-            contentLabel="Row Details"
-            className="bg-white rounded-lg shadow-lg w-full max-w-screen-lg h-full max-h-[90vh] relative"
-            overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-6"
-          >
-            <div className="overflow-y-auto max-h-[calc(100%-4rem)] mb-16">
-              <div>
-                {selectedRowData && (
-                  <FoodDetails selectedRowData={selectedRowData} />
-                )}
-              </div>
-            </div>
-
-            <div className="absolute bottom-0 left-0 w-full bg-white p-2 shadow-lg flex justify-end space-x-4">
-              <button
-                onClick={() => setModalIsOpen(false)}
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-              >
-                Close
-              </button>
-            </div>
-          </Modal>
-        </>
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       )}
+
+      {/* Pagination Component */}
+      <Pagination
+        canPreviousPage={canPreviousPage}
+        canNextPage={canNextPage}
+        pageIndex={pageIndex}
+        pageSize={pageSize}
+        pageCount={Math.ceil(filteredData.length / pageSize)}
+        gotoPage={gotoPage}
+        previousPage={previousPage}
+        nextPage={nextPage}
+        setPageSize={setPageSize}
+      />
     </div>
   );
 };

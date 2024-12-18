@@ -2,8 +2,9 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import Breadcrumb from "../../../Components/prebuiltComponent/Breadcrumb";
 
-const DidiAssignment = () => {
+const AssignEdit = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [searchTermDidi, setSearchTermDidi] = useState("");
@@ -174,16 +175,25 @@ const DidiAssignment = () => {
     await sendData(payload);
   };
 
+  const breadcrumbItems = [
+    { label: "Assign List", href: "/assign_list" },
+    { label: "Assign", href: `` },
+  ];
+
   return (
-    <div className="py-2 px-2 md:px-12">
+    <div className="py-2 md:px-12">
       <ToastContainer />
       <div className="d-flex justify-content-between">
         <div>
           <b
             style={{ color: "#5E6E82", fontWeight: "bolder", fontSize: "18px" }}
           >
-            Add Didi Assignment
+            Edite Assign
           </b>
+        </div>
+
+        <div className="">
+          <Breadcrumb items={breadcrumbItems} />
         </div>
       </div>
       <div>
@@ -336,4 +346,4 @@ const DidiAssignment = () => {
   );
 };
 
-export default DidiAssignment;
+export default AssignEdit;

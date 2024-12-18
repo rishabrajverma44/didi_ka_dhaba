@@ -11,11 +11,17 @@ import DidiRegistration from "../Pages/Adimn/DidiRegistration";
 import ThelaRegistration from "../Pages/Adimn/ThelaRegistration";
 import AdminRoute from "./AdminRoute";
 import DidiAssignment from "../Pages/Adimn/DidiAssignment";
-import FoodMaster from "../Pages/Adimn/FoodMaster";
-import ListFood from "../Pages/Adimn/ListFood";
 import AddFood from "../Pages/Adimn/AddFood";
-import ListDidi from "../Pages/Adimn/ListDidi";
-import ListStall from "../Pages/Adimn/ListStall";
+import DidiEdit from "../Pages/Adimn/EditFile/DidiEdit";
+import HomeEdit from "../Pages/Adimn/EditFile/HomeEdit";
+import DailyLog from "../Pages/Adimn/DailyLog";
+import ListAssigned from "../Pages/Adimn/ListView/ListAssigned";
+import ListFood from "../Pages/Adimn/ListView/ListFood";
+import ListDidi from "../Pages/Adimn/ListView/ListDidi";
+import ListStall from "../Pages/Adimn/ListView/ListStall";
+import FoodEdit from "../Pages/Adimn/EditFile/FoodEdit";
+import StallEdite from "../Pages/Adimn/EditFile/StallEdite";
+import AssignEdit from "../Pages/Adimn/EditFile/AssignEdit";
 
 const routes = [
   {
@@ -23,7 +29,6 @@ const routes = [
     element: <Layout />,
     children: [
       { path: "/", element: <Login /> },
-
       {
         path: "admin",
         element: (
@@ -33,50 +38,27 @@ const routes = [
         ),
       },
       {
+        path: "admin/:id/:date",
+        element: (
+          <AdminRoute>
+            <HomeEdit />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "dailylog",
+        element: (
+          <AdminRoute>
+            <DailyLog />
+          </AdminRoute>
+        ),
+      },
+
+      {
         path: "didireg",
         element: (
           <AdminRoute>
             <DidiRegistration />
-          </AdminRoute>
-        ),
-      },
-      {
-        path: "foodmaster",
-        element: (
-          <AdminRoute>
-            <FoodMaster />
-          </AdminRoute>
-        ),
-      },
-      {
-        path: "thelareg",
-        element: (
-          <AdminRoute>
-            <ThelaRegistration />
-          </AdminRoute>
-        ),
-      },
-      {
-        path: "assign",
-        element: (
-          <AdminRoute>
-            <DidiAssignment />
-          </AdminRoute>
-        ),
-      },
-      {
-        path: "listfood",
-        element: (
-          <AdminRoute>
-            <ListFood />
-          </AdminRoute>
-        ),
-      },
-      {
-        path: "addfood",
-        element: (
-          <AdminRoute>
-            <AddFood />
           </AdminRoute>
         ),
       },
@@ -89,10 +71,82 @@ const routes = [
         ),
       },
       {
+        path: "didilist/:id",
+        element: (
+          <AdminRoute>
+            <DidiEdit />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "thelareg",
+        element: (
+          <AdminRoute>
+            <ThelaRegistration />
+          </AdminRoute>
+        ),
+      },
+      {
         path: "stall_list",
         element: (
           <AdminRoute>
             <ListStall />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "stall_list/:id",
+        element: (
+          <AdminRoute>
+            <StallEdite />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "assign",
+        element: (
+          <AdminRoute>
+            <DidiAssignment />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "assign_list",
+        element: (
+          <AdminRoute>
+            <ListAssigned />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "assign_list/:id",
+        element: (
+          <AdminRoute>
+            <AssignEdit />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "addfood",
+        element: (
+          <AdminRoute>
+            <AddFood />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "listfood",
+        element: (
+          <AdminRoute>
+            <ListFood />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "listfood/:id",
+        element: (
+          <AdminRoute>
+            <FoodEdit />
           </AdminRoute>
         ),
       },

@@ -7,3 +7,22 @@
     box-sizing: border-box;
 }
   
+
+/* Add these styles to manage stacking context */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* Ensures navbar stays on top */
+  }
+  
+  .pagination-container {
+    position: relative; /* Ensure it's not fixed or sticky */
+    z-index: 10; /* Lower than navbar */
+  }
+
+  .footer{
+    position: sticky;
+    top: 0;
+    z-index :1000;
+  }
+

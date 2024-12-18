@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminNavBar from "../Components/navBar/AdminNavBar";
+import AdminFooter from "../Components/navBar/AdminFooter";
 
 const AdminRoute = ({ children }) => {
   const navigate = useNavigate();
@@ -21,13 +22,14 @@ const AdminRoute = ({ children }) => {
 
   if (!isAdmin) {
     navigate("/");
-    return null; // Prevent rendering children until admin authentication is verified
+    return null;
   }
 
   return (
     <>
       <AdminNavBar />
       {children}
+      <AdminFooter />
     </>
   );
 };

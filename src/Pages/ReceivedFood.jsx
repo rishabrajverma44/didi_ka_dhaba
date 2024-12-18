@@ -89,7 +89,7 @@ const ReceivedFood = () => {
   };
 
   const handleReceivedChange = (mealType, itemIndex, value, image = null) => {
-    const parsedValue = value === "" ? 0 : parseFloat(value);
+    const parsedValue = value === "" ? "" : parseFloat(value);
     let errorMessage = "";
     setHasUnsavedChanges(true);
     const currentItem =
@@ -287,7 +287,6 @@ const ReceivedFood = () => {
         payload
       );
       if (res.status === 201) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
         toast.success(`Food Received by ${searchTermDidi}`);
         setIsLoading(false);
         setSearchTermDidi("");
@@ -299,9 +298,7 @@ const ReceivedFood = () => {
           Lunch: [],
           Dinner: [],
         });
-        setTimeout(() => {
-          navigate("/mobilehome");
-        }, 2000);
+        navigate("/mobilehome");
       }
     } catch (e) {
       console.log("Error in sending received food:", e);
@@ -423,7 +420,7 @@ const ReceivedFood = () => {
       <div className="container py-4">
         <h3 className="text-center mb-4">Received Return Food</h3>
         <ConfirmNavigation
-          targetUrl="/"
+          targetUrl="/mobilehome"
           hasUnsavedChanges={hasUnsavedChanges}
         />
 
@@ -742,7 +739,7 @@ const ReceivedFood = () => {
                                       audio={false}
                                       ref={webcamRef}
                                       screenshotFormat="image/jpeg"
-                                      className="rounded shadow-md"
+                                      className="w-48 h-48 rounded shadow-md"
                                       videoConstraints={videoConstraints}
                                     />
                                     <div className="absolute bottom-3 flex space-x-8 z-10 w-full items-center justify-center">
@@ -890,7 +887,7 @@ const ReceivedFood = () => {
                                       audio={false}
                                       ref={webcamRef}
                                       screenshotFormat="image/jpeg"
-                                      className="rounded shadow-md"
+                                      className="w-48 h-48 rounded shadow-md"
                                       videoConstraints={videoConstraints}
                                     />
                                     <div className="absolute bottom-3 flex space-x-8 z-10 w-full items-center justify-center">
