@@ -38,10 +38,6 @@ const ListDidi = () => {
   const columns = React.useMemo(
     () => [
       { Header: "S. No", Cell: ({ row }) => row.index + 1 },
-      { Header: "Full Name", accessor: "full_name" },
-      { Header: "Mobile No", accessor: "mobile_no" },
-      { Header: "Alternate Mobile No", accessor: "alternate_mobile_no" },
-      { Header: "Husband Name", accessor: "husband_name" },
       {
         Header: "Image",
         accessor: "image",
@@ -56,6 +52,11 @@ const ListDidi = () => {
             <span className="text-gray-500">No image</span>
           ),
       },
+      { Header: "Full Name", accessor: "full_name" },
+      { Header: "Mobile No", accessor: "mobile_no" },
+      { Header: "Alternate Mobile No", accessor: "alternate_mobile_no" },
+      { Header: "Husband Name", accessor: "husband_name" },
+
       { Header: "Address", accessor: "address" },
       {
         Header: "Actions",
@@ -139,7 +140,7 @@ const ListDidi = () => {
   );
 
   return (
-    <div className="py-2 md:px-12">
+    <div className="py-2 px-6 md:px-12">
       <ToastContainer />
       <div className="mb-4">
         <input
@@ -160,7 +161,7 @@ const ListDidi = () => {
               {...getTableProps()}
               className="w-full table table-bordered table-hover"
             >
-              <thead className="bg-[#682C13]">
+              <thead className="bg-[#682C13] text-normal">
                 {headerGroups.map((headerGroup) => (
                   <tr
                     {...headerGroup.getHeaderGroupProps()}

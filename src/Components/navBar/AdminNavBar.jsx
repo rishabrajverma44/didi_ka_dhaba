@@ -104,7 +104,7 @@ const AdminNavBar = () => {
                     <img src="/images/logo.png" alt="logo" width="60" />
                   </Link>
                 </div>
-                <h5 className="tracking-wide font-bold text-[#344050] text-md md:text-xl mt-2 text-center font-sans flex-1">
+                <h5 className="tracking-wide font-bold text-[#344050] text-md md:text-2xl mt-2 text-center font-sans flex-1">
                   DIDI KA DHABA
                 </h5>
 

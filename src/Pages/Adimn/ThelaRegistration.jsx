@@ -4,6 +4,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const mapContainerStyle = {
   width: "100%",
@@ -17,12 +18,13 @@ const ThelaRegistration = () => {
   const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [address, setAddress] = useState("");
   const [locationError, setLocationError] = useState("");
+  const navigate = useNavigate();
 
   const initialValues = {
     thela_name: "",
-    selectedState: "",
-    selectedDistrict: "",
-    selectedCity: "",
+    state: "",
+    district: "",
+    city: "",
     longitude: location.longitude || "",
     latitude: location.latitude || "",
     location: address || "",
@@ -30,9 +32,9 @@ const ThelaRegistration = () => {
 
   const validationSchema = Yup.object({
     thela_name: Yup.string().required("Stall name is required"),
-    selectedState: Yup.string().required("State is required"),
-    selectedDistrict: Yup.string().required("District is required"),
-    selectedCity: Yup.string().required("City is required"),
+    state: Yup.string().required("State is required"),
+    district: Yup.string().required("District is required"),
+    city: Yup.string().required("City is required"),
     location: Yup.string().required("Address is required"),
     longitude: Yup.string().required("Longitude is required"),
     latitude: Yup.string().required("Latitude is required"),
@@ -48,9 +50,13 @@ const ThelaRegistration = () => {
         .then((res) => {
           if (res.status) {
             toast.success("Registration Completed ");
+            setTimeout(() => {
+              navigate("/stall_list");
+            }, 2000);
           }
         })
         .catch((err) => {
+          toast.error("Please change Location");
           toast.error(err.message);
         });
 
@@ -105,10 +111,10 @@ const ThelaRegistration = () => {
       });
   };
 
-  const getDistrict = (selectedState) => {
+  const getDistrict = (state) => {
     axios
       .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-districts/${selectedState}`
+        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-districts/${state}`
       )
       .then((res) => {
         setDistrict(res.data);
@@ -118,10 +124,10 @@ const ThelaRegistration = () => {
       });
   };
 
-  const getCity = (selectedDistrict) => {
+  const getCity = (district) => {
     axios
       .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-cities/${selectedDistrict}`
+        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-cities/${district}`
       )
       .then((res) => {
         setCity(res.data);
@@ -136,16 +142,16 @@ const ThelaRegistration = () => {
   }, []);
 
   useEffect(() => {
-    if (initialValues.selectedState) {
-      getDistrict(initialValues.selectedState);
+    if (initialValues.state) {
+      getDistrict(initialValues.state);
     }
-  }, [initialValues.selectedState]);
+  }, [initialValues.state]);
 
   useEffect(() => {
-    if (initialValues.selectedDistrict) {
-      getCity(initialValues.selectedDistrict);
+    if (initialValues.district) {
+      getCity(initialValues.district);
     }
-  }, [initialValues.selectedDistrict]);
+  }, [initialValues.district]);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -204,7 +210,7 @@ const ThelaRegistration = () => {
       : defaultCenter;
 
   return (
-    <div className="py-2 px-2 md:px-12">
+    <div className="py-2 px-6 md:px-12">
       <ToastContainer />
 
       <div className="d-flex justify-content-between">
@@ -249,21 +255,21 @@ const ThelaRegistration = () => {
 
               <div className="mb-2">
                 <label
-                  htmlFor="selectedState"
+                  htmlFor="state"
                   className="block text-slate-600 mb-1 font-medium"
                 >
                   Select state
                 </label>
                 <select
-                  id="selectedState"
-                  name="selectedState"
+                  id="state"
+                  name="state"
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  value={values.selectedState}
+                  value={values.state}
                   onChange={(e) => {
                     const selectedStateValue = parseInt(e.target.value, 10);
-                    setFieldValue("selectedState", selectedStateValue);
-                    setFieldValue("selectedDistrict", "");
-                    setFieldValue("selectedCity", "");
+                    setFieldValue("state", selectedStateValue);
+                    setFieldValue("district", "");
+                    setFieldValue("city", "");
                     getDistrict(selectedStateValue);
                   }}
                 >
@@ -277,7 +283,7 @@ const ThelaRegistration = () => {
                   ))}
                 </select>
                 <ErrorMessage
-                  name="selectedState"
+                  name="state"
                   component="div"
                   className="text-red-500 text-sm"
                 />
@@ -285,23 +291,23 @@ const ThelaRegistration = () => {
 
               <div className="mb-2">
                 <label
-                  htmlFor="selectedDistrict"
+                  htmlFor="district"
                   className="block text-slate-600 mb-1 font-medium"
                 >
                   Select District
                 </label>
                 <select
-                  id="selectedDistrict"
-                  name="selectedDistrict"
+                  id="district"
+                  name="district"
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  value={values.selectedDistrict}
+                  value={values.district}
                   onChange={(e) => {
                     const selectedDistrictValue = parseInt(e.target.value, 10);
-                    setFieldValue("selectedDistrict", selectedDistrictValue);
-                    setFieldValue("selectedCity", "");
+                    setFieldValue("district", selectedDistrictValue);
+                    setFieldValue("city", "");
                     getCity(selectedDistrictValue);
                   }}
-                  disabled={!values.selectedState}
+                  disabled={!values.state}
                 >
                   <option value="" disabled>
                     Select District
@@ -316,7 +322,7 @@ const ThelaRegistration = () => {
                   ))}
                 </select>
                 <ErrorMessage
-                  name="selectedDistrict"
+                  name="district"
                   component="div"
                   className="text-red-500 text-sm"
                 />
@@ -324,20 +330,20 @@ const ThelaRegistration = () => {
 
               <div className="mb-2">
                 <label
-                  htmlFor="selectedCity"
+                  htmlFor="city"
                   className="block text-slate-600 mb-1 font-medium"
                 >
                   Select City
                 </label>
                 <select
-                  id="selectedCity"
-                  name="selectedCity"
+                  id="city"
+                  name="city"
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  value={values.selectedCity}
+                  value={values.city}
                   onChange={(e) => {
-                    setFieldValue("selectedCity", parseInt(e.target.value, 10));
+                    setFieldValue("city", parseInt(e.target.value, 10));
                   }}
-                  disabled={!values.selectedDistrict}
+                  disabled={!values.district}
                 >
                   <option value="" disabled>
                     Select City
@@ -349,7 +355,7 @@ const ThelaRegistration = () => {
                   ))}
                 </select>
                 <ErrorMessage
-                  name="selectedCity"
+                  name="city"
                   component="div"
                   className="text-red-500 text-sm"
                 />

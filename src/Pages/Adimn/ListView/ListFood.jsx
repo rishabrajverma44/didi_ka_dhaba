@@ -133,7 +133,7 @@ const ListFood = () => {
   );
 
   return (
-    <div className="py-2 md:px-12">
+    <div className="py-2 px-6 md:px-12">
       <ToastContainer />
       <div className="mb-4 flex items-center justify-between space-x-4">
         <div className="flex-1 w-full max-w-xs">

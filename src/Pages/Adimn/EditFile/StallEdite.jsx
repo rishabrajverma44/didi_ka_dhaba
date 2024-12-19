@@ -4,6 +4,8 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import Breadcrumb from "../../../Components/prebuiltComponent/Breadcrumb";
+import { useNavigate, useParams } from "react-router-dom";
 
 const mapContainerStyle = {
   width: "100%",
@@ -17,12 +19,33 @@ const StallEdite = () => {
   const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [address, setAddress] = useState("");
   const [locationError, setLocationError] = useState("");
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [data, setData] = useState("");
+  const getData = () => {
+    axios
+      .get(`https://didikadhababackend.indevconsultancy.in/dhaba/thelas/${id}`)
+      .then((res) => {
+        if (res.status === 200) {
+          setData(res.data);
+        }
+      })
+      .catch((err) => {
+        console.log("getting error", err);
+        toast.error("Error fetching data. Please try again.");
+      });
+  };
+
+  useEffect(() => {
+    getData();
+  }, [id]);
 
   const initialValues = {
-    thela_name: "",
-    selectedState: "",
-    selectedDistrict: "",
-    selectedCity: "",
+    thela_name: data.thela_name || "",
+    state: data.state || "",
+    district: data.district || "",
+    city: data.city || "",
     longitude: location.longitude || "",
     latitude: location.latitude || "",
     location: address || "",
@@ -30,9 +53,9 @@ const StallEdite = () => {
 
   const validationSchema = Yup.object({
     thela_name: Yup.string().required("Stall name is required"),
-    selectedState: Yup.string().required("State is required"),
-    selectedDistrict: Yup.string().required("District is required"),
-    selectedCity: Yup.string().required("City is required"),
+    state: Yup.string().required("State is required"),
+    district: Yup.string().required("District is required"),
+    city: Yup.string().required("City is required"),
     location: Yup.string().required("Address is required"),
     longitude: Yup.string().required("Longitude is required"),
     latitude: Yup.string().required("Latitude is required"),
@@ -41,13 +64,16 @@ const StallEdite = () => {
   const sendData = (payload) => {
     try {
       const res = axios
-        .post(
-          "https://didikadhababackend.indevconsultancy.in/dhaba/thelas/",
+        .put(
+          `https://didikadhababackend.indevconsultancy.in/dhaba/thelas/${id}/`,
           payload
         )
         .then((res) => {
           if (res.status) {
-            toast.success("Registration Completed ");
+            toast.success("Registration Updated");
+            setTimeout(() => {
+              navigate("/stall_list");
+            }, 2000);
           }
         })
         .catch((err) => {
@@ -105,10 +131,10 @@ const StallEdite = () => {
       });
   };
 
-  const getDistrict = (selectedState) => {
+  const getDistrict = (state) => {
     axios
       .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-districts/${selectedState}`
+        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-districts/${state}`
       )
       .then((res) => {
         setDistrict(res.data);
@@ -118,10 +144,10 @@ const StallEdite = () => {
       });
   };
 
-  const getCity = (selectedDistrict) => {
+  const getCity = (district) => {
     axios
       .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-cities/${selectedDistrict}`
+        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-cities/${district}`
       )
       .then((res) => {
         setCity(res.data);
@@ -136,16 +162,16 @@ const StallEdite = () => {
   }, []);
 
   useEffect(() => {
-    if (initialValues.selectedState) {
-      getDistrict(initialValues.selectedState);
+    if (initialValues.state) {
+      getDistrict(initialValues.state);
     }
-  }, [initialValues.selectedState]);
+  }, [initialValues.state]);
 
   useEffect(() => {
-    if (initialValues.selectedDistrict) {
-      getCity(initialValues.selectedDistrict);
+    if (initialValues.district) {
+      getCity(initialValues.district);
     }
-  }, [initialValues.selectedDistrict]);
+  }, [initialValues.district]);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
@@ -198,15 +224,33 @@ const StallEdite = () => {
     return <div>Loading maps...</div>;
   }
 
+  const breadcrumbItems = [
+    { label: "Stall List", href: "/stall_list" },
+    { label: "Stall", href: `` },
+  ];
+
   const mapCenter =
     location.latitude && location.longitude
       ? { lat: location.latitude, lng: location.longitude }
       : defaultCenter;
 
   return (
-    <div className="py-2 md:px-12">
-      {console.log(mapCenter)}
+    <div className="py-2 px-4 md:px-12">
       <ToastContainer />
+
+      <div className="d-flex justify-content-between">
+        <div>
+          <b
+            style={{ color: "#5E6E82", fontWeight: "bolder", fontSize: "18px" }}
+          >
+            Edite Assign
+          </b>
+        </div>
+
+        <div className="">
+          <Breadcrumb items={breadcrumbItems} />
+        </div>
+      </div>
 
       <Formik
         initialValues={initialValues}
@@ -216,11 +260,11 @@ const StallEdite = () => {
       >
         {({ values, setFieldValue, validateForm, handleSubmit }) => (
           <Form onSubmit={handleSubmit}>
-            <div className="my-8 p-6">
-              <div className="mb-4">
+            <div className="">
+              <div className="mb-2">
                 <label
                   htmlFor="thela_name"
-                  className="block text-slate-600 mb-1"
+                  className="block text-slate-600 mb-1 font-medium"
                 >
                   Stall Name
                 </label>
@@ -240,21 +284,21 @@ const StallEdite = () => {
 
               <div className="mb-2">
                 <label
-                  htmlFor="selectedState"
-                  className="block text-slate-600 mb-1"
+                  htmlFor="state"
+                  className="block text-slate-600 mb-1 font-medium"
                 >
                   Select state
                 </label>
                 <select
-                  id="selectedState"
-                  name="selectedState"
+                  id="state"
+                  name="state"
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  value={values.selectedState}
+                  value={values.state}
                   onChange={(e) => {
                     const selectedStateValue = parseInt(e.target.value, 10);
-                    setFieldValue("selectedState", selectedStateValue);
-                    setFieldValue("selectedDistrict", "");
-                    setFieldValue("selectedCity", "");
+                    setFieldValue("state", selectedStateValue);
+                    setFieldValue("district", "");
+                    setFieldValue("city", "");
                     getDistrict(selectedStateValue);
                   }}
                 >
@@ -268,7 +312,7 @@ const StallEdite = () => {
                   ))}
                 </select>
                 <ErrorMessage
-                  name="selectedState"
+                  name="state"
                   component="div"
                   className="text-red-500 text-sm"
                 />
@@ -276,23 +320,23 @@ const StallEdite = () => {
 
               <div className="mb-2">
                 <label
-                  htmlFor="selectedDistrict"
-                  className="block text-slate-600 mb-1"
+                  htmlFor="district"
+                  className="block text-slate-600 mb-1 font-medium"
                 >
                   Select District
                 </label>
                 <select
-                  id="selectedDistrict"
-                  name="selectedDistrict"
+                  id="district"
+                  name="district"
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  value={values.selectedDistrict}
+                  value={values.district}
                   onChange={(e) => {
                     const selectedDistrictValue = parseInt(e.target.value, 10);
-                    setFieldValue("selectedDistrict", selectedDistrictValue);
-                    setFieldValue("selectedCity", "");
+                    setFieldValue("district", selectedDistrictValue);
+                    setFieldValue("city", "");
                     getCity(selectedDistrictValue);
                   }}
-                  disabled={!values.selectedState}
+                  disabled={!values.state}
                 >
                   <option value="" disabled>
                     Select District
@@ -307,7 +351,7 @@ const StallEdite = () => {
                   ))}
                 </select>
                 <ErrorMessage
-                  name="selectedDistrict"
+                  name="district"
                   component="div"
                   className="text-red-500 text-sm"
                 />
@@ -315,20 +359,20 @@ const StallEdite = () => {
 
               <div className="mb-2">
                 <label
-                  htmlFor="selectedCity"
-                  className="block text-slate-600 mb-1"
+                  htmlFor="city"
+                  className="block text-slate-600 mb-1 font-medium"
                 >
                   Select City
                 </label>
                 <select
-                  id="selectedCity"
-                  name="selectedCity"
+                  id="city"
+                  name="city"
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  value={values.selectedCity}
+                  value={values.city}
                   onChange={(e) => {
-                    setFieldValue("selectedCity", parseInt(e.target.value, 10));
+                    setFieldValue("city", parseInt(e.target.value, 10));
                   }}
-                  disabled={!values.selectedDistrict}
+                  disabled={!values.district}
                 >
                   <option value="" disabled>
                     Select City
@@ -340,14 +384,17 @@ const StallEdite = () => {
                   ))}
                 </select>
                 <ErrorMessage
-                  name="selectedCity"
+                  name="city"
                   component="div"
                   className="text-red-500 text-sm"
                 />
               </div>
 
               <div className="mb-4">
-                <label htmlFor="address" className="block text-slate-600 mb-1">
+                <label
+                  htmlFor="address"
+                  className="block text-slate-600 mb-1 font-medium"
+                >
                   Address
                 </label>
                 <Field
@@ -369,7 +416,7 @@ const StallEdite = () => {
               <div className="mb-4">
                 <label
                   htmlFor="longitude"
-                  className="block text-slate-600 mb-1"
+                  className="block text-slate-600 mb-1 font-medium"
                 >
                   Longitude
                 </label>
@@ -388,7 +435,10 @@ const StallEdite = () => {
               </div>
 
               <div className="mb-4">
-                <label htmlFor="latitude" className="block text-slate-600 mb-1">
+                <label
+                  htmlFor="latitude"
+                  className="block text-slate-600 mb-1 font-medium"
+                >
                   Latitude
                 </label>
                 <Field
@@ -408,7 +458,7 @@ const StallEdite = () => {
               <div className="my-4">
                 <GoogleMap
                   center={mapCenter}
-                  zoom={15}
+                  zoom={18}
                   mapContainerStyle={mapContainerStyle}
                 >
                   {location.latitude && location.longitude && (
@@ -422,13 +472,18 @@ const StallEdite = () => {
                 </GoogleMap>
               </div>
             </div>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white py-2 px-4 rounded-md"
-              disabled={isLoading}
-            >
-              {isLoading ? "Registering..." : "Register"}
-            </button>
+
+            <div className="flex justify-end my-4">
+              <button
+                type="submit"
+                className={`p-2 rounded-lg btn btn-dark hover:bg-[#53230A] ${
+                  isLoading ? "bg-gray-300" : "bg-[#A24C4A] text-white"
+                }`}
+                disabled={isLoading}
+              >
+                {isLoading ? "Submitting..." : "Submit"}
+              </button>
+            </div>
           </Form>
         )}
       </Formik>

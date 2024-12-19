@@ -18,8 +18,8 @@ const Pagination = ({
       <button
         className={`px-4 py-2 rounded-md border ${
           canPreviousPage
-            ? "bg-blue-500 text-white hover:bg-blue-600"
-            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            ? "btn btn-dark hover:bg-[#53230A] text-white px-4 py-2 rounded-md transition-colors"
+            : "btn btn-dark hover:bg-[#53230A] text-white px-4 py-2 rounded-md transition-colors cursor-not-allowed"
         }`}
         onClick={previousPage}
         disabled={!canPreviousPage}
@@ -37,8 +37,8 @@ const Pagination = ({
       <button
         className={`px-4 py-2 rounded-md border ${
           canNextPage
-            ? "bg-blue-500 text-white hover:bg-blue-600"
-            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            ? "btn btn-dark hover:bg-[#53230A] text-white px-4 py-2 rounded-md transition-colors"
+            : "btn btn-dark hover:bg-[#53230A] text-white px-4 py-2 rounded-md transition-colors  cursor-not-allowed"
         }`}
         onClick={nextPage}
         disabled={!canNextPage}

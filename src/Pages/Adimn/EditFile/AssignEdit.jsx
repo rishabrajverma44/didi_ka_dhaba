@@ -130,7 +130,9 @@ const AssignEdit = () => {
             toast.success(
               `Successfully assigned ${searchTermDidi} to ${searchTermStall}`
             );
-            navigate("/assign_list");
+            setTimeout(() => {
+              navigate("/assign_list");
+            }, 2000);
           }
         })
         .catch((err) => {
@@ -181,7 +183,7 @@ const AssignEdit = () => {
   ];
 
   return (
-    <div className="py-2 md:px-12">
+    <div className="py-2 px-6 md:px-12">
       <ToastContainer />
       <div className="d-flex justify-content-between">
         <div>
