@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import Breadcrumb from "../../../Components/prebuiltComponent/Breadcrumb";
 
@@ -8,7 +8,7 @@ const AssignEdit = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [searchTermDidi, setSearchTermDidi] = useState("");
-  const [isDropdownOpenDidi, setIsDropdownOpenDidi] = useState(false);
+  const [isDropdownOpenDidi, setIsDropdownOpenDidi] = useState(true);
   const [selectedDidi, setSelectedDidi] = useState(null);
   const [searchTermStall, setSearchTermStall] = useState("");
   const [isDropdownOpenStall, setIsDropdownOpenStall] = useState(false);
@@ -18,6 +18,29 @@ const AssignEdit = () => {
   const [formErrors, setFormErrors] = useState({});
   const [didiOptions, setDidiOptions] = useState([]);
   const [stallOptions, setStallOptions] = useState([]);
+  const { id } = useParams();
+  const [data, setData] = useState([]);
+
+  const getData = () => {
+    axios
+      .get(
+        `https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/${id}`
+      )
+      .then((res) => {
+        if (res.status === 200) {
+          setData(res.data);
+          setSelectedDidi(data.didi_id);
+        }
+      })
+      .catch((err) => {
+        console.log("getting error", err);
+        toast.error("Error fetching data. Please try again.");
+      });
+  };
+
+  useEffect(() => {
+    getData();
+  }, [id]);
 
   const getDidiName = async () => {
     try {
@@ -121,7 +144,7 @@ const AssignEdit = () => {
   const sendData = async (payload) => {
     try {
       axios
-        .post(
+        .put(
           "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/",
           payload
         )
@@ -200,7 +223,7 @@ const AssignEdit = () => {
       </div>
       <div>
         <div className="mx-auto p-6">
-          <h2 className="text-xl font-bold flex flex-row   mb-6 text-slate-600">
+          <h2 className="text-xl flex flex-row mb-6 text-slate-600">
             <span className="mx-4 w-50 text-center">
               <span>From </span>
               <input
@@ -208,7 +231,7 @@ const AssignEdit = () => {
                 id="dateFrom"
                 value={selectedDateFrom}
                 onChange={(e) => setSelectedDateFrom(e.target.value)}
-                className="mx-2 p-2 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
+                className="mx-2 p-1 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
               />
               {formErrors.dateFrom && (
                 <div className="text-red-500 text-sm">
@@ -223,7 +246,7 @@ const AssignEdit = () => {
                 id="dateTo"
                 value={selectedDateTo}
                 onChange={(e) => setSelectedDateTo(e.target.value)}
-                className="mx-2 p-2 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
+                className="mx-2 p-1 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
               />
               {formErrors.dateTo && (
                 <div className="text-red-500 text-sm">{formErrors.dateTo}</div>

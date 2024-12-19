@@ -201,9 +201,23 @@ const DidiRegistration = () => {
         resetForm();
         handleRetake();
         handleToggleCamera();
-        setTimeout(() => {
-          navigate("/didilist");
-        }, 2000);
+
+        const userCredentials = JSON.parse(
+          localStorage.getItem("userCredentials")
+        );
+        if (userCredentials) {
+          const { email } = userCredentials;
+
+          if (email === "admin@gmail.com") {
+            setTimeout(() => {
+              navigate("/didilist");
+            }, 2000);
+          } else {
+            setTimeout(() => {
+              navigate("/didilist-register");
+            }, 2000);
+          }
+        }
       }
     } catch (error) {
       if (error.response?.data?.mobile_no) {

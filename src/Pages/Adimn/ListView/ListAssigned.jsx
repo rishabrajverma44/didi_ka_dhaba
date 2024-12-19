@@ -65,7 +65,9 @@ const ListAssigned = () => {
         Cell: ({ row }) => (
           <div className="d-flex justify-content-around">
             <button
-              onClick={() => navigate(`/assign_list/${row.original.didi_id}`)}
+              onClick={() =>
+                navigate(`/assign_list/${row.original.didi_thela_id}`)
+              }
               className="text-blue-500 hover:text-blue-700"
             >
               <FaPencilAlt />

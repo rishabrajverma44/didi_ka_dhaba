@@ -14,6 +14,20 @@ const ListDidi = () => {
   const [searchText, setSearchText] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [route, setRoute] = useState();
+
+  useEffect(() => {
+    const userCredentials = JSON.parse(localStorage.getItem("userCredentials"));
+    if (userCredentials) {
+      const { email } = userCredentials;
+
+      if (email === "admin@gmail.com") {
+        setRoute("/didilist");
+      } else {
+        setRoute("/didilist-register");
+      }
+    }
+  }, []);
 
   const base_url = "https://didikadhababackend.indevconsultancy.in/dhaba";
 
@@ -56,15 +70,19 @@ const ListDidi = () => {
       { Header: "Mobile No", accessor: "mobile_no" },
       { Header: "Alternate Mobile No", accessor: "alternate_mobile_no" },
       { Header: "Husband Name", accessor: "husband_name" },
-
       { Header: "Address", accessor: "address" },
       {
         Header: "Actions",
         Cell: ({ row }) => (
           <div className="flex gap-6">
             <button
-              onClick={() => navigate(`/didilist/${row.original.didi_id}`)}
+              onClick={() => {
+                if (route) {
+                  navigate(`${route}/${row.original.didi_id}`);
+                }
+              }}
               className="text-blue-500 hover:text-blue-700"
+              disabled={!route}
             >
               <FaPencilAlt />
             </button>
@@ -81,9 +99,8 @@ const ListDidi = () => {
         ),
       },
     ],
-    []
+    [base_url, navigate, route, setDeleteId, setShowModal]
   );
-
   useEffect(() => {
     const fetchDidiData = async () => {
       try {
@@ -249,11 +266,11 @@ const ListDidi = () => {
         isOpen={showModal}
         onRequestClose={() => setShowModal(false)}
         contentLabel="Delete Confirmation"
-        className="bg-white p-6 rounded-md shadow-md w-1/3"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+        className="bg-white p-6 rounded-md shadow-md w-11/12 sm:w-2/3 md:w-1/2 lg:w-1/3"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
       >
-        <h2 className="text-lg font-semibold mb-4">
-          Are you sure you want to delete this Didi?
+        <h2 className="text-lg font-semibold mb-4 text-center">
+          Are you sure you want to delete this item?
         </h2>
         <div className="flex justify-end gap-4">
           <button

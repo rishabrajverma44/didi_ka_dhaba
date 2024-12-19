@@ -190,7 +190,7 @@ const DidiAssignment = () => {
       </div>
       <div>
         <div className="mx-auto p-6">
-          <h2 className="text-xl font-bold flex flex-row   mb-6 text-slate-600">
+          <h2 className="text-xl  flex flex-row   mb-6 text-slate-600">
             <span className="mx-4 w-50 text-center">
               <span>From </span>
               <input
@@ -198,7 +198,7 @@ const DidiAssignment = () => {
                 id="dateFrom"
                 value={selectedDateFrom}
                 onChange={(e) => setSelectedDateFrom(e.target.value)}
-                className="mx-2 p-2 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
+                className="mx-2 p-1 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
               />
               {formErrors.dateFrom && (
                 <div className="text-red-500 text-sm">
@@ -213,7 +213,7 @@ const DidiAssignment = () => {
                 id="dateTo"
                 value={selectedDateTo}
                 onChange={(e) => setSelectedDateTo(e.target.value)}
-                className="mx-2 p-2 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
+                className="mx-2 p-1 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
               />
               {formErrors.dateTo && (
                 <div className="text-red-500 text-sm">{formErrors.dateTo}</div>

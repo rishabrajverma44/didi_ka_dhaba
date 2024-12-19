@@ -22,6 +22,7 @@ import ListStall from "../Pages/Adimn/ListView/ListStall";
 import FoodEdit from "../Pages/Adimn/EditFile/FoodEdit";
 import StallEdite from "../Pages/Adimn/EditFile/StallEdite";
 import AssignEdit from "../Pages/Adimn/EditFile/AssignEdit";
+import RegistarRout from "./RegistarRoute";
 
 const routes = [
   {
@@ -181,6 +182,54 @@ const routes = [
           <PrivateRoute>
             <Payment />
           </PrivateRoute>
+        ),
+      },
+      {
+        path: "didireg-register",
+        element: (
+          <RegistarRout>
+            <DidiRegistration />
+          </RegistarRout>
+        ),
+      },
+      {
+        path: "didilist-register",
+        element: (
+          <RegistarRout>
+            <ListDidi />
+          </RegistarRout>
+        ),
+      },
+      {
+        path: "didilist-register/:id",
+        element: (
+          <RegistarRout>
+            <DidiEdit />
+          </RegistarRout>
+        ),
+      },
+      {
+        path: "thelareg-register",
+        element: (
+          <RegistarRout>
+            <ThelaRegistration />
+          </RegistarRout>
+        ),
+      },
+      {
+        path: "stall_list-register",
+        element: (
+          <RegistarRout>
+            <ListStall />
+          </RegistarRout>
+        ),
+      },
+      {
+        path: "stall_list-register/:id",
+        element: (
+          <RegistarRout>
+            <StallEdite />
+          </RegistarRout>
         ),
       },
 

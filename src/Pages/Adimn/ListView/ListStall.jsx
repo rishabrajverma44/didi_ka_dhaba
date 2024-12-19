@@ -16,6 +16,20 @@ const ListStall = () => {
   const [stallData, setStallData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
+  const [route, setRoute] = useState();
+
+  useEffect(() => {
+    const userCredentials = JSON.parse(localStorage.getItem("userCredentials"));
+    if (userCredentials) {
+      const { email } = userCredentials;
+
+      if (email === "admin@gmail.com") {
+        setRoute("/didilist");
+      } else {
+        setRoute("/didilist-register");
+      }
+    }
+  }, []);
 
   const fetchstallData = async () => {
     try {
@@ -67,6 +81,7 @@ const ListStall = () => {
       {
         Header: "Addresh",
         accessor: "location",
+        Cell: ({ value }) => <div className="w-64 truncate">{value}</div>,
       },
       {
         Header: "Actions",

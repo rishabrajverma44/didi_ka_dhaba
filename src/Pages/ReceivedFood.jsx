@@ -298,7 +298,11 @@ const ReceivedFood = () => {
           Lunch: [],
           Dinner: [],
         });
-        navigate("/mobilehome");
+
+        setTimeout(() => {
+          navigate("/mobilehome");
+        }, 2000);
+        setIsLoading(false);
       }
     } catch (e) {
       console.log("Error in sending received food:", e);

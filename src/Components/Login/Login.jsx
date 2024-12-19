@@ -64,6 +64,15 @@ const Login = () => {
         JSON.stringify({ email: values.email, password: values.password })
       );
       navigate("/admin");
+    } else if (
+      values.email === "registar@gmail.com" &&
+      values.password === "Rishab@123"
+    ) {
+      localStorage.setItem(
+        "userCredentials",
+        JSON.stringify({ email: values.email, password: values.password })
+      );
+      navigate("/didireg-register");
     } else {
       toast.error("Wrong credentials !");
     }

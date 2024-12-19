@@ -110,15 +110,13 @@ const Payment = () => {
 
     let newRemuneration = 0;
 
-    if (total >= 1500) {
-      newRemuneration = 300 + Math.floor((total - 1500) / 500) * 100;
-    } else if (total >= 1000 && total < 1500) {
-      newRemuneration = 300;
-    } else if (total > 1000) {
+    if (total >= 1000 && total < 1500) {
       newRemuneration = 200;
+      setRemuneration(newRemuneration);
+    } else if (total > 1500) {
+      newRemuneration = 200 + Math.floor((total - 1000) / 500) * 100;
+      setRemuneration(newRemuneration);
     }
-
-    setRemuneration(newRemuneration);
   }, [online, cash]);
 
   const submitFinal = async () => {
@@ -176,14 +174,11 @@ const Payment = () => {
             thela_id: Number(formData.get("thela_id")),
             upi: Number(online),
             cash: Number(cash),
-            remuneration: Number(remuneration),
             image: Array.from({ length: photos.length }).map((_, i) => {
               const photo = formData.get(`photo${i + 1}`);
               return photo.replace(/^data:image\/jpeg;base64,\/9j\//, "");
             }),
           };
-
-          console.log(payload);
 
           try {
             const response = await axios.post(
@@ -196,7 +191,11 @@ const Payment = () => {
             setSelectedDidi(null);
             setOnline("");
             setCash("");
-            navigate("/mobilehome");
+
+            setTimeout(() => {
+              navigate("/mobilehome");
+            }, 2000);
+            setIsLoading(false);
           } catch (error) {
             toast.error("Submission failed. Please try again.");
             console.error("Error:", error);
