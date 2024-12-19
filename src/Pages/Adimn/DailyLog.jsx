@@ -2,7 +2,7 @@ import React from "react";
 
 const DailyLog = () => {
   return (
-    <div className="py-2 md:px-12">
+    <div className="py-2 px-6 md:px-12">
       <div className="d-flex justify-content-between">
         <div>
           <b

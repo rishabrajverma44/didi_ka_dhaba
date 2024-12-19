@@ -40,7 +40,8 @@ const HomeEdit = () => {
       <div className="p-1 w-full bg-white mb-8 rounded-md pb-4">
         {selectedRowData ? (
           <div className="space-y-6 px-3">
-            {selectedRowData.issued_food || selectedRowData.returned_food ? (
+            {Object.keys(selectedRowData.issued_food).length > 0 ||
+            Object.keys(selectedRowData.returned_food).length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="min-w-full bg-white border border-gray-200 rounded-md">
                   <thead>
@@ -126,11 +127,11 @@ const HomeEdit = () => {
                   Payment Details
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 px-3">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   {selectedRowData.payment_details.map((payment, index) => (
                     <div
                       key={index}
-                      className="px-3 border border-gray-200 rounded-md"
+                      className="px-3 py-2 border border-gray-200 rounded-md"
                     >
                       <p className="font-medium text-gray-800 my-1">
                         <span className="text-gray-500">UPI Amount: </span>₹{" "}
@@ -160,7 +161,7 @@ const HomeEdit = () => {
     { label: "Didi Details", href: `/admin/` },
   ];
   return (
-    <div className="md:px-12 py-2">
+    <div className="md:px-12 px-6 py-2">
       <div className="d-flex justify-content-between">
         <div>
           <b

@@ -213,7 +213,9 @@ const DidiEdit = () => {
         resetForm();
         handleRetake();
         handleToggleCamera();
-        navigate("/didilist");
+        setTimeout(() => {
+          navigate("/didilist");
+        }, 2000);
       }
     } catch (error) {
       if (error.response?.data?.mobile_no) {
@@ -235,7 +237,7 @@ const DidiEdit = () => {
   ];
 
   return (
-    <div className="py-2 md:px-12">
+    <div className="py-2 px-6 md:px-12">
       <ToastContainer />
       <div className="d-flex justify-content-between">
         <div>

@@ -111,8 +111,10 @@ const FoodEdit = () => {
             setSelectedUnit("");
             setFoodName("");
             setFoodPrice("");
-            navigate("/listfood");
             toast.success("Food added Successfully !");
+            setTimeout(() => {
+              navigate("/listfood");
+            }, 2000);
           }
         });
     } catch (error) {
@@ -145,7 +147,7 @@ const FoodEdit = () => {
     { label: "Edit Food", href: `` },
   ];
   return (
-    <div className="py-2 md:px-12">
+    <div className="py-2 px-6 md:px-12">
       <ToastContainer />
       <div className="d-flex justify-content-between">
         <div>

@@ -129,7 +129,7 @@ const ListAssigned = () => {
   };
 
   return (
-    <div className=" py-2 md:px-12" style={{ height: "99vh" }}>
+    <div className=" py-2 px-6 md:px-12" style={{ height: "99vh" }}>
       <ToastContainer />
 
       <div className="row px-2">

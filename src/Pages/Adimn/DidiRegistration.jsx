@@ -49,7 +49,8 @@ const DidiRegistration = () => {
   const [isBackCameraAdhar, setIsBackCameraAdhar] = useState(true);
   const webcamRef2 = useRef(null);
 
-  const captureImageAdhar = () => {
+  const captureImageAdhar = (event) => {
+    event.preventDefault();
     if (imagesAdhar.length >= 2) {
       toast.error("You can only capture 2 images.");
       return;
@@ -200,7 +201,9 @@ const DidiRegistration = () => {
         resetForm();
         handleRetake();
         handleToggleCamera();
-        navigate("/didilist");
+        setTimeout(() => {
+          navigate("/didilist");
+        }, 2000);
       }
     } catch (error) {
       if (error.response?.data?.mobile_no) {
@@ -217,7 +220,7 @@ const DidiRegistration = () => {
   };
 
   return (
-    <div className="py-2 px-2 md:px-12">
+    <div className="py-2 px-6 md:px-12">
       <ToastContainer />
       <div className="d-flex justify-content-between">
         <div>
@@ -589,7 +592,13 @@ const DidiRegistration = () => {
                           onClick={captureImageAdhar}
                           className="py-2 px-3 rounded-full shadow-md bg-[#0B1727] text-white hover:bg-[#53230A] transition-all"
                         >
-                          <FaCamera size={24} />
+                          {imagesAdhar.length == 1 ? (
+                            <>add more</>
+                          ) : (
+                            <>
+                              <FaCamera size={24} />
+                            </>
+                          )}
                         </button>
                         <button
                           onClick={toggleCameraMode}
