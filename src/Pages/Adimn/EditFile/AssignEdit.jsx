@@ -30,6 +30,8 @@ const AssignEdit = () => {
         if (res.status === 200) {
           setData(res.data);
           setSelectedDidi(data.didi_id);
+          setSelectedDateFrom(data.from_date);
+          setSelectedDateTo(data.to_date);
         }
       })
       .catch((err) => {

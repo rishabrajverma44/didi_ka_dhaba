@@ -557,13 +557,13 @@ const DidiRegistration = () => {
                     <div className="flex-grow flex items-center flex-col justify-center">
                       <h2 className="text-gray-500 mb-4">Capture Face</h2>
                       <p className="text-gray-500">Camera is off</p>
+                      <button
+                        onClick={handleToggleCamera}
+                        className="py-2 px-4 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                      >
+                        <FaCamera size={30} />
+                      </button>
                     </div>
-                    <button
-                      onClick={handleToggleCamera}
-                      className="py-2 px-4 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
-                    >
-                      <FaCamera size={30} />
-                    </button>
                   </div>
                 )}
 

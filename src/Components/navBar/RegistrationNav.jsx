@@ -115,6 +115,52 @@ const RegistrationNav = () => {
             </div>
           </nav>
         </main>
+        <section className="z-50 py-1 bg-[#682C13] d-none d-md-block">
+          <div className="border-b-2 border-[#682C13]">
+            <div className="mx-4 flex justify-start items-center">
+              <Link
+                className="block py-1 px-4 text-white no-underline text-md"
+                to="/didireg-register"
+              >
+                Home
+              </Link>
+
+              <Link
+                className="block py-1 px-4 text-white no-underline text-md"
+                to="/didireg-register"
+              >
+                Didi Registration
+              </Link>
+
+              <Link
+                className="block py-1 px-4 text-white no-underline text-md"
+                to="/didilist-register"
+              >
+                Didi List
+              </Link>
+
+              <Link
+                className="block py-1 px-4 text-white no-underline text-md"
+                to="/thelareg-register"
+              >
+                Stall Registration
+              </Link>
+              <Link
+                className="block py-1 px-4 text-white no-underline text-md"
+                to="/stall_list-register"
+              >
+                Stall List
+              </Link>
+              <button
+                type="submit"
+                className="block py-1 px-4 text-white no-underline text-md"
+                onClick={handleLogout}
+              >
+                Sign out
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
     </>
   );
