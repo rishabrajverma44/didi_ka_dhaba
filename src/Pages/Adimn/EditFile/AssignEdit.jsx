@@ -7,19 +7,19 @@ import Breadcrumb from "../../../Components/prebuiltComponent/Breadcrumb";
 const AssignEdit = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [searchTermDidi, setSearchTermDidi] = useState("");
-  const [isDropdownOpenDidi, setIsDropdownOpenDidi] = useState(true);
-  const [selectedDidi, setSelectedDidi] = useState(null);
   const [searchTermStall, setSearchTermStall] = useState("");
   const [isDropdownOpenStall, setIsDropdownOpenStall] = useState(false);
   const [selectedStall, setSelectedStall] = useState(null);
   const [selectedDateFrom, setSelectedDateFrom] = useState("");
   const [selectedDateTo, setSelectedDateTo] = useState("");
   const [formErrors, setFormErrors] = useState({});
-  const [didiOptions, setDidiOptions] = useState([]);
   const [stallOptions, setStallOptions] = useState([]);
   const { id } = useParams();
   const [data, setData] = useState([]);
+  const [didiOptions, setDidiOptions] = useState([]);
+  const [selectedDidi, setSelectedDidi] = useState(null);
+  const [searchTermDidi, setSearchTermDidi] = useState("");
+  const [isDropdownOpenDidi, setIsDropdownOpenDidi] = useState(false);
 
   const getData = () => {
     axios
@@ -28,10 +28,24 @@ const AssignEdit = () => {
       )
       .then((res) => {
         if (res.status === 200) {
-          setData(res.data);
-          setSelectedDidi(data.didi_id);
-          setSelectedDateFrom(data.from_date);
-          setSelectedDateTo(data.to_date);
+          const fetchedData = res.data;
+          setData(fetchedData);
+          setSelectedDateFrom(fetchedData.from_date);
+          setSelectedDateTo(fetchedData.to_date);
+          setSelectedDidi(fetchedData.didi_id);
+          setSelectedStall(fetchedData.thela_id);
+          const selectedDidiData = didiOptions.find(
+            (didi) => didi.didi_id === fetchedData.didi_id
+          );
+          if (selectedDidiData) {
+            setSearchTermDidi(selectedDidiData.full_name);
+          }
+          const selecteStallData = stallOptions.find(
+            (stall) => stall.thela_id === fetchedData.thela_id
+          );
+          if (selecteStallData) {
+            setSearchTermStall(selecteStallData.thela_code);
+          }
         }
       })
       .catch((err) => {
@@ -43,6 +57,15 @@ const AssignEdit = () => {
   useEffect(() => {
     getData();
   }, [id]);
+
+  useEffect(() => {
+    if (didiOptions.length > 0) {
+      getData();
+    }
+    if (stallOptions.length > 0) {
+      getData();
+    }
+  }, [didiOptions, stallOptions]);
 
   const getDidiName = async () => {
     try {
@@ -147,10 +170,11 @@ const AssignEdit = () => {
     try {
       axios
         .put(
-          "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/",
+          `https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/${id}/`,
           payload
         )
         .then((res) => {
+          console.log(res);
           if (res.status === 201) {
             toast.success(
               `Successfully assigned ${searchTermDidi} to ${searchTermStall}`
@@ -246,7 +270,7 @@ const AssignEdit = () => {
               <input
                 type="date"
                 id="dateTo"
-                value={selectedDateTo}
+                value={selectedDateTo || ""}
                 onChange={(e) => setSelectedDateTo(e.target.value)}
                 className="mx-2 p-1 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
               />
