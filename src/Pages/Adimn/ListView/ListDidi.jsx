@@ -37,7 +37,6 @@ const ListDidi = () => {
       const res = await axios.delete(
         `https://didikadhababackend.indevconsultancy.in/dhaba/didi/${deleteId}/`
       );
-      console.log(res.data.message);
       toast.success(res.data.message);
       setDidiData((prevData) =>
         prevData.filter((didi) => didi.didi_id !== deleteId)
@@ -157,16 +156,21 @@ const ListDidi = () => {
   );
 
   return (
-    <div className="py-2 px-6 md:px-12">
+    <div className="px-6 md:px-12">
       <ToastContainer />
-      <div className="mb-4">
-        <input
-          type="text"
-          value={searchText}
-          onChange={handleSearchChange}
-          placeholder="Search by Full Name or Mobile No"
-          className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A24C4A] w-full md:w-80 transition duration-200"
-        />
+      <div className="mb-2 flex items-center justify-between space-x-4 mt-2">
+        <div className="flex-1 w-full max-w-xs">
+          <label className="block text-slate-600 mb-1 font-medium">
+            Search
+          </label>
+          <input
+            type="text"
+            value={searchText}
+            onChange={handleSearchChange}
+            placeholder="Search..."
+            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A24C4A] w-full md:w-80 transition duration-200"
+          />
+        </div>
       </div>
 
       {loading ? (

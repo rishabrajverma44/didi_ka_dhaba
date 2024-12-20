@@ -17,6 +17,8 @@ const AdminHome = () => {
   const [selectedCity, setSelectedCity] = useState("");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [didiList, setDidiList] = useState([]);
+  const [cityList, setCityList] = useState([]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -111,6 +113,42 @@ const AdminHome = () => {
     setSelectedDate("");
   };
 
+  const getDidiName = async () => {
+    try {
+      const response = await axios.get(
+        "https://didikadhababackend.indevconsultancy.in/dhaba/didi/"
+      );
+      if (response.status === 200) {
+        setDidiList(response.data);
+      } else {
+        setDidiList([]);
+      }
+    } catch (error) {
+      console.log("Error in getting didi:", error);
+      setDidiList([]);
+    }
+  };
+
+  const getCity = async () => {
+    try {
+      const response = await axios.get(
+        "https://didikadhababackend.indevconsultancy.in/dhaba/cities/"
+      );
+      if (response.status === 200) {
+        setCityList(response.data);
+      } else {
+        setCityList([]);
+      }
+    } catch (error) {
+      console.log("Error in getting didi:", error);
+      setDidiList([]);
+    }
+  };
+
+  useEffect(() => {
+    getDidiName();
+    getCity();
+  }, []);
   return (
     <div className="py-2 px-6 md:px-12">
       <ToastContainer />
@@ -139,9 +177,11 @@ const AdminHome = () => {
               <option value="" disabled>
                 Select Didi
               </option>
-              <option value="parul goyal">parul goyal</option>
-              <option value="lipika Mohapatro">lipika Mohapatro</option>
-              <option value="Rita Devi">Rita Devi</option>
+              {didiList.map((item, index) => (
+                <option key={index} value={item.full_name}>
+                  {item.full_name}
+                </option>
+              ))}
             </select>
             <div className="absolute right-3 top-2">
               <i className="fas fa-chevron-down text-gray-500"></i>
@@ -162,9 +202,11 @@ const AdminHome = () => {
               <option value="" disabled>
                 Select City
               </option>
-              <option value="Gurugram">Gurugram</option>
-              <option value="Delhi">Delhi</option>
-              <option value="Noida">Noida</option>
+              {cityList.map((item, index) => (
+                <option key={index} value={item.city_name}>
+                  {item.city_name}
+                </option>
+              ))}
             </select>
             <div className="absolute right-3 top-2">
               <i className="fas fa-chevron-down text-gray-500"></i>

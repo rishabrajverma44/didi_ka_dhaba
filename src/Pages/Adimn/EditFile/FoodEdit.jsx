@@ -105,7 +105,7 @@ const FoodEdit = () => {
           payload
         )
         .then((res) => {
-          if (res.status === 201) {
+          if (res.status === 200) {
             console.log(res);
             setSelectedCategory("");
             setSelectedUnit("");

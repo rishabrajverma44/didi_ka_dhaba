@@ -190,7 +190,7 @@ const DidiAssignment = () => {
       </div>
       <div>
         <div className="mx-auto p-6">
-          <h2 className="text-xl  flex flex-row   mb-6 text-slate-600">
+          <h2 className="text-xl  flex flex-row   mb-6">
             <span className="mx-4 w-50 text-center">
               <span>From </span>
               <input

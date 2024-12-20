@@ -427,7 +427,7 @@ const DidiRegistration = () => {
                     ))}
                   </select>
                   <ErrorMessage
-                    name="selectedCity"
+                    name="city"
                     component="div"
                     className="text-red-500 text-sm"
                   />

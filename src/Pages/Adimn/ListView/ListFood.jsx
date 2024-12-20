@@ -133,9 +133,9 @@ const ListFood = () => {
   );
 
   return (
-    <div className="py-2 px-6 md:px-12">
+    <div className="px-6 md:px-12">
       <ToastContainer />
-      <div className="mb-4 flex items-center justify-between space-x-4">
+      <div className="mb-2 flex items-center justify-between space-x-4 mt-2">
         <div className="flex-1 w-full max-w-xs">
           <label className="block text-slate-600 mb-1 font-medium">
             Search
@@ -144,7 +144,7 @@ const ListFood = () => {
             type="text"
             value={searchText}
             onChange={handleSearchChange}
-            placeholder="Search by Food Name or Category"
+            placeholder="Search..."
             className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A24C4A] w-full transition duration-200"
           />
         </div>
