@@ -109,14 +109,14 @@ const Payment = () => {
     const total = onlineAmount + cashAmount;
 
     let newRemuneration = 0;
-
-    if (total >= 1000 && total < 1500) {
+    if (total < 1000) {
       newRemuneration = 200;
       setRemuneration(newRemuneration);
-    } else if (total > 1500) {
-      newRemuneration = 200 + Math.floor((total - 1000) / 500) * 100;
+    } else if (total >= 1000) {
+      newRemuneration = 200 + Math.floor((total - 500) / 500) * 100;
       setRemuneration(newRemuneration);
     }
+    console.log(Math.floor((total - 1000) / 500));
   }, [online, cash]);
 
   const submitFinal = async () => {
@@ -146,11 +146,9 @@ const Payment = () => {
             }</strong></li>
             <li>Cash Amount :<strong> ${cash || "Not provided"}</strong></li>
             <li>Total Amount :<strong> ${
-              Number(cash) + Number(online) || "0"
+              Number(cash) + Number(online)
             }</strong></li>
-             <li>Your Remuneration :<strong> ${
-               remuneration || "0"
-             }</strong></li>
+             <li>Your Remuneration :<strong> ${remuneration}</strong></li>
           </ul>
         `,
         icon: "warning",
