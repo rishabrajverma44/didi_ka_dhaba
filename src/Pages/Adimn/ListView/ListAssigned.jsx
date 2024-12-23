@@ -6,9 +6,9 @@ import {
   usePagination,
   useGlobalFilter,
 } from "react-table";
-import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
+import { FaPencilAlt, FaTrashAlt, FaPlus } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const ListAssigned = () => {
   const navigate = useNavigate();
@@ -182,7 +182,7 @@ const ListAssigned = () => {
       </div>
 
       <div className="row pb-2 px-2">
-        <div className="col-md-3 px-1">
+        <div className="col-md-2 px-1">
           <input
             type="date"
             style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
@@ -192,7 +192,7 @@ const ListAssigned = () => {
           />
         </div>
 
-        <div className="col-md-3 px-1">
+        <div className="col-md-2 px-1">
           <input
             type="date"
             style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
@@ -233,7 +233,7 @@ const ListAssigned = () => {
           </button>
         </div>
 
-        <div className="col-md-1 d-flex align-items-end px-1">
+        <div className="col-md-2 d-flex align-items-end px-1">
           <button
             type="reset"
             className="btn btn-dark w-100"
@@ -241,6 +241,15 @@ const ListAssigned = () => {
           >
             Reset
           </button>
+        </div>
+        <div className="col-md-1 d-flex align-items-end px-1">
+          <Link
+            to="/assign"
+            className="d-flex align-items-center btn btn-dark hover:bg-[#53230A] px-3"
+          >
+            <FaPlus className="me-1" />
+            <span>Add</span>
+          </Link>
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
+import { FaPencilAlt, FaPlus, FaTrashAlt } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import {
   useTable,
@@ -9,7 +9,7 @@ import {
   useSortBy,
 } from "react-table";
 import Pagination from "../../../Components/prebuiltComponent/Pagination";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const ListFood = () => {
   const navigate = useNavigate();
@@ -135,18 +135,23 @@ const ListFood = () => {
   return (
     <div className="px-6 md:px-12">
       <ToastContainer />
-      <div className="mb-2 flex items-center justify-between space-x-4 mt-2">
-        <div className="flex-1 w-full max-w-xs">
-          <label className="block text-slate-600 mb-1 font-medium">
-            Search
-          </label>
+      <div className="mb-2 mt-2">
+        <label className="block text-slate-600 mb-1 font-medium">Search</label>
+        <div className="flex items-center justify-between space-x-2">
           <input
             type="text"
             value={searchText}
             onChange={handleSearchChange}
             placeholder="Search..."
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A24C4A] w-full transition duration-200"
+            className="w-64 p-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A24C4A] transition duration-200"
           />
+          <Link
+            to="/addfood"
+            className="d-flex align-items-center btn btn-dark hover:bg-[#53230A] px-3"
+          >
+            <FaPlus className="me-1" />
+            <span>Add</span>
+          </Link>
         </div>
       </div>
 

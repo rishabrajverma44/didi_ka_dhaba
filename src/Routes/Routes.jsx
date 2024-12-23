@@ -23,6 +23,7 @@ import FoodEdit from "../Pages/Adimn/EditFile/FoodEdit";
 import StallEdite from "../Pages/Adimn/EditFile/StallEdite";
 import AssignEdit from "../Pages/Adimn/EditFile/AssignEdit";
 import RegistarRout from "./RegistarRoute";
+import DidiProfile from "../Pages/Adimn/EditFile/DidiProfile";
 
 const routes = [
   {
@@ -76,6 +77,15 @@ const routes = [
         element: (
           <AdminRoute>
             <DidiEdit />
+          </AdminRoute>
+        ),
+      },
+
+      {
+        path: "didiprofile/:id",
+        element: (
+          <AdminRoute>
+            <DidiProfile />
           </AdminRoute>
         ),
       },
@@ -197,6 +207,14 @@ const routes = [
         element: (
           <RegistarRout>
             <ListDidi />
+          </RegistarRout>
+        ),
+      },
+      {
+        path: "didiprofile-register/:id",
+        element: (
+          <RegistarRout>
+            <DidiProfile />
           </RegistarRout>
         ),
       },

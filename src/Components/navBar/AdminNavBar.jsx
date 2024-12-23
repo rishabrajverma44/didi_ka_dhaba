@@ -226,8 +226,14 @@ const AdminNavBar = () => {
               >
                 Daily Log
               </Link>
+              <Link
+                className="block py-1 px-4 text-white no-underline text-md"
+                to="/listfood"
+              >
+                Food List
+              </Link>
 
-              <div className="relative" ref={dropdownRefFood}>
+              {/* <div className="relative" ref={dropdownRefFood}>
                 <button
                   className="block py-1 px-4 text-white text-left text-gray-700 no-underline text-md"
                   onMouseEnter={toggleDropdownFood}
@@ -257,9 +263,29 @@ const AdminNavBar = () => {
                     </div>
                   </div>
                 )}
-              </div>
+              </div> */}
 
-              <div className="relative" ref={dropdownRefDidi}>
+              <Link
+                className="block py-1 px-4 text-white no-underline text-md"
+                to="/didilist"
+              >
+                Didi List
+              </Link>
+              <Link
+                className="block py-1 px-4 text-white no-underline text-md"
+                to="/stall_list"
+              >
+                Stall List
+              </Link>
+
+              <Link
+                className="block py-1 px-4 text-white no-underline text-md"
+                to="/assign_list"
+              >
+                Assign List
+              </Link>
+
+              {/* <div className="relative" ref={dropdownRefDidi}>
                 <button
                   className="block py-1 px-4 text-white text-left no-underline text-md"
                   onMouseEnter={toggleDropdownDidi}
@@ -289,9 +315,9 @@ const AdminNavBar = () => {
                     </div>
                   </div>
                 )}
-              </div>
+              </div> */}
 
-              <div className="relative" ref={dropdownRefStall}>
+              {/* <div className="relative" ref={dropdownRefStall}>
                 <button
                   className="block py-1 px-4 text-white text-left text-gray-700 no-underline text-md"
                   onMouseEnter={toggleDropdownStall}
@@ -321,9 +347,9 @@ const AdminNavBar = () => {
                     </div>
                   </div>
                 )}
-              </div>
+              </div> */}
 
-              <div className="relative" ref={dropdownRefAssign}>
+              {/* <div className="relative" ref={dropdownRefAssign}>
                 <button
                   className="block py-1 px-4 text-white text-left text-gray-700 no-underline text-md"
                   onMouseEnter={toggleDropdownAssign}
@@ -353,7 +379,7 @@ const AdminNavBar = () => {
                     </div>
                   </div>
                 )}
-              </div>
+              </div> */}
             </div>
           </div>
         </section>
