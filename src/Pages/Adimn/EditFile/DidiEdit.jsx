@@ -107,6 +107,40 @@ const DidiEdit = () => {
     setImageSrc(null);
   };
 
+  //adhar
+
+  const [imagesAdhar, setImagesAdhar] = useState([]);
+  const [isCameraOpenAdhar, setIsCameraOpenAdhar] = useState(false);
+  const [isBackCameraAdhar, setIsBackCameraAdhar] = useState(true);
+  const webcamRef2 = useRef(null);
+
+  const captureImageAdhar = (event) => {
+    event.preventDefault();
+    if (imagesAdhar.length >= 2) {
+      toast.error("You can only capture 2 images.");
+      return;
+    }
+
+    if (webcamRef2.current) {
+      const screenshot = webcamRef2.current.getScreenshot();
+      if (screenshot) {
+        setImagesAdhar((prevImages) => [...prevImages, screenshot]);
+      }
+    }
+  };
+
+  const removeImageAdhar = (index) => {
+    setImagesAdhar((prevImages) => prevImages.filter((_, i) => i !== index));
+  };
+
+  const toggleCameraAdhar = () => {
+    setIsCameraOpenAdhar(!isCameraOpenAdhar);
+  };
+
+  const toggleCameraMode = () => {
+    setIsBackCameraAdhar(!isBackCameraAdhar);
+  };
+
   // State management
   const [state, setState] = useState([]);
   const [district, setDistrict] = useState([]);
@@ -604,6 +638,87 @@ const DidiEdit = () => {
                   </div>
                 )}
               </div>
+
+              {/* <div className="row inline-block p-2">
+                {isCameraOpenAdhar && (
+                  <>
+                    <div className="relative">
+                      <Webcam
+                        audio={false}
+                        ref={webcamRef2}
+                        screenshotFormat="image/jpeg"
+                        className="w-full h-96 object-cover rounded-md shadow-md"
+                        videoConstraints={{
+                          facingMode: isBackCameraAdhar
+                            ? "environment"
+                            : "user",
+                        }}
+                      />
+                      <div className="absolute bottom-4 right-4 flex space-x-4">
+                        <button
+                          onClick={captureImageAdhar}
+                          className="py-2 px-3 rounded-full shadow-md bg-[#0B1727] text-white hover:bg-[#53230A] transition-all"
+                        >
+                          {imagesAdhar.length == 1 ? (
+                            <>add more</>
+                          ) : (
+                            <>
+                              <FaCamera size={24} />
+                            </>
+                          )}
+                        </button>
+                        <button
+                          onClick={toggleCameraMode}
+                          className="py-2 px-3 rounded-full shadow-md bg-[#0B1727] text-white hover:bg-[#53230A] transition-all"
+                        >
+                          <FiRefreshCcw size={24} />
+                        </button>
+                        <button
+                          onClick={toggleCameraAdhar}
+                          className="py-2 px-3 rounded-full shadow-md bg-red-500 text-white hover:bg-red-600 transition-all"
+                        >
+                          <FiX size={24} />
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {!isCameraOpenAdhar && (
+                  <div className="h-96 bg-gray-300 flex flex-col items-center justify-center rounded-md">
+                    <h2 className="text-gray-500 mb-4">Capture Identity</h2>
+                    <p className="text-gray-500 mb-4">Camera is off</p>
+                    <button
+                      onClick={toggleCameraAdhar}
+                      className="py-2 px-4 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A] transition-all"
+                    >
+                      <FaCamera size={30} />
+                    </button>
+                  </div>
+                )}
+
+                <div className="mt-1">
+                  {imagesAdhar.length > 0 && (
+                    <div className="grid grid-cols-2 gap-4 mt-6">
+                      {imagesAdhar.map((image, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={image}
+                            alt={`Captured ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-md shadow-md"
+                          />
+                          <button
+                            onClick={() => removeImageAdhar(index)}
+                            className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                          >
+                            <FiX size={20} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div> */}
 
               <div className="flex justify-end my-4">
                 <button

@@ -7,15 +7,13 @@ import Breadcrumb from "../../../Components/prebuiltComponent/Breadcrumb";
 const AssignEdit = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [searchTermStall, setSearchTermStall] = useState("");
-  const [isDropdownOpenStall, setIsDropdownOpenStall] = useState(false);
-  const [selectedStall, setSelectedStall] = useState(null);
   const [selectedDateFrom, setSelectedDateFrom] = useState("");
   const [selectedDateTo, setSelectedDateTo] = useState("");
   const [formErrors, setFormErrors] = useState({});
-  const [stallOptions, setStallOptions] = useState([]);
   const { id } = useParams();
   const [data, setData] = useState([]);
+  const [selectedStallCode, setSelectedStallCode] = useState(null);
+  const [searchTermStall, setSearchTermStall] = useState("thela name");
   const [didiOptions, setDidiOptions] = useState([]);
   const [selectedDidi, setSelectedDidi] = useState(null);
   const [searchTermDidi, setSearchTermDidi] = useState("");
@@ -33,18 +31,13 @@ const AssignEdit = () => {
           setSelectedDateFrom(fetchedData.from_date);
           setSelectedDateTo(fetchedData.to_date);
           setSelectedDidi(fetchedData.didi_id);
-          setSelectedStall(fetchedData.thela_id);
+          setSearchTermStall(fetchedData.thela_code);
+          setSelectedStallCode(fetchedData.thela_id);
           const selectedDidiData = didiOptions.find(
             (didi) => didi.didi_id === fetchedData.didi_id
           );
           if (selectedDidiData) {
             setSearchTermDidi(selectedDidiData.full_name);
-          }
-          const selecteStallData = stallOptions.find(
-            (stall) => stall.thela_id === fetchedData.thela_id
-          );
-          if (selecteStallData) {
-            setSearchTermStall(selecteStallData.thela_code);
           }
         }
       })
@@ -62,10 +55,7 @@ const AssignEdit = () => {
     if (didiOptions.length > 0) {
       getData();
     }
-    if (stallOptions.length > 0) {
-      getData();
-    }
-  }, [didiOptions, stallOptions]);
+  }, [didiOptions]);
 
   const getDidiName = async () => {
     try {
@@ -83,25 +73,8 @@ const AssignEdit = () => {
     }
   };
 
-  const getThelaName = async () => {
-    try {
-      const response = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/thelas/"
-      );
-      if (response.status === 200) {
-        setStallOptions(response.data);
-      } else {
-        setStallOptions([]);
-      }
-    } catch (error) {
-      console.log("Error in getting stall:", error);
-      setStallOptions([]);
-    }
-  };
-
   useEffect(() => {
     getDidiName();
-    getThelaName();
   }, []);
 
   const filteredDidiNames = didiOptions.filter((didi) =>
@@ -110,14 +83,7 @@ const AssignEdit = () => {
       : false
   );
 
-  const filteredStallNames = stallOptions.filter((stall) =>
-    stall.thela_name
-      ? stall.thela_name.toLowerCase().includes(searchTermStall.toLowerCase())
-      : false
-  );
-
   const dropdownRefDidi = useRef(null);
-  const dropdownRefStall = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -126,12 +92,6 @@ const AssignEdit = () => {
         !dropdownRefDidi.current.contains(event.target)
       ) {
         setIsDropdownOpenDidi(false);
-      }
-      if (
-        dropdownRefStall.current &&
-        !dropdownRefStall.current.contains(event.target)
-      ) {
-        setIsDropdownOpenStall(false);
       }
     };
     document.addEventListener("click", handleClickOutside);
@@ -147,7 +107,7 @@ const AssignEdit = () => {
     if (!selectedDidi) {
       errors.didi = "Please select a Didi name!";
     }
-    if (!selectedStall) {
+    if (!selectedStallCode) {
       errors.stall = "Please select a Stall name!";
     }
     if (!selectedDateFrom) {
@@ -175,10 +135,8 @@ const AssignEdit = () => {
         )
         .then((res) => {
           console.log(res);
-          if (res.status === 201) {
-            toast.success(
-              `Successfully assigned ${searchTermDidi} to ${searchTermStall}`
-            );
+          if (res.status === 200) {
+            toast.success(res.data.message);
             setTimeout(() => {
               navigate("/assign_list");
             }, 2000);
@@ -212,14 +170,9 @@ const AssignEdit = () => {
       return;
     }
 
-    if (!selectedStall) {
-      toast.error("Please select a Stall name!");
-      return;
-    }
-
     const payload = {
       didi_id: selectedDidi,
-      thela_id: selectedStall,
+      thela_id: selectedStallCode,
       from_date: selectedDateFrom,
       to_date: selectedDateTo,
     };
@@ -331,53 +284,17 @@ const AssignEdit = () => {
                 )}
               </div>
 
-              <div ref={dropdownRefStall} className="relative w-1/2">
+              <div className="w-1/2">
                 <label className="block text-slate-600 mb-1 font-medium">
-                  Select Stall Name
+                  Assigned Stall Code
                 </label>
                 <input
                   type="text"
+                  disabled={true}
                   placeholder="Search Stall Name..."
                   className="cursor-pointer w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
                   value={searchTermStall}
-                  onChange={(e) => {
-                    setSearchTermStall(e.target.value);
-                    setIsDropdownOpenStall(true);
-                    setSelectedStall(null);
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsDropdownOpenStall(true);
-                  }}
                 />
-                {isDropdownOpenStall && (
-                  <ul className="absolute z-20 bg-white border border-gray-300 shadow-lg rounded-lg mt-2 max-h-40 w-full overflow-y-auto">
-                    {filteredStallNames.length > 0 ? (
-                      filteredStallNames.map((stall, index) => (
-                        <li
-                          key={index}
-                          className="p-2 hover:bg-blue-100 cursor-pointer"
-                          onClick={() => {
-                            setSelectedStall(stall.thela_id);
-                            setSearchTermStall(stall.thela_name);
-                            setIsDropdownOpenStall(false);
-                          }}
-                        >
-                          {stall.thela_name}
-                        </li>
-                      ))
-                    ) : (
-                      <li className="p-2 text-gray-500 text-center">
-                        No Stall found
-                      </li>
-                    )}
-                  </ul>
-                )}
-                {formErrors.stall && (
-                  <div className="text-red-500 text-sm mt-1">
-                    {formErrors.stall}
-                  </div>
-                )}
               </div>
             </div>
 

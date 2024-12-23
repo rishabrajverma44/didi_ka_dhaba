@@ -174,16 +174,15 @@ const ListAssigned = () => {
       <ToastContainer />
 
       <div className="row px-2 mt-2" style={{ color: "#5E6E82" }}>
-        <div className="col-md-2 ">From Date</div>
-        <div className="col-md-2 ">To Date</div>
+        <div className="col-md-3 ">From Date</div>
+        <div className="col-md-3 ">To Date</div>
         <div className="col-md-3">Select Didi</div>
-        <div className="col-md-3">Select City</div>
-        <div className="col-md-1 d-flex align-items-end"></div>
+        <div className="col-md-2 d-flex align-items-end"></div>
         <div className="col-md-1 d-flex align-items-end"></div>
       </div>
 
       <div className="row pb-2 px-2">
-        <div className="col-md-2 px-1">
+        <div className="col-md-3 px-1">
           <input
             type="date"
             style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
@@ -193,7 +192,7 @@ const ListAssigned = () => {
           />
         </div>
 
-        <div className="col-md-2 px-1">
+        <div className="col-md-3 px-1">
           <input
             type="date"
             style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
@@ -208,7 +207,9 @@ const ListAssigned = () => {
             className="form-control"
             value={selectedDidi}
             onChange={(e) => setSelectedDidi(e.target.value)}
-            style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
+            style={{
+              "box-shadow": "0px 1px 1px #e4e4e4",
+            }}
           >
             <option value="" disabled={true}>
               Select Didi
@@ -221,23 +222,7 @@ const ListAssigned = () => {
           </select>
         </div>
 
-        <div className="col-md-3 px-1">
-          <select
-            className="form-control"
-            value={selectedStall}
-            onChange={(e) => setSelectedStall(e.target.value)}
-            style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
-          >
-            <option value="">Select City</option>
-            {cityList.map((item, index) => (
-              <option key={index} value={item.city_name}>
-                {item.city_name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="col-md-1 d-flex align-items-end px-1">
+        <div className="col-md-2 d-flex align-items-end px-1">
           <button
             type="button"
             className="btn btn-primary w-100"

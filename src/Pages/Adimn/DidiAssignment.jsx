@@ -190,7 +190,7 @@ const DidiAssignment = () => {
       </div>
       <div>
         <div className="mx-auto p-6">
-          <h2 className="text-xl  flex flex-row   mb-6">
+          <h2 className="text-xl flex flex-row mb-6 text-slate-600">
             <span className="mx-4 w-50 text-center">
               <span>From </span>
               <input
@@ -274,7 +274,7 @@ const DidiAssignment = () => {
 
               <div ref={dropdownRefStall} className="relative w-1/2">
                 <label className="block text-slate-600 mb-1 font-medium">
-                  Select Stall Name
+                  Select Stall Code
                 </label>
                 <input
                   type="text"

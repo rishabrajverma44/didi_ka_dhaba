@@ -186,9 +186,11 @@ const DidiRegistration = () => {
 
     const payload = {
       ...values,
-      image: imageSrc ? imageSrc : null,
-      document: cleanedDocuments.length === 0 ? "" : cleanedDocuments,
+      image: imageSrc ? imageSrc : "",
+      document: cleanedDocuments.length === 0 ? [] : cleanedDocuments,
     };
+
+    console.log(payload.document);
 
     setIsLoading(true);
     try {
@@ -218,6 +220,7 @@ const DidiRegistration = () => {
             }, 2000);
           }
         }
+        resetForm();
       }
     } catch (error) {
       if (error.response?.data?.mobile_no) {
@@ -229,8 +232,6 @@ const DidiRegistration = () => {
     } finally {
       setIsLoading(false);
     }
-
-    // resetForm();
   };
 
   return (
