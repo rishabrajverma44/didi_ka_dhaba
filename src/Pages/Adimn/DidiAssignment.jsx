@@ -21,7 +21,7 @@ const DidiAssignment = () => {
   const getDidiName = async () => {
     try {
       const response = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/didi/"
+        `${process.env.REACT_APP_API_BACKEND}/didi/`
       );
       if (response.status === 200) {
         setDidiOptions(response.data);
@@ -37,7 +37,7 @@ const DidiAssignment = () => {
   const getThelaName = async () => {
     try {
       const response = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/thelas/"
+        `${process.env.REACT_APP_API_BACKEND}/thelas/`
       );
       if (response.status === 200) {
         setStallOptions(response.data);
@@ -120,10 +120,7 @@ const DidiAssignment = () => {
   const sendData = async (payload) => {
     try {
       axios
-        .post(
-          "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/",
-          payload
-        )
+        .post(`${process.env.REACT_APP_API_BACKEND}/didi_thela/`, payload)
         .then((res) => {
           if (res.status === 201) {
             toast.success(
@@ -190,7 +187,7 @@ const DidiAssignment = () => {
       </div>
       <div>
         <div className="mx-auto p-6">
-          <h2 className="text-xl font-bold flex flex-row   mb-6 text-slate-600">
+          <h2 className="text-xl flex flex-row mb-6 text-slate-600">
             <span className="mx-4 w-50 text-center">
               <span>From </span>
               <input
@@ -198,7 +195,7 @@ const DidiAssignment = () => {
                 id="dateFrom"
                 value={selectedDateFrom}
                 onChange={(e) => setSelectedDateFrom(e.target.value)}
-                className="mx-2 p-2 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
+                className="mx-2 p-1 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
               />
               {formErrors.dateFrom && (
                 <div className="text-red-500 text-sm">
@@ -213,7 +210,7 @@ const DidiAssignment = () => {
                 id="dateTo"
                 value={selectedDateTo}
                 onChange={(e) => setSelectedDateTo(e.target.value)}
-                className="mx-2 p-2 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
+                className="mx-2 p-1 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
               />
               {formErrors.dateTo && (
                 <div className="text-red-500 text-sm">{formErrors.dateTo}</div>
@@ -274,7 +271,7 @@ const DidiAssignment = () => {
 
               <div ref={dropdownRefStall} className="relative w-1/2">
                 <label className="block text-slate-600 mb-1 font-medium">
-                  Select Stall Name
+                  Select Stall Code
                 </label>
                 <input
                   type="text"

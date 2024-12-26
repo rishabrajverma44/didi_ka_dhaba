@@ -21,11 +21,25 @@ const StallEdite = () => {
   const [locationError, setLocationError] = useState("");
   const { id } = useParams();
   const navigate = useNavigate();
+  const [route, setRoute] = useState();
+
+  useEffect(() => {
+    const userCredentials = JSON.parse(localStorage.getItem("userCredentials"));
+    if (userCredentials) {
+      const { email } = userCredentials;
+
+      if (email === "admin@gmail.com") {
+        setRoute("/stall_list");
+      } else {
+        setRoute("/stall_list-register");
+      }
+    }
+  }, []);
 
   const [data, setData] = useState("");
   const getData = () => {
     axios
-      .get(`https://didikadhababackend.indevconsultancy.in/dhaba/thelas/${id}`)
+      .get(`${process.env.REACT_APP_API_BACKEND}/thelas/${id}`)
       .then((res) => {
         if (res.status === 200) {
           setData(res.data);
@@ -64,16 +78,26 @@ const StallEdite = () => {
   const sendData = (payload) => {
     try {
       const res = axios
-        .put(
-          `https://didikadhababackend.indevconsultancy.in/dhaba/thelas/${id}/`,
-          payload
-        )
+        .put(`${process.env.REACT_APP_API_BACKEND}/thelas/${id}/`, payload)
         .then((res) => {
           if (res.status) {
             toast.success("Registration Updated");
-            setTimeout(() => {
-              navigate("/stall_list");
-            }, 2000);
+            const userCredentials = JSON.parse(
+              localStorage.getItem("userCredentials")
+            );
+            if (userCredentials) {
+              const { email } = userCredentials;
+
+              if (email === "admin@gmail.com") {
+                setTimeout(() => {
+                  navigate("/stall_list");
+                }, 2000);
+              } else {
+                setTimeout(() => {
+                  navigate("/stall_list-register");
+                }, 2000);
+              }
+            }
           }
         })
         .catch((err) => {
@@ -122,7 +146,7 @@ const StallEdite = () => {
 
   const getState = () => {
     axios
-      .get("https://didikadhababackend.indevconsultancy.in/dhaba/states/")
+      .get(`${process.env.REACT_APP_API_BACKEND}/states/`)
       .then((res) => {
         setState(res.data);
       })
@@ -133,9 +157,7 @@ const StallEdite = () => {
 
   const getDistrict = (state) => {
     axios
-      .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-districts/${state}`
-      )
+      .get(`${process.env.REACT_APP_API_BACKEND}/filter-districts/${state}`)
       .then((res) => {
         setDistrict(res.data);
       })
@@ -146,9 +168,7 @@ const StallEdite = () => {
 
   const getCity = (district) => {
     axios
-      .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-cities/${district}`
-      )
+      .get(`${process.env.REACT_APP_API_BACKEND}/filter-cities/${district}`)
       .then((res) => {
         setCity(res.data);
       })
@@ -225,7 +245,7 @@ const StallEdite = () => {
   }
 
   const breadcrumbItems = [
-    { label: "Stall List", href: "/stall_list" },
+    { label: "Stall List", href: route },
     { label: "Stall", href: `` },
   ];
 

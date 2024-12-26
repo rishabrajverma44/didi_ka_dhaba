@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useTable, usePagination, useGlobalFilter } from "react-table";
 import axios from "axios";
-import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
+import { FaPencilAlt, FaPlus, FaTrashAlt } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import Modal from "react-modal";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Pagination from "../../../Components/prebuiltComponent/Pagination";
 
 const ListDidi = () => {
@@ -14,16 +14,35 @@ const ListDidi = () => {
   const [searchText, setSearchText] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [route, setRoute] = useState();
+  const [route2, setRoute2] = useState();
+  const [route3, setRoute3] = useState();
 
-  const base_url = "https://didikadhababackend.indevconsultancy.in/dhaba";
+  useEffect(() => {
+    const userCredentials = JSON.parse(localStorage.getItem("userCredentials"));
+    if (userCredentials) {
+      const { email } = userCredentials;
+
+      if (email === "admin@gmail.com") {
+        setRoute("/didilist");
+        setRoute2("/didiprofile");
+        setRoute3("/didireg");
+      } else {
+        setRoute("/didilist-register");
+        setRoute2("/didiprofile-register");
+        setRoute3("/didireg-register");
+      }
+    }
+  }, []);
+
+  const base_url = process.env.REACT_APP_API_BACKEND;
 
   const handleDelete = async () => {
     if (deleteId === null) return;
     try {
       const res = await axios.delete(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/didi/${deleteId}/`
+        `${process.env.REACT_APP_API_BACKEND}/didi/${deleteId}/`
       );
-      console.log(res.data.message);
       toast.success(res.data.message);
       setDidiData((prevData) =>
         prevData.filter((didi) => didi.didi_id !== deleteId)
@@ -41,12 +60,13 @@ const ListDidi = () => {
       {
         Header: "Image",
         accessor: "image",
-        Cell: ({ value }) =>
+        Cell: ({ value, row }) =>
           value ? (
             <img
               src={base_url + value}
               alt="Didi"
-              className="w-16 h-16 object-cover rounded"
+              className="w-16 h-16 object-cover rounded cursor-pointer"
+              onClick={() => navigate(`${route2}/${row.original.didi_id}`)}
             />
           ) : (
             <span className="text-gray-500">No image</span>
@@ -56,15 +76,19 @@ const ListDidi = () => {
       { Header: "Mobile No", accessor: "mobile_no" },
       { Header: "Alternate Mobile No", accessor: "alternate_mobile_no" },
       { Header: "Husband Name", accessor: "husband_name" },
-
       { Header: "Address", accessor: "address" },
       {
         Header: "Actions",
         Cell: ({ row }) => (
           <div className="flex gap-6">
             <button
-              onClick={() => navigate(`/didilist/${row.original.didi_id}`)}
+              onClick={() => {
+                if (route) {
+                  navigate(`${route}/${row.original.didi_id}`);
+                }
+              }}
               className="text-blue-500 hover:text-blue-700"
+              disabled={!route}
             >
               <FaPencilAlt />
             </button>
@@ -81,16 +105,18 @@ const ListDidi = () => {
         ),
       },
     ],
-    []
+    [base_url, navigate, route, setDeleteId, setShowModal]
   );
-
   useEffect(() => {
     const fetchDidiData = async () => {
       try {
         const response = await axios.get(
-          "https://didikadhababackend.indevconsultancy.in/dhaba/didi/"
+          `${process.env.REACT_APP_API_BACKEND}/didi/`
         );
-        setDidiData(response.data);
+        const sortedData = response.data.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
+        setDidiData(sortedData);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -140,16 +166,26 @@ const ListDidi = () => {
   );
 
   return (
-    <div className="py-2 px-6 md:px-12">
+    <div className="px-6 md:px-12">
       <ToastContainer />
-      <div className="mb-4">
-        <input
-          type="text"
-          value={searchText}
-          onChange={handleSearchChange}
-          placeholder="Search by Full Name or Mobile No"
-          className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A24C4A] w-full md:w-80 transition duration-200"
-        />
+      <div className="mb-2 mt-2">
+        <label className="block text-slate-600 mb-1 font-medium">Search</label>
+        <div className="flex items-center justify-between space-x-2">
+          <input
+            type="text"
+            value={searchText}
+            onChange={handleSearchChange}
+            placeholder="Search..."
+            className="w-64 p-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A24C4A] transition duration-200"
+          />
+          <Link
+            to={route3}
+            className="d-flex align-items-center btn btn-dark hover:bg-[#53230A] px-3"
+          >
+            <FaPlus className="me-1" />
+            <span>Add</span>
+          </Link>
+        </div>
       </div>
 
       {loading ? (
@@ -249,11 +285,11 @@ const ListDidi = () => {
         isOpen={showModal}
         onRequestClose={() => setShowModal(false)}
         contentLabel="Delete Confirmation"
-        className="bg-white p-6 rounded-md shadow-md w-1/3"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+        className="bg-white p-6 rounded-md shadow-md w-11/12 sm:w-2/3 md:w-1/2 lg:w-1/3"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
       >
-        <h2 className="text-lg font-semibold mb-4">
-          Are you sure you want to delete this Didi?
+        <h2 className="text-lg font-semibold mb-4 text-center">
+          Are you sure you want to delete this item?
         </h2>
         <div className="flex justify-end gap-4">
           <button

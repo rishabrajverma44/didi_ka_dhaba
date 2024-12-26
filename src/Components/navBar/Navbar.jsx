@@ -93,24 +93,28 @@ const Navbar = () => {
                 <Link
                   className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
                   to="/mobilehome"
+                  onClick={() => setMenu(false)}
                 >
                   Home
                 </Link>
                 <Link
                   className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
-                  to="/receivedfood"
+                  to="/issuefood"
+                  onClick={() => setMenu(false)}
                 >
                   Issue Food
                 </Link>
                 <Link
                   className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
-                  to="/issuefood"
+                  to="/receivedfood"
+                  onClick={() => setMenu(false)}
                 >
                   Received Returned Food
                 </Link>
                 <Link
                   className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
                   to="/payment"
+                  onClick={() => setMenu(false)}
                 >
                   Payment Details
                 </Link>

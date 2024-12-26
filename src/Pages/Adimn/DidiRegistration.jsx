@@ -128,7 +128,7 @@ const DidiRegistration = () => {
 
   const getState = () => {
     axios
-      .get("https://didikadhababackend.indevconsultancy.in/dhaba/states/")
+      .get(`${process.env.REACT_APP_API_BACKEND}/states/`)
       .then((res) => {
         setState(res.data);
       })
@@ -139,9 +139,7 @@ const DidiRegistration = () => {
 
   const getDistrict = (state) => {
     axios
-      .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-districts/${state}`
-      )
+      .get(`${process.env.REACT_APP_API_BACKEND}/filter-districts/${state}`)
       .then((res) => {
         setDistrict(res.data);
       })
@@ -152,9 +150,7 @@ const DidiRegistration = () => {
 
   const getCity = (district) => {
     axios
-      .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-cities/${district}`
-      )
+      .get(`${process.env.REACT_APP_API_BACKEND}/filter-cities/${district}`)
       .then((res) => {
         setCity(res.data);
       })
@@ -186,14 +182,16 @@ const DidiRegistration = () => {
 
     const payload = {
       ...values,
-      image: imageSrc ? imageSrc : null,
-      document: cleanedDocuments.length === 0 ? "" : cleanedDocuments,
+      image: imageSrc ? imageSrc : "",
+      document: cleanedDocuments.length === 0 ? [] : cleanedDocuments,
     };
+
+    console.log(payload.document);
 
     setIsLoading(true);
     try {
       const res = await axios.post(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/didi/",
+        `${process.env.REACT_APP_API_BACKEND}/didi/`,
         payload
       );
       if (res.status === 201) {
@@ -201,9 +199,24 @@ const DidiRegistration = () => {
         resetForm();
         handleRetake();
         handleToggleCamera();
-        setTimeout(() => {
-          navigate("/didilist");
-        }, 2000);
+
+        const userCredentials = JSON.parse(
+          localStorage.getItem("userCredentials")
+        );
+        if (userCredentials) {
+          const { email } = userCredentials;
+
+          if (email === "admin@gmail.com") {
+            setTimeout(() => {
+              navigate("/didilist");
+            }, 2000);
+          } else {
+            setTimeout(() => {
+              navigate("/didilist-register");
+            }, 2000);
+          }
+        }
+        resetForm();
       }
     } catch (error) {
       if (error.response?.data?.mobile_no) {
@@ -215,8 +228,6 @@ const DidiRegistration = () => {
     } finally {
       setIsLoading(false);
     }
-
-    // resetForm();
   };
 
   return (
@@ -413,7 +424,7 @@ const DidiRegistration = () => {
                     ))}
                   </select>
                   <ErrorMessage
-                    name="selectedCity"
+                    name="city"
                     component="div"
                     className="text-red-500 text-sm"
                   />
@@ -428,6 +439,7 @@ const DidiRegistration = () => {
                   </label>
                   <Field
                     type="number"
+                    min="0"
                     id="mobile_no"
                     name="mobile_no"
                     placeholder="Enter your mobile number"
@@ -449,6 +461,7 @@ const DidiRegistration = () => {
                   </label>
                   <Field
                     type="number"
+                    min="0"
                     id="alternate_mobile_no"
                     name="alternate_mobile_no"
                     placeholder="Enter your alternate mobile number"
@@ -543,13 +556,13 @@ const DidiRegistration = () => {
                     <div className="flex-grow flex items-center flex-col justify-center">
                       <h2 className="text-gray-500 mb-4">Capture Face</h2>
                       <p className="text-gray-500">Camera is off</p>
+                      <button
+                        onClick={handleToggleCamera}
+                        className="py-2 px-4 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
+                      >
+                        <FaCamera size={30} />
+                      </button>
                     </div>
-                    <button
-                      onClick={handleToggleCamera}
-                      className="py-2 px-4 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
-                    >
-                      <FaCamera size={30} />
-                    </button>
                   </div>
                 )}
 

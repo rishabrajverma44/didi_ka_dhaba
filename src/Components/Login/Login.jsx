@@ -3,12 +3,17 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import { CaptchaBox, validateCaptcha, reloadCaptcha } from "react-captcha-lite";
 
 const Login = () => {
   const navigate = useNavigate();
   const [captchaInput, setCaptchaInput] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   useEffect(() => {
     const refreshButton = document.getElementById("captcha_lite_reload_btn");
@@ -39,12 +44,12 @@ const Login = () => {
   });
 
   const handleSubmit = async (values) => {
-    const isCaptchaValid = validateCaptcha(captchaInput);
+    //const isCaptchaValid = validateCaptcha(captchaInput);
 
-    if (!isCaptchaValid) {
-      toast.error("CAPTCHA is incorrect. Please try again.");
-      return;
-    }
+    // if (!isCaptchaValid) {
+    //   toast.error("CAPTCHA is incorrect. Please try again.");
+    //   return;
+    // }
 
     if (
       values.email === "rishab@gmail.com" &&
@@ -64,6 +69,15 @@ const Login = () => {
         JSON.stringify({ email: values.email, password: values.password })
       );
       navigate("/admin");
+    } else if (
+      values.email === "registar@gmail.com" &&
+      values.password === "Rishab@123"
+    ) {
+      localStorage.setItem(
+        "userCredentials",
+        JSON.stringify({ email: values.email, password: values.password })
+      );
+      navigate("/didireg-register");
     } else {
       toast.error("Wrong credentials !");
     }
@@ -102,12 +116,12 @@ const Login = () => {
             >
               <div className="text-center">
                 <a className="inline-block rounded-xl" href="" alt="">
-                  <img src="/images/logo.png" alt="LOGO" width="120" />
+                  <img src="/images/logo.png" alt="LOGO" width="140" />
                 </a>
               </div>
 
               <div className="mt-0">
-                <div className="form-group mb-2">
+                <div className="form-group mb-1">
                   <label
                     htmlFor="email"
                     className="mb-2 block text-sm text-dark"
@@ -131,23 +145,36 @@ const Login = () => {
                   )}
                 </div>
 
-                <div className="form-group mb-2">
+                <div className="form-group mb-1 relative">
                   <label
                     htmlFor="password"
                     className="mb-2 block text-sm text-dark"
                   >
                     Password<span className="text-danger">*</span>
                   </label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    placeholder="Enter Password"
-                    className="form-control w-full p-2 border border-gray-300 shadow-sm focus:outline-none"
-                    value={formik.values.password}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      id="password"
+                      name="password"
+                      placeholder="Enter Password"
+                      className="form-control w-full p-2 pr-10 border border-gray-300 shadow-sm focus:outline-none"
+                      value={formik.values.password}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 flex items-center px-3 focus:outline-none"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? (
+                        <FaEye className="h-5 w-5 text-gray-500" />
+                      ) : (
+                        <FaEyeSlash className="h-5 w-5 text-gray-500" />
+                      )}
+                    </button>
+                  </div>
                   {formik.touched.password && formik.errors.password && (
                     <span className="text-danger text-sm">
                       {formik.errors.password}
@@ -155,7 +182,7 @@ const Login = () => {
                   )}
                 </div>
 
-                <div className="captcha-container mb-4">
+                {/* <div className="captcha-container mb-2">
                   <div className="captcha-box bg-light md:flex-row items-center gap-4 md:gap-8">
                     <CaptchaBox />
                     <div className="flex items-center justify-content-center gap-4">
@@ -175,9 +202,9 @@ const Login = () => {
                       />
                     </div>
                   </div>
-                </div>
+                </div> */}
 
-                <div className="form-group mb-1">
+                <div className="form-group mb-3 mt-4">
                   <button
                     type="submit"
                     className="w-full py-2 rounded-lg bg-btn-primary hover:bg-btn-hover text-white"
@@ -187,10 +214,10 @@ const Login = () => {
                 </div>
               </div>
               <div className="place-items-center">
-                <img src="/images/Ekta.png" alt="jbf" width="110" />
+                <img src="/images/Ekta.png" alt="jbf" width="100" />
               </div>
               <div>
-                <p className="text-center text-[#A24C4A] text-xl my-2">
+                <p className="text-center text-[#A24C4A] text-xl">
                   Supported by
                 </p>
               </div>

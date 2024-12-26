@@ -68,7 +68,7 @@ const Payment = () => {
   const getDidi = async () => {
     try {
       axios
-        .get("https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/")
+        .get(`${process.env.REACT_APP_API_BACKEND}/didi_thela/`)
         .then((res) => {
           if (res.status === 200) {
             setNamesDidi(res.data);
@@ -109,16 +109,14 @@ const Payment = () => {
     const total = onlineAmount + cashAmount;
 
     let newRemuneration = 0;
-
-    if (total >= 1500) {
-      newRemuneration = 300 + Math.floor((total - 1500) / 500) * 100;
-    } else if (total >= 1000 && total < 1500) {
-      newRemuneration = 300;
-    } else if (total > 1000) {
+    if (total < 1000) {
       newRemuneration = 200;
+      setRemuneration(newRemuneration);
+    } else if (total >= 1000) {
+      newRemuneration = 200 + Math.floor((total - 500) / 500) * 100;
+      setRemuneration(newRemuneration);
     }
-
-    setRemuneration(newRemuneration);
+    console.log(Math.floor((total - 1000) / 500));
   }, [online, cash]);
 
   const submitFinal = async () => {
@@ -148,11 +146,9 @@ const Payment = () => {
             }</strong></li>
             <li>Cash Amount :<strong> ${cash || "Not provided"}</strong></li>
             <li>Total Amount :<strong> ${
-              Number(cash) + Number(online) || "0"
+              Number(cash) + Number(online)
             }</strong></li>
-             <li>Your Remuneration :<strong> ${
-               remuneration || "0"
-             }</strong></li>
+             <li>Your Remuneration :<strong> ${remuneration}</strong></li>
           </ul>
         `,
         icon: "warning",
@@ -176,18 +172,15 @@ const Payment = () => {
             thela_id: Number(formData.get("thela_id")),
             upi: Number(online),
             cash: Number(cash),
-            remuneration: Number(remuneration),
             image: Array.from({ length: photos.length }).map((_, i) => {
               const photo = formData.get(`photo${i + 1}`);
               return photo.replace(/^data:image\/jpeg;base64,\/9j\//, "");
             }),
           };
 
-          console.log(payload);
-
           try {
             const response = await axios.post(
-              "https://didikadhababackend.indevconsultancy.in/dhaba/payment-details/",
+              `${process.env.REACT_APP_API_BACKEND}/payment-details/`,
               payload
             );
             toast.success("Submitted successfully!");
@@ -196,7 +189,11 @@ const Payment = () => {
             setSelectedDidi(null);
             setOnline("");
             setCash("");
-            navigate("/mobilehome");
+
+            setTimeout(() => {
+              navigate("/mobilehome");
+            }, 2000);
+            setIsLoading(false);
           } catch (error) {
             toast.error("Submission failed. Please try again.");
             console.error("Error:", error);

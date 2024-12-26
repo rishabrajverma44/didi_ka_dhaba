@@ -22,6 +22,9 @@ import ListStall from "../Pages/Adimn/ListView/ListStall";
 import FoodEdit from "../Pages/Adimn/EditFile/FoodEdit";
 import StallEdite from "../Pages/Adimn/EditFile/StallEdite";
 import AssignEdit from "../Pages/Adimn/EditFile/AssignEdit";
+import RegistarRout from "./RegistarRoute";
+import DidiProfile from "../Pages/Adimn/EditFile/DidiProfile";
+import Plate from "../Pages/Adimn/Plates/Plate";
 
 const routes = [
   {
@@ -53,7 +56,6 @@ const routes = [
           </AdminRoute>
         ),
       },
-
       {
         path: "didireg",
         element: (
@@ -75,6 +77,15 @@ const routes = [
         element: (
           <AdminRoute>
             <DidiEdit />
+          </AdminRoute>
+        ),
+      },
+
+      {
+        path: "didiprofile/:id",
+        element: (
+          <AdminRoute>
+            <DidiProfile />
           </AdminRoute>
         ),
       },
@@ -150,7 +161,14 @@ const routes = [
           </AdminRoute>
         ),
       },
-
+      {
+        path: "plateDetails",
+        element: (
+          <AdminRoute>
+            <Plate />
+          </AdminRoute>
+        ),
+      },
       {
         path: "mobilehome",
         element: (
@@ -181,6 +199,62 @@ const routes = [
           <PrivateRoute>
             <Payment />
           </PrivateRoute>
+        ),
+      },
+      {
+        path: "didireg-register",
+        element: (
+          <RegistarRout>
+            <DidiRegistration />
+          </RegistarRout>
+        ),
+      },
+      {
+        path: "didilist-register",
+        element: (
+          <RegistarRout>
+            <ListDidi />
+          </RegistarRout>
+        ),
+      },
+      {
+        path: "didiprofile-register/:id",
+        element: (
+          <RegistarRout>
+            <DidiProfile />
+          </RegistarRout>
+        ),
+      },
+      {
+        path: "didilist-register/:id",
+        element: (
+          <RegistarRout>
+            <DidiEdit />
+          </RegistarRout>
+        ),
+      },
+      {
+        path: "thelareg-register",
+        element: (
+          <RegistarRout>
+            <ThelaRegistration />
+          </RegistarRout>
+        ),
+      },
+      {
+        path: "stall_list-register",
+        element: (
+          <RegistarRout>
+            <ListStall />
+          </RegistarRout>
+        ),
+      },
+      {
+        path: "stall_list-register/:id",
+        element: (
+          <RegistarRout>
+            <StallEdite />
+          </RegistarRout>
         ),
       },
 

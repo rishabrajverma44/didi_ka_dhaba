@@ -19,17 +19,38 @@ const DidiEdit = () => {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isBackCamera, setIsBackCamera] = useState(false);
   const webcamRef = useRef(null);
+  const [route, setRoute] = useState();
+
+  useEffect(() => {
+    const userCredentials = JSON.parse(localStorage.getItem("userCredentials"));
+    if (userCredentials) {
+      const { email } = userCredentials;
+
+      if (email === "admin@gmail.com") {
+        setRoute("/didilist");
+      } else {
+        setRoute("/didilist-register");
+      }
+    }
+  }, []);
 
   const getData = () => {
     axios
-      .get(`https://didikadhababackend.indevconsultancy.in/dhaba/didi/${id}`)
+      .get(`${process.env.REACT_APP_API_BACKEND}/didi/${id}`)
       .then((res) => {
         if (res.status === 200) {
           setData(res.data);
           if (res.data.image) {
             setImageSrc(
-              `https://didikadhababackend.indevconsultancy.in/dhaba/${res.data.image}`
+              `${process.env.REACT_APP_API_BACKEND}/${res.data.image}`
             );
+            if (res.data.document && Array.isArray(res.data.document)) {
+              const documents = res.data.document.map(
+                (doc) => `${process.env.REACT_APP_API_BACKEND}/`
+              );
+              setImagesAdhar(documents);
+              console.log(imagesAdhar);
+            }
           }
           setIsCaptured(true);
         }
@@ -107,6 +128,40 @@ const DidiEdit = () => {
     setImageSrc(null);
   };
 
+  //adhar
+
+  const [imagesAdhar, setImagesAdhar] = useState([]);
+  const [isCameraOpenAdhar, setIsCameraOpenAdhar] = useState(false);
+  const [isBackCameraAdhar, setIsBackCameraAdhar] = useState(true);
+  const webcamRef2 = useRef(null);
+
+  const captureImageAdhar = (event) => {
+    event.preventDefault();
+    if (imagesAdhar.length >= 2) {
+      toast.error("You can only capture 2 images.");
+      return;
+    }
+
+    if (webcamRef2.current) {
+      const screenshot = webcamRef2.current.getScreenshot();
+      if (screenshot) {
+        setImagesAdhar((prevImages) => [...prevImages, screenshot]);
+      }
+    }
+  };
+
+  const removeImageAdhar = (index) => {
+    setImagesAdhar((prevImages) => prevImages.filter((_, i) => i !== index));
+  };
+
+  const toggleCameraAdhar = () => {
+    setIsCameraOpenAdhar(!isCameraOpenAdhar);
+  };
+
+  const toggleCameraMode = () => {
+    setIsBackCameraAdhar(!isBackCameraAdhar);
+  };
+
   // State management
   const [state, setState] = useState([]);
   const [district, setDistrict] = useState([]);
@@ -114,7 +169,7 @@ const DidiEdit = () => {
 
   const getState = () => {
     axios
-      .get("https://didikadhababackend.indevconsultancy.in/dhaba/states/")
+      .get(`${process.env.REACT_APP_API_BACKEND}/states/`)
       .then((res) => {
         setState(res.data);
       })
@@ -125,9 +180,7 @@ const DidiEdit = () => {
 
   const getDistrict = (state) => {
     axios
-      .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-districts/${state}`
-      )
+      .get(`${process.env.REACT_APP_API_BACKEND}/filter-districts/${state}`)
       .then((res) => {
         setDistrict(res.data);
       })
@@ -138,9 +191,7 @@ const DidiEdit = () => {
 
   const getCity = (district) => {
     axios
-      .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-cities/${district}`
-      )
+      .get(`${process.env.REACT_APP_API_BACKEND}/filter-cities/${district}`)
       .then((res) => {
         setCity(res.data);
       })
@@ -205,7 +256,7 @@ const DidiEdit = () => {
     setIsLoading(true);
     try {
       const res = await axios.put(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/didi/${id}/`,
+        `${process.env.REACT_APP_API_BACKEND}/didi/${id}/`,
         payload
       );
       if (res.status === 200) {
@@ -213,9 +264,22 @@ const DidiEdit = () => {
         resetForm();
         handleRetake();
         handleToggleCamera();
-        setTimeout(() => {
-          navigate("/didilist");
-        }, 2000);
+        const userCredentials = JSON.parse(
+          localStorage.getItem("userCredentials")
+        );
+        if (userCredentials) {
+          const { email } = userCredentials;
+
+          if (email === "admin@gmail.com") {
+            setTimeout(() => {
+              navigate("/didilist");
+            }, 2000);
+          } else {
+            setTimeout(() => {
+              navigate("/didilist-register");
+            }, 2000);
+          }
+        }
       }
     } catch (error) {
       if (error.response?.data?.mobile_no) {
@@ -232,7 +296,7 @@ const DidiEdit = () => {
   };
 
   const breadcrumbItems = [
-    { label: "Didi List", href: "/didilist" },
+    { label: "Didi List", href: route },
     { label: "Didi", href: `` },
   ];
 
@@ -591,6 +655,88 @@ const DidiEdit = () => {
                   </div>
                 )}
               </div>
+
+              {/* <div className="row inline-block p-2">
+                {isCameraOpenAdhar && (
+                  <>
+                    <div className="relative">
+                      <Webcam
+                        audio={false}
+                        ref={webcamRef2}
+                        screenshotFormat="image/jpeg"
+                        className="w-full h-96 object-cover rounded-md shadow-md"
+                        videoConstraints={{
+                          facingMode: isBackCameraAdhar
+                            ? "environment"
+                            : "user",
+                        }}
+                      />
+                      <div className="absolute bottom-4 right-4 flex space-x-4">
+                        <button
+                          onClick={captureImageAdhar}
+                          className="py-2 px-3 rounded-full shadow-md bg-[#0B1727] text-white hover:bg-[#53230A] transition-all"
+                        >
+                          {imagesAdhar.length == 1 ? (
+                            <>add more</>
+                          ) : (
+                            <>
+                              <FaCamera size={24} />
+                            </>
+                          )}
+                        </button>
+                        <button
+                          onClick={toggleCameraMode}
+                          className="py-2 px-3 rounded-full shadow-md bg-[#0B1727] text-white hover:bg-[#53230A] transition-all"
+                        >
+                          <FiRefreshCcw size={24} />
+                        </button>
+                        <button
+                          onClick={toggleCameraAdhar}
+                          className="py-2 px-3 rounded-full shadow-md bg-red-500 text-white hover:bg-red-600 transition-all"
+                        >
+                          <FiX size={24} />
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {!isCameraOpenAdhar && (
+                  <div className="h-96 bg-gray-300 flex flex-col items-center justify-center rounded-md">
+                    <h2 className="text-gray-500 mb-4">Capture Identity</h2>
+                    <p className="text-gray-500 mb-4">Camera is off</p>
+                    <button
+                      onClick={toggleCameraAdhar}
+                      className="py-2 px-4 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A] transition-all"
+                    >
+                      <FaCamera size={30} />
+                    </button>
+                  </div>
+                )}
+
+                <div className="mt-1">
+                  {imagesAdhar.length > 0 && (
+                    <div className="grid grid-cols-2 gap-4 mt-6">
+                      {imagesAdhar.map((image, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={image}
+                            alt={`Captured ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-md shadow-md"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImageAdhar(index)}
+                            className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                          >
+                            <FiX size={20} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div> */}
 
               <div className="flex justify-end my-4">
                 <button

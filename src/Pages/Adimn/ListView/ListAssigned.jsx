@@ -6,9 +6,9 @@ import {
   usePagination,
   useGlobalFilter,
 } from "react-table";
-import { FaPencilAlt, FaTrashAlt } from "react-icons/fa";
+import { FaPencilAlt, FaTrashAlt, FaPlus } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const ListAssigned = () => {
   const navigate = useNavigate();
@@ -19,11 +19,13 @@ const ListAssigned = () => {
   const [toDate, setToDate] = useState("");
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [didiList, setDidiList] = useState([]);
+  const [cityList, setCityList] = useState([]);
 
   const fetchData = async () => {
     try {
       const res = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/"
+        `${process.env.REACT_APP_API_BACKEND}/didi_thela/`
       );
       setData(res.data);
     } catch (error) {
@@ -36,7 +38,7 @@ const ListAssigned = () => {
   const handleDelete = async (Id) => {
     try {
       const res = await axios.delete(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/${Id}/`
+        `${process.env.REACT_APP_API_BACKEND}/didi_thela/${Id}/`
       );
 
       if (res.status === 200) {
@@ -65,7 +67,9 @@ const ListAssigned = () => {
         Cell: ({ row }) => (
           <div className="d-flex justify-content-around">
             <button
-              onClick={() => navigate(`/assign_list/${row.original.didi_id}`)}
+              onClick={() =>
+                navigate(`/assign_list/${row.original.didi_thela_id}`)
+              }
               className="text-blue-500 hover:text-blue-700"
             >
               <FaPencilAlt />
@@ -128,20 +132,56 @@ const ListAssigned = () => {
     setData(filteredData);
   };
 
+  const getDidiName = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_BACKEND}/didi/`
+      );
+      if (response.status === 200) {
+        setDidiList(response.data);
+      } else {
+        setDidiList([]);
+      }
+    } catch (error) {
+      console.log("Error in getting didi:", error);
+      setDidiList([]);
+    }
+  };
+
+  const getCity = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_BACKEND}/cities/`
+      );
+      if (response.status === 200) {
+        setCityList(response.data);
+      } else {
+        setCityList([]);
+      }
+    } catch (error) {
+      console.log("Error in getting didi:", error);
+      setDidiList([]);
+    }
+  };
+
+  useEffect(() => {
+    getDidiName();
+    getCity();
+  }, []);
+
   return (
-    <div className=" py-2 px-6 md:px-12" style={{ height: "99vh" }}>
+    <div className="px-6 md:px-12">
       <ToastContainer />
 
-      <div className="row px-2">
-        <div className="col-md-2 ">From Date</div>
-        <div className="col-md-2 ">To Date</div>
-        <div className="col-md-3"></div>
-        <div className="col-md-3"></div>
-        <div className="col-md-1 d-flex align-items-end"></div>
+      <div className="row px-2 mt-2" style={{ color: "#5E6E82" }}>
+        <div className="col-md-3 ">From Date</div>
+        <div className="col-md-3 ">To Date</div>
+        <div className="col-md-3">Select Didi</div>
+        <div className="col-md-2 d-flex align-items-end"></div>
         <div className="col-md-1 d-flex align-items-end"></div>
       </div>
 
-      <div className="row pb-4 px-2">
+      <div className="row pb-2 px-2">
         <div className="col-md-2 px-1">
           <input
             type="date"
@@ -167,33 +207,22 @@ const ListAssigned = () => {
             className="form-control"
             value={selectedDidi}
             onChange={(e) => setSelectedDidi(e.target.value)}
-            style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
+            style={{
+              "box-shadow": "0px 1px 1px #e4e4e4",
+            }}
           >
             <option value="" disabled={true}>
               Select Didi
             </option>
-            <option value="Priyanka mishra">Priyanka mishra</option>
-            <option value="lipika Mohapatro">lipika Mohapatro</option>
-            <option value="parul goyal">parul goyal</option>
-            <option value="Rita Devi">Rita Devi</option>
+            {didiList.map((item, index) => (
+              <option key={index} value={item.full_name}>
+                {item.full_name}
+              </option>
+            ))}
           </select>
         </div>
 
-        <div className="col-md-3 px-1">
-          <select
-            className="form-control"
-            value={selectedStall}
-            onChange={(e) => setSelectedStall(e.target.value)}
-            style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
-          >
-            <option value="">Select Stall</option>
-            <option value="Mumbai">Gurugram</option>
-            <option value="Delhi">Delhi</option>
-            <option value="Bangalore">Noida</option>
-          </select>
-        </div>
-
-        <div className="col-md-1 d-flex align-items-end px-1">
+        <div className="col-md-2 d-flex align-items-end px-1">
           <button
             type="button"
             className="btn btn-primary w-100"
@@ -204,7 +233,7 @@ const ListAssigned = () => {
           </button>
         </div>
 
-        <div className="col-md-1 d-flex align-items-end px-1">
+        <div className="col-md-2 d-flex align-items-end px-1">
           <button
             type="reset"
             className="btn btn-dark w-100"
@@ -212,6 +241,15 @@ const ListAssigned = () => {
           >
             Reset
           </button>
+        </div>
+        <div className="col-md-1 d-flex align-items-end px-1">
+          <Link
+            to="/assign"
+            className="d-flex align-items-center btn btn-dark hover:bg-[#53230A] px-3"
+          >
+            <FaPlus className="me-1" />
+            <span>Add</span>
+          </Link>
         </div>
       </div>
 
