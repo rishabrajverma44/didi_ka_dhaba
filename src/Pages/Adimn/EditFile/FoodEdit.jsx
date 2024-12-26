@@ -14,9 +14,7 @@ const FoodEdit = () => {
 
   const getData = (id) => {
     axios
-      .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/foodmaster/${id}`
-      )
+      .get(`${process.env.REACT_APP_API_BACKEND}/foodmaster/${id}`)
       .then((res) => {
         const fetchedCategoryId = res.data.data.food_category;
         const category = mealCategories.find(
@@ -100,10 +98,7 @@ const FoodEdit = () => {
   const sendData = async (payload) => {
     try {
       const res = axios
-        .put(
-          `https://didikadhababackend.indevconsultancy.in/dhaba/foodmaster/${id}/`,
-          payload
-        )
+        .put(`${process.env.REACT_APP_API_BACKEND}/foodmaster/${id}/`, payload)
         .then((res) => {
           if (res.status === 200) {
             console.log(res);

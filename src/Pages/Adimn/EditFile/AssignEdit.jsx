@@ -21,9 +21,7 @@ const AssignEdit = () => {
 
   const getData = () => {
     axios
-      .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/${id}`
-      )
+      .get(`${process.env.REACT_APP_API_BACKEND}/didi_thela/${id}`)
       .then((res) => {
         if (res.status === 200) {
           const fetchedData = res.data;
@@ -60,7 +58,7 @@ const AssignEdit = () => {
   const getDidiName = async () => {
     try {
       const response = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/didi/"
+        `${process.env.REACT_APP_API_BACKEND}/didi/`
       );
       if (response.status === 200) {
         setDidiOptions(response.data);
@@ -129,10 +127,7 @@ const AssignEdit = () => {
   const sendData = async (payload) => {
     try {
       axios
-        .put(
-          `https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/${id}/`,
-          payload
-        )
+        .put(`${process.env.REACT_APP_API_BACKEND}/didi_thela/${id}/`, payload)
         .then((res) => {
           console.log(res);
           if (res.status === 200) {

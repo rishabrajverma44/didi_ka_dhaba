@@ -21,7 +21,7 @@ const DidiAssignment = () => {
   const getDidiName = async () => {
     try {
       const response = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/didi/"
+        `${process.env.REACT_APP_API_BACKEND}/didi/`
       );
       if (response.status === 200) {
         setDidiOptions(response.data);
@@ -37,7 +37,7 @@ const DidiAssignment = () => {
   const getThelaName = async () => {
     try {
       const response = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/thelas/"
+        `${process.env.REACT_APP_API_BACKEND}/thelas/`
       );
       if (response.status === 200) {
         setStallOptions(response.data);
@@ -120,10 +120,7 @@ const DidiAssignment = () => {
   const sendData = async (payload) => {
     try {
       axios
-        .post(
-          "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/",
-          payload
-        )
+        .post(`${process.env.REACT_APP_API_BACKEND}/didi_thela/`, payload)
         .then((res) => {
           if (res.status === 201) {
             toast.success(

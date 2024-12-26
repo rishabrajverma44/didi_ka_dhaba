@@ -25,7 +25,7 @@ const ListAssigned = () => {
   const fetchData = async () => {
     try {
       const res = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/"
+        `${process.env.REACT_APP_API_BACKEND}/didi_thela/`
       );
       setData(res.data);
     } catch (error) {
@@ -38,7 +38,7 @@ const ListAssigned = () => {
   const handleDelete = async (Id) => {
     try {
       const res = await axios.delete(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/${Id}/`
+        `${process.env.REACT_APP_API_BACKEND}/didi_thela/${Id}/`
       );
 
       if (res.status === 200) {
@@ -135,7 +135,7 @@ const ListAssigned = () => {
   const getDidiName = async () => {
     try {
       const response = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/didi/"
+        `${process.env.REACT_APP_API_BACKEND}/didi/`
       );
       if (response.status === 200) {
         setDidiList(response.data);
@@ -151,7 +151,7 @@ const ListAssigned = () => {
   const getCity = async () => {
     try {
       const response = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/cities/"
+        `${process.env.REACT_APP_API_BACKEND}/cities/`
       );
       if (response.status === 200) {
         setCityList(response.data);

@@ -61,10 +61,7 @@ const AddFood = () => {
   const sendData = async (payload) => {
     try {
       const res = axios
-        .post(
-          "https://didikadhababackend.indevconsultancy.in/dhaba/foodmaster/",
-          payload
-        )
+        .post(`${process.env.REACT_APP_API_BACKEND}/foodmaster/`, payload)
         .then((res) => {
           if (res.status === 201) {
             console.log(res);

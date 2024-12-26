@@ -23,7 +23,7 @@ const AdminHome = () => {
   const fetchData = useCallback(async () => {
     try {
       const res = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela_summary/"
+        `${process.env.REACT_APP_API_BACKEND}/didi_thela_summary/`
       );
       setData(res.data);
     } catch (error) {
@@ -116,7 +116,7 @@ const AdminHome = () => {
   const getDidiName = async () => {
     try {
       const response = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/didi/"
+        `${process.env.REACT_APP_API_BACKEND}/didi/`
       );
       if (response.status === 200) {
         setDidiList(response.data);
@@ -132,7 +132,7 @@ const AdminHome = () => {
   const getCity = async () => {
     try {
       const response = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/cities/"
+        `${process.env.REACT_APP_API_BACKEND}/cities/`
       );
       if (response.status === 200) {
         setCityList(response.data);

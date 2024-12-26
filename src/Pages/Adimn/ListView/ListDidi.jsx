@@ -35,13 +35,13 @@ const ListDidi = () => {
     }
   }, []);
 
-  const base_url = "https://didikadhababackend.indevconsultancy.in/dhaba";
+  const base_url = process.env.REACT_APP_API_BACKEND;
 
   const handleDelete = async () => {
     if (deleteId === null) return;
     try {
       const res = await axios.delete(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/didi/${deleteId}/`
+        `${process.env.REACT_APP_API_BACKEND}/didi/${deleteId}/`
       );
       toast.success(res.data.message);
       setDidiData((prevData) =>
@@ -111,9 +111,12 @@ const ListDidi = () => {
     const fetchDidiData = async () => {
       try {
         const response = await axios.get(
-          "https://didikadhababackend.indevconsultancy.in/dhaba/didi/"
+          `${process.env.REACT_APP_API_BACKEND}/didi/`
         );
-        setDidiData(response.data);
+        const sortedData = response.data.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
+        setDidiData(sortedData);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {

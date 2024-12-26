@@ -19,17 +19,38 @@ const DidiEdit = () => {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [isBackCamera, setIsBackCamera] = useState(false);
   const webcamRef = useRef(null);
+  const [route, setRoute] = useState();
+
+  useEffect(() => {
+    const userCredentials = JSON.parse(localStorage.getItem("userCredentials"));
+    if (userCredentials) {
+      const { email } = userCredentials;
+
+      if (email === "admin@gmail.com") {
+        setRoute("/didilist");
+      } else {
+        setRoute("/didilist-register");
+      }
+    }
+  }, []);
 
   const getData = () => {
     axios
-      .get(`https://didikadhababackend.indevconsultancy.in/dhaba/didi/${id}`)
+      .get(`${process.env.REACT_APP_API_BACKEND}/didi/${id}`)
       .then((res) => {
         if (res.status === 200) {
           setData(res.data);
           if (res.data.image) {
             setImageSrc(
-              `https://didikadhababackend.indevconsultancy.in/dhaba/${res.data.image}`
+              `${process.env.REACT_APP_API_BACKEND}/${res.data.image}`
             );
+            if (res.data.document && Array.isArray(res.data.document)) {
+              const documents = res.data.document.map(
+                (doc) => `${process.env.REACT_APP_API_BACKEND}/`
+              );
+              setImagesAdhar(documents);
+              console.log(imagesAdhar);
+            }
           }
           setIsCaptured(true);
         }
@@ -148,7 +169,7 @@ const DidiEdit = () => {
 
   const getState = () => {
     axios
-      .get("https://didikadhababackend.indevconsultancy.in/dhaba/states/")
+      .get(`${process.env.REACT_APP_API_BACKEND}/states/`)
       .then((res) => {
         setState(res.data);
       })
@@ -159,9 +180,7 @@ const DidiEdit = () => {
 
   const getDistrict = (state) => {
     axios
-      .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-districts/${state}`
-      )
+      .get(`${process.env.REACT_APP_API_BACKEND}/filter-districts/${state}`)
       .then((res) => {
         setDistrict(res.data);
       })
@@ -172,9 +191,7 @@ const DidiEdit = () => {
 
   const getCity = (district) => {
     axios
-      .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-cities/${district}`
-      )
+      .get(`${process.env.REACT_APP_API_BACKEND}/filter-cities/${district}`)
       .then((res) => {
         setCity(res.data);
       })
@@ -239,7 +256,7 @@ const DidiEdit = () => {
     setIsLoading(true);
     try {
       const res = await axios.put(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/didi/${id}/`,
+        `${process.env.REACT_APP_API_BACKEND}/didi/${id}/`,
         payload
       );
       if (res.status === 200) {
@@ -279,7 +296,7 @@ const DidiEdit = () => {
   };
 
   const breadcrumbItems = [
-    { label: "Didi List", href: "/didilist" },
+    { label: "Didi List", href: route },
     { label: "Didi", href: `` },
   ];
 
@@ -708,6 +725,7 @@ const DidiEdit = () => {
                             className="w-full h-32 object-cover rounded-md shadow-md"
                           />
                           <button
+                            type="button"
                             onClick={() => removeImageAdhar(index)}
                             className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
                           >

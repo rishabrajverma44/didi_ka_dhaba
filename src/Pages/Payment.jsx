@@ -68,7 +68,7 @@ const Payment = () => {
   const getDidi = async () => {
     try {
       axios
-        .get("https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/")
+        .get(`${process.env.REACT_APP_API_BACKEND}/didi_thela/`)
         .then((res) => {
           if (res.status === 200) {
             setNamesDidi(res.data);
@@ -180,7 +180,7 @@ const Payment = () => {
 
           try {
             const response = await axios.post(
-              "https://didikadhababackend.indevconsultancy.in/dhaba/payment-details/",
+              `${process.env.REACT_APP_API_BACKEND}/payment-details/`,
               payload
             );
             toast.success("Submitted successfully!");

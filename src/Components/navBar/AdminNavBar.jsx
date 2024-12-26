@@ -159,18 +159,21 @@ const AdminNavBar = () => {
                   <Link
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
                     to="/admin"
+                    onClick={() => setMenu(false)}
                   >
                     Home
                   </Link>
                   <Link
                     className="block w-full py-1 px-4 text-[#682C13] text-left text-gray-700 font-bold no-underline text-xl"
                     to="/listfood"
+                    onClick={() => setMenu(false)}
                   >
                     Food List
                   </Link>
                   <Link
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
                     to="/didireg"
+                    onClick={() => setMenu(false)}
                   >
                     Didi Registration
                   </Link>
@@ -183,6 +186,7 @@ const AdminNavBar = () => {
                   <Link
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
                     to="/thelareg"
+                    onClick={() => setMenu(false)}
                   >
                     Stall Registration
                   </Link>
@@ -190,12 +194,14 @@ const AdminNavBar = () => {
                   <Link
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
                     to="/stall_list"
+                    onClick={() => setMenu(false)}
                   >
                     Stall List
                   </Link>
                   <Link
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
                     to="/assign"
+                    onClick={() => setMenu(false)}
                   >
                     Didi assing
                   </Link>
@@ -217,18 +223,21 @@ const AdminNavBar = () => {
               <Link
                 className="block py-1 px-4 text-white no-underline text-md"
                 to="/admin"
+                onClick={() => setMenu(false)}
               >
                 Home
               </Link>
               <Link
                 className="block py-1 px-4 text-white no-underline text-md"
                 to="/dailylog"
+                onClick={() => setMenu(false)}
               >
                 Daily Log
               </Link>
               <Link
                 className="block py-1 px-4 text-white no-underline text-md"
                 to="/listfood"
+                onClick={() => setMenu(false)}
               >
                 Food List
               </Link>
@@ -268,12 +277,14 @@ const AdminNavBar = () => {
               <Link
                 className="block py-1 px-4 text-white no-underline text-md"
                 to="/didilist"
+                onClick={() => setMenu(false)}
               >
                 Didi List
               </Link>
               <Link
                 className="block py-1 px-4 text-white no-underline text-md"
                 to="/stall_list"
+                onClick={() => setMenu(false)}
               >
                 Stall List
               </Link>
@@ -281,6 +292,7 @@ const AdminNavBar = () => {
               <Link
                 className="block py-1 px-4 text-white no-underline text-md"
                 to="/assign_list"
+                onClick={() => setMenu(false)}
               >
                 Assign List
               </Link>

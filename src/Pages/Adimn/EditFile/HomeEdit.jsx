@@ -4,7 +4,7 @@ import { useLocation, useParams } from "react-router-dom";
 import Breadcrumb from "../../../Components/prebuiltComponent/Breadcrumb";
 import { toast } from "react-toastify";
 import { useReactToPrint } from "react-to-print";
-import { FaPrint } from "react-icons/fa";
+import { FaPencilAlt, FaPrint, FaTrashAlt } from "react-icons/fa";
 
 const HomeEdit = () => {
   const [didiDetails, setDidiDetails] = useState([]);
@@ -15,10 +15,10 @@ const HomeEdit = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       axios
-        .post(
-          "https://didikadhababackend.indevconsultancy.in/dhaba/details-by-meal-type/",
-          { didi_id: Number(id), date: date }
-        )
+        .post(`${process.env.REACT_APP_API_BACKEND}/details-by-meal-type/`, {
+          didi_id: Number(id),
+          date: date,
+        })
         .then((res) => {
           if (res.status === 200) {
             setData(res.data);
@@ -36,6 +36,14 @@ const HomeEdit = () => {
 
     fetchProduct();
   }, [id, date]);
+
+  const editPyment = (payment) => {
+    alert("edit");
+    console.log(payment);
+  };
+  const deletePaymnet = () => {
+    alert("delete");
+  };
 
   const FoodDetails = ({ selectedRowData }) => {
     return (
@@ -136,6 +144,30 @@ const HomeEdit = () => {
                         key={index}
                         className="px-3 py-2 border border-gray-200 rounded-md"
                       >
+                        <div>
+                          <div className="d-flex justify-content-end gap-4">
+                            <button
+                              onClick={() =>
+                                editPyment(
+                                  selectedRowData.payment_details[index]
+                                    .payment_detail_id
+                                )
+                              }
+                              className="text-blue-500 hover:text-blue-700"
+                            >
+                              <FaPencilAlt />
+                            </button>
+
+                            <button
+                              onClick={() =>
+                                deletePaymnet(selectedRowData.payment_details)
+                              }
+                              className="text-red-500 hover:text-red-700 px-2"
+                            >
+                              <FaTrashAlt />
+                            </button>
+                          </div>
+                        </div>
                         <p className="font-medium text-gray-800 my-1">
                           <span className="text-gray-500">UPI Amount: </span>₹{" "}
                           {payment.upi_amount}

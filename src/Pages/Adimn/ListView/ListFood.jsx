@@ -20,7 +20,7 @@ const ListFood = () => {
   const fetchFoodData = async () => {
     try {
       const response = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/foodmaster/"
+        `${process.env.REACT_APP_API_BACKEND}/foodmaster/`
       );
       if (response.status === 200) {
         setFoodData(response.data.data);
@@ -83,7 +83,7 @@ const ListFood = () => {
   const handleDelete = async (foodId) => {
     try {
       const res = await axios.delete(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/foodmaster/${foodId}/`
+        `${process.env.REACT_APP_API_BACKEND}/foodmaster/${foodId}/`
       );
       if (res.status === 204) {
         toast.success("Food deleted successfully!");
@@ -145,13 +145,22 @@ const ListFood = () => {
             placeholder="Search..."
             className="w-64 p-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A24C4A] transition duration-200"
           />
-          <Link
-            to="/addfood"
-            className="d-flex align-items-center btn btn-dark hover:bg-[#53230A] px-3"
-          >
-            <FaPlus className="me-1" />
-            <span>Add</span>
-          </Link>
+          <span className="d-flex gap-4">
+            <Link
+              to="/plateDetails"
+              className="d-flex align-items-center btn btn-dark hover:bg-[#53230A] px-3"
+            >
+              <FaPlus className="me-1" />
+              <span>Add Plate</span>
+            </Link>
+            <Link
+              to="/addfood"
+              className="d-flex align-items-center btn btn-dark hover:bg-[#53230A] px-3"
+            >
+              <FaPlus className="me-1" />
+              <span>Add</span>
+            </Link>
+          </span>
         </div>
       </div>
 

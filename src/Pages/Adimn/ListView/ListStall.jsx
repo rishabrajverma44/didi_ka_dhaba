@@ -40,7 +40,7 @@ const ListStall = () => {
   const fetchstallData = async () => {
     try {
       const response = await axios.get(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/thelas/"
+        `${process.env.REACT_APP_API_BACKEND}/thelas/`
       );
       if (response.status === 200) {
         setStallData(response.data);
@@ -115,7 +115,7 @@ const ListStall = () => {
   const handleDelete = async (stallId) => {
     try {
       const res = await axios.delete(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/thelas/${stallId}/`
+        `${process.env.REACT_APP_API_BACKEND}/thelas/${stallId}/`
       );
       if (res.status === 204) {
         toast.success("Stall deleted successfully!");

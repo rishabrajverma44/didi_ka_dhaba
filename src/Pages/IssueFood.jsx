@@ -24,6 +24,19 @@ const IssueFood = () => {
   const [lunch, setLunch] = useState([]);
   const [dinner, setDinner] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [plateValues, setPlateValues] = useState({
+    plate1: "",
+    plate2: "",
+    plate3: "",
+    plate4: "",
+  });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setPlateValues({
+      ...plateValues,
+      [name]: value,
+    });
+  };
 
   const handleMealChange = (e) => {
     setMealType(e.target.value);
@@ -39,7 +52,7 @@ const IssueFood = () => {
     try {
       axios
         .get(
-          `https://didikadhababackend.indevconsultancy.in/dhaba/foodmaster/category/${mealType}`
+          `${process.env.REACT_APP_API_BACKEND}/foodmaster/category/${mealType}`
         )
         .then((res) => {
           if (res.status === 200) {
@@ -157,7 +170,7 @@ const IssueFood = () => {
   const getDidiName = async () => {
     try {
       axios
-        .get("https://didikadhababackend.indevconsultancy.in/dhaba/didi_thela/")
+        .get(`${process.env.REACT_APP_API_BACKEND}/didi_thela/`)
         .then((res) => {
           if (res.status === 200) {
             setDidiName(res.data);
@@ -194,37 +207,32 @@ const IssueFood = () => {
 
   const MealSection = ({ title, items, handleRemoveItem, mealType }) => (
     <>
-      {
-        items && items.length > 0 ? (
-          <>
-            <h5 className="text-center mt-2 text-lg text-[#A24C4A] font-bold">
-              {title}:
-            </h5>
-            {items.map((item, index) => (
-              <div
-                key={index}
-                className="border py-1 px-1 rounded-lg flex justify-between items-center my-2"
-              >
-                <div className="flex flex-col">
-                  <span className="text-2xl font-medium">{item.food_name}</span>
-                  <span className="text-sm text-gray-600">
-                    {item.quantity} - {item.unit_name}
-                  </span>
-                </div>
-                <button
-                  onClick={() => handleRemoveItem(item, mealType)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <FiX size={24} />
-                </button>
+      {items && items.length > 0 ? (
+        <>
+          <h5 className="text-center mt-2 text-lg text-[#A24C4A] font-bold">
+            {title}:
+          </h5>
+          {items.map((item, index) => (
+            <div
+              key={index}
+              className="border py-1 px-1 rounded-lg flex justify-between items-center my-2"
+            >
+              <div className="flex flex-col">
+                <span className="text-2xl font-medium">{item.food_name}</span>
+                <span className="text-sm text-gray-600">
+                  {item.quantity} - {item.unit_name}
+                </span>
               </div>
-            ))}
-          </>
-        ) : null
-        // <div className="flex justify-center items-center text-gray-500 mt-4">
-        //   No {title.toLowerCase()} selected
-        // </div>
-      }
+              <button
+                onClick={() => handleRemoveItem(item, mealType)}
+                className="text-red-500 hover:text-red-700"
+              >
+                <FiX size={24} />
+              </button>
+            </div>
+          ))}
+        </>
+      ) : null}
     </>
   );
 
@@ -234,10 +242,7 @@ const IssueFood = () => {
     if (actualStatus) {
       setIsLoading(true);
       axios
-        .post(
-          "https://didikadhababackend.indevconsultancy.in/dhaba/issue-food/",
-          payload
-        )
+        .post(`${process.env.REACT_APP_API_BACKEND}/issue-food/`, payload)
         .then((res) => {
           console.log(res);
           if (res.status === 201) {
@@ -301,7 +306,9 @@ const IssueFood = () => {
       ],
     };
 
-    postFoodItem(payload);
+    console.log(plateValues);
+
+    //postFoodItem(payload);
   };
 
   return (
@@ -387,7 +394,7 @@ const IssueFood = () => {
 
         <div className="flex justify-center">
           {selectedDidi && (
-            <div className="mt-3 bg-white shadow rounded-lg p-2 w-full max-w-md">
+            <div className="mt-3 bg-white shadow rounded-lg p-2 w-full max-w-xl">
               <h3 className="text-xl flex items-center justify-between font-semibold text-gray-800 mb-1">
                 <span>Add Items for {searchTerm}</span>
                 <button
@@ -427,6 +434,61 @@ const IssueFood = () => {
                   />
                 </div>
               </div>
+              {(breakfast || lunch || dinner) &&
+              (breakfast.length > 0 ||
+                lunch.length > 0 ||
+                dinner.length > 0) ? (
+                <div>
+                  <div className="row mb-1">
+                    <div className="col text-center">Plate (40 ₹)</div>
+                    <div className="col text-center">Container (30 ₹)</div>
+                    <div className="col text-center">Dona (20 ₹)</div>
+                    <div className="col text-center">Plate (5 ₹)</div>
+                  </div>
+                  <div className="row">
+                    <div className="col">
+                      <input
+                        type="number"
+                        name="plate1"
+                        value={plateValues.plate1}
+                        onChange={handleChange}
+                        min="0"
+                        className="w-full px-1 py-1 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="col">
+                      <input
+                        type="number"
+                        name="plate2"
+                        value={plateValues.plate2}
+                        onChange={handleChange}
+                        min="0"
+                        className="w-full px-1 py-1 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="col">
+                      <input
+                        type="number"
+                        name="plate3"
+                        value={plateValues.plate3}
+                        onChange={handleChange}
+                        min="0"
+                        className="w-full px-1 py-1 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div className="col">
+                      <input
+                        type="number"
+                        name="plate4"
+                        value={plateValues.plate4}
+                        onChange={handleChange}
+                        min="0"
+                        className="w-full px-1 py-1 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : null}
             </div>
           )}
         </div>

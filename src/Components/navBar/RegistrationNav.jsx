@@ -82,24 +82,28 @@ const RegistrationNav = () => {
                   <Link
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
                     to="/didireg-register"
+                    onClick={() => setMenu(false)}
                   >
                     Didi Registration
                   </Link>
                   <Link
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
                     to="/didilist-register"
+                    onClick={() => setMenu(false)}
                   >
                     Didi List
                   </Link>
                   <Link
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
                     to="/thelareg-register"
+                    onClick={() => setMenu(false)}
                   >
                     Stall Registration
                   </Link>
                   <Link
                     className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
                     to="/stall_list-register"
+                    onClick={() => setMenu(false)}
                   >
                     Stall List
                   </Link>

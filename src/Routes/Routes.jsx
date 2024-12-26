@@ -24,6 +24,7 @@ import StallEdite from "../Pages/Adimn/EditFile/StallEdite";
 import AssignEdit from "../Pages/Adimn/EditFile/AssignEdit";
 import RegistarRout from "./RegistarRoute";
 import DidiProfile from "../Pages/Adimn/EditFile/DidiProfile";
+import Plate from "../Pages/Adimn/Plates/Plate";
 
 const routes = [
   {
@@ -55,7 +56,6 @@ const routes = [
           </AdminRoute>
         ),
       },
-
       {
         path: "didireg",
         element: (
@@ -161,7 +161,14 @@ const routes = [
           </AdminRoute>
         ),
       },
-
+      {
+        path: "plateDetails",
+        element: (
+          <AdminRoute>
+            <Plate />
+          </AdminRoute>
+        ),
+      },
       {
         path: "mobilehome",
         element: (

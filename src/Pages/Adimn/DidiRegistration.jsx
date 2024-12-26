@@ -128,7 +128,7 @@ const DidiRegistration = () => {
 
   const getState = () => {
     axios
-      .get("https://didikadhababackend.indevconsultancy.in/dhaba/states/")
+      .get(`${process.env.REACT_APP_API_BACKEND}/states/`)
       .then((res) => {
         setState(res.data);
       })
@@ -139,9 +139,7 @@ const DidiRegistration = () => {
 
   const getDistrict = (state) => {
     axios
-      .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-districts/${state}`
-      )
+      .get(`${process.env.REACT_APP_API_BACKEND}/filter-districts/${state}`)
       .then((res) => {
         setDistrict(res.data);
       })
@@ -152,9 +150,7 @@ const DidiRegistration = () => {
 
   const getCity = (district) => {
     axios
-      .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-cities/${district}`
-      )
+      .get(`${process.env.REACT_APP_API_BACKEND}/filter-cities/${district}`)
       .then((res) => {
         setCity(res.data);
       })
@@ -195,7 +191,7 @@ const DidiRegistration = () => {
     setIsLoading(true);
     try {
       const res = await axios.post(
-        "https://didikadhababackend.indevconsultancy.in/dhaba/didi/",
+        `${process.env.REACT_APP_API_BACKEND}/didi/`,
         payload
       );
       if (res.status === 201) {
@@ -443,6 +439,7 @@ const DidiRegistration = () => {
                   </label>
                   <Field
                     type="number"
+                    min="0"
                     id="mobile_no"
                     name="mobile_no"
                     placeholder="Enter your mobile number"
@@ -464,6 +461,7 @@ const DidiRegistration = () => {
                   </label>
                   <Field
                     type="number"
+                    min="0"
                     id="alternate_mobile_no"
                     name="alternate_mobile_no"
                     placeholder="Enter your alternate mobile number"
