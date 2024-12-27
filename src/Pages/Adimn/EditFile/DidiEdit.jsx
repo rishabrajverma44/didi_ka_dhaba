@@ -45,11 +45,11 @@ const DidiEdit = () => {
               `${process.env.REACT_APP_API_BACKEND}/${res.data.image}`
             );
             if (res.data.document && Array.isArray(res.data.document)) {
-              const documents = res.data.document.map(
-                (doc) => `${process.env.REACT_APP_API_BACKEND}/`
-              );
+              const documents = res.data.document.map((doc) => {
+                const lastSegment = doc.substring(doc.lastIndexOf("/") + 1);
+                return `${process.env.REACT_APP_API_BACKEND}/media/documents/${lastSegment}`;
+              });
               setImagesAdhar(documents);
-              console.log(imagesAdhar);
             }
           }
           setIsCaptured(true);
@@ -129,7 +129,6 @@ const DidiEdit = () => {
   };
 
   //adhar
-
   const [imagesAdhar, setImagesAdhar] = useState([]);
   const [isCameraOpenAdhar, setIsCameraOpenAdhar] = useState(false);
   const [isBackCameraAdhar, setIsBackCameraAdhar] = useState(true);
@@ -248,9 +247,27 @@ const DidiEdit = () => {
       }
     }
 
+    let base64AdharImages = [];
+    if (imagesAdhar.length > 0) {
+      try {
+        base64AdharImages = await Promise.all(
+          imagesAdhar.map(async (image) => {
+            if (!image.startsWith("data:image")) {
+              return await convertImageToBase64(image);
+            }
+            return image;
+          })
+        );
+      } catch (error) {
+        toast.error("Failed to convert one or more Adhar images to Base64");
+        return;
+      }
+    }
+
     const payload = {
       ...values,
       image: finalImage || null,
+      document: base64AdharImages,
     };
 
     setIsLoading(true);
@@ -273,11 +290,11 @@ const DidiEdit = () => {
           if (email === "admin@gmail.com") {
             setTimeout(() => {
               navigate("/didilist");
-            }, 2000);
+            }, 1000);
           } else {
             setTimeout(() => {
               navigate("/didilist-register");
-            }, 2000);
+            }, 1000);
           }
         }
       }
@@ -291,8 +308,6 @@ const DidiEdit = () => {
     } finally {
       setIsLoading(false);
     }
-
-    // resetForm();
   };
 
   const breadcrumbItems = [
@@ -516,6 +531,11 @@ const DidiEdit = () => {
                     id="mobile_no"
                     name="mobile_no"
                     placeholder="Enter your mobile number"
+                    onInput={(e) => {
+                      if (e.target.value.length > 10) {
+                        e.target.value = e.target.value.slice(0, 10);
+                      }
+                    }}
                     className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                   <ErrorMessage
@@ -537,6 +557,11 @@ const DidiEdit = () => {
                     id="alternate_mobile_no"
                     name="alternate_mobile_no"
                     placeholder="Enter your alternate mobile number"
+                    onInput={(e) => {
+                      if (e.target.value.length > 10) {
+                        e.target.value = e.target.value.slice(0, 10);
+                      }
+                    }}
                     className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                   <ErrorMessage
@@ -656,7 +681,7 @@ const DidiEdit = () => {
                 )}
               </div>
 
-              {/* <div className="row inline-block p-2">
+              <div className="row inline-block p-2">
                 {isCameraOpenAdhar && (
                   <>
                     <div className="relative">
@@ -736,7 +761,7 @@ const DidiEdit = () => {
                     </div>
                   )}
                 </div>
-              </div> */}
+              </div>
 
               <div className="flex justify-end my-4">
                 <button

@@ -100,10 +100,9 @@ const ThelaRegistration = () => {
       latitude: location.latitude,
       longitude: location.longitude,
     };
-    console.log(payload);
-    // setIsLoading(true);
-    // await sendData(payload);
-    // setSubmitting(false);
+    setIsLoading(true);
+    await sendData(payload);
+    setSubmitting(false);
   };
 
   // State management

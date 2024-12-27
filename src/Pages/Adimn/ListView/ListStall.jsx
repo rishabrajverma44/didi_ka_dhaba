@@ -43,7 +43,10 @@ const ListStall = () => {
         `${process.env.REACT_APP_API_BACKEND}/thelas/`
       );
       if (response.status === 200) {
-        setStallData(response.data);
+        const sortedData = response.data.sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
+        setStallData(sortedData);
       }
     } catch (error) {
       console.error("Error fetching food data:", error);
@@ -236,7 +239,7 @@ const ListStall = () => {
                   <tr>
                     <td
                       colSpan={columns.length}
-                      className="text-center p-4 text-red-500"
+                      className="text-center text-red-500"
                     >
                       No results found.
                     </td>

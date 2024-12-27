@@ -9,6 +9,7 @@ import {
 import { FaPencilAlt, FaTrashAlt, FaPlus } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
+import Pagination from "../../../Components/prebuiltComponent/Pagination";
 
 const ListAssigned = () => {
   const navigate = useNavigate();
@@ -21,13 +22,17 @@ const ListAssigned = () => {
   const [loading, setLoading] = useState(true);
   const [didiList, setDidiList] = useState([]);
   const [cityList, setCityList] = useState([]);
+  const [searchText, setSearchText] = useState("");
 
   const fetchData = async () => {
     try {
       const res = await axios.get(
         `${process.env.REACT_APP_API_BACKEND}/didi_thela/`
       );
-      setData(res.data);
+      const sortedData = res.data.sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+      setData(sortedData);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -58,8 +63,18 @@ const ListAssigned = () => {
   const columns = useMemo(
     () => [
       { Header: "S. No", accessor: "serialNumber" },
-      { Header: "From Date", accessor: "from_date" },
-      { Header: "To Date", accessor: "to_date" },
+      {
+        Header: "From Date",
+        Cell: ({ row }) => {
+          return row.original.from_date.split("-").reverse().join("-");
+        },
+      },
+      {
+        Header: "To Date",
+        Cell: ({ row }) => {
+          return row.original.to_date.split("-").reverse().join("-");
+        },
+      },
       { Header: "Didi Name", accessor: "full_name" },
       { Header: "Stall Code", accessor: "thela_code" },
       {
@@ -88,16 +103,31 @@ const ListAssigned = () => {
     []
   );
 
-  const { getTableProps, getTableBodyProps, headerGroups, page, prepareRow } =
-    useTable(
-      {
-        columns,
-        data,
-      },
-      useGlobalFilter,
-      useSortBy,
-      usePagination
-    );
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    state: { pageIndex, pageSize },
+    canPreviousPage,
+    canNextPage,
+    nextPage,
+    previousPage,
+    gotoPage,
+    setPageSize,
+    setGlobalFilter,
+  } = useTable(
+    {
+      columns,
+      data: data,
+      initialState: { pageIndex: 0, pageSize: 10 },
+      globalFilter: searchText,
+    },
+    useGlobalFilter,
+    useSortBy,
+    usePagination
+  );
 
   const handleReset = () => {
     setFromDate("");
@@ -168,6 +198,11 @@ const ListAssigned = () => {
     getDidiName();
     getCity();
   }, []);
+
+  const currentPageData = rows.slice(
+    pageIndex * pageSize,
+    (pageIndex + 1) * pageSize
+  );
 
   return (
     <div className="px-6 md:px-12">
@@ -256,81 +291,103 @@ const ListAssigned = () => {
       {loading ? (
         <p>Loading data...</p>
       ) : (
-        <div className="overflow-auto">
-          <table {...getTableProps()} className="w-full table table-bordered ">
-            <thead>
-              {headerGroups.map((headerGroup) => (
-                <tr
-                  {...headerGroup.getHeaderGroupProps()}
-                  className="border border-2"
-                >
-                  {headerGroup.headers.map((column) => (
-                    <th
-                      {...column.getHeaderProps(column.getSortByToggleProps())}
-                      className="p-2 cursor-pointer text-md font-normal"
-                      style={{ backgroundColor: "#682C13", color: "white" }}
-                    >
-                      {column.render("Header")}
-                      <span>
-                        {column.isSorted ? (
-                          column.isSortedDesc ? (
-                            <span className="ml-2 border p-1 rounded text-white">
-                              <i className="fa">&#xf150;</i>{" "}
-                            </span>
-                          ) : (
-                            <span className="ml-2 border p-1 rounded text-white">
-                              <i className="fa">&#xf0d8;</i>{" "}
-                            </span>
-                          )
-                        ) : (
-                          ""
-                        )}
-                      </span>
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody {...getTableBodyProps()}>
-              {page.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={columns.length}
-                    className="text-center p-4 text-red-500"
+        <>
+          <div className="overflow-auto">
+            <table
+              {...getTableProps()}
+              className="w-full table table-bordered table-hover"
+            >
+              <thead>
+                {headerGroups.map((headerGroup) => (
+                  <tr
+                    {...headerGroup.getHeaderGroupProps()}
+                    className="border border-2"
                   >
-                    No results found.
-                  </td>
-                </tr>
-              ) : (
-                page.map((row, index) => {
-                  prepareRow(row);
-                  return (
-                    <tr {...row.getRowProps()} className="hover:bg-gray-200">
-                      <td
-                        className="p-2 border border-2"
-                        style={{ color: "#5E6E82" }}
+                    {headerGroup.headers.map((column) => (
+                      <th
+                        {...column.getHeaderProps(
+                          column.getSortByToggleProps()
+                        )}
+                        className="p-2 cursor-pointer text-md font-normal"
+                        style={{ backgroundColor: "#682C13", color: "white" }}
                       >
-                        {index + 1}
-                      </td>
-                      {row.cells.map((cell, idx) => {
-                        if (idx === 0) return null;
-                        return (
-                          <td
-                            {...cell.getCellProps()}
-                            className="p-2 border border-2"
-                            style={{ color: "#5E6E82" }}
-                          >
-                            {cell.render("Cell")}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+                        {column.render("Header")}
+                        <span>
+                          {column.isSorted ? (
+                            column.isSortedDesc ? (
+                              <span className="ml-2 border p-1 rounded text-white">
+                                <i className="fa">&#xf150;</i>{" "}
+                              </span>
+                            ) : (
+                              <span className="ml-2 border p-1 rounded text-white">
+                                <i className="fa">&#xf0d8;</i>{" "}
+                              </span>
+                            )
+                          ) : (
+                            ""
+                          )}
+                        </span>
+                      </th>
+                    ))}
+                  </tr>
+                ))}
+              </thead>
+              <tbody {...getTableBodyProps()}>
+                {currentPageData.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={columns.length}
+                      className="text-center text-red-500"
+                    >
+                      No results found.
+                    </td>
+                  </tr>
+                ) : (
+                  currentPageData.map((row, index) => {
+                    prepareRow(row);
+                    return (
+                      <tr
+                        {...row.getRowProps()}
+                        key={row.id}
+                        className="hover:bg-gray-200"
+                      >
+                        <td
+                          className="p-2 border border-2"
+                          style={{ color: "#5E6E82" }}
+                        >
+                          {index + 1}
+                        </td>
+                        {row.cells.map((cell, idx) => {
+                          if (idx === 0) return null;
+                          return (
+                            <td
+                              {...cell.getCellProps()}
+                              className="p-2 border border-2"
+                              style={{ color: "#5E6E82" }}
+                            >
+                              {cell.render("Cell")}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+          <Pagination
+            canPreviousPage={canPreviousPage}
+            canNextPage={canNextPage}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            pageCount={Math.ceil(data.length / pageSize)}
+            gotoPage={gotoPage}
+            previousPage={previousPage}
+            nextPage={nextPage}
+            setPageSize={setPageSize}
+          />
+        </>
       )}
     </div>
   );

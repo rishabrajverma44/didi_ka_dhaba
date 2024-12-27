@@ -25,7 +25,10 @@ const AdminHome = () => {
       const res = await axios.get(
         `${process.env.REACT_APP_API_BACKEND}/didi_thela_summary/`
       );
-      setData(res.data);
+      const sortedData = res.data.sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      );
+      setData(sortedData);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -54,8 +57,13 @@ const AdminHome = () => {
 
   const columns = useMemo(
     () => [
-      { Header: "S. No", Cell: ({ row }) => row.index + 1 },
-      { Header: "Date", accessor: "date" },
+      { Header: "S. No.", Cell: ({ row }) => row.index + 1 },
+      {
+        Header: "Date",
+        Cell: ({ row }) => {
+          return row.original.date.split("-").reverse().join("-");
+        },
+      },
       { Header: "Didi Name", accessor: "full_name" },
       { Header: "City", accessor: "city" },
       { Header: "Amount Sold (INR)", accessor: "total_payment" },

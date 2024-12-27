@@ -1,31 +1,78 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Breadcrumb from "../../../Components/prebuiltComponent/Breadcrumb";
 import { FaPencilAlt, FaPlus, FaTrashAlt } from "react-icons/fa";
+import axios from "axios";
 
 const Plate = () => {
-  const [plateItems, setPlateItems] = useState([
-    { id: 1, name: "container", price: 20 },
-    { id: 2, name: "dona", price: 5 },
-    { id: 3, name: "plate 1", price: 30 },
-    { id: 4, name: "plate 2", price: 25 },
-  ]);
-  const [modalData, setModalData] = useState({ id: null, name: "", price: "" });
+  const [plateItems, setPlateItems] = useState([]);
+  const [modalData, setModalData] = useState({
+    plate_id: null,
+    plate_type: "",
+    price: "",
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const breadcrumbItems = [
-    { label: "Food List", href: "/listfood" },
-    { label: "Add Plate", href: "" },
-  ];
+  const getPlates = () => {
+    axios
+      .get(`${process.env.REACT_APP_API_BACKEND}/plates/`)
+      .then((res) => {
+        setPlateItems(res.data);
+      })
+      .catch((error) => {
+        console.log("err in get plate", error);
+      });
+  };
+  const addPlate = (payload) => {
+    axios
+      .post(`${process.env.REACT_APP_API_BACKEND}/plates/`, payload)
+      .then((res) => {
+        if (res.status === 201) {
+          getPlates();
+          toast.success("Plate added successfully.");
+        }
+      })
+      .catch((error) => {
+        console.log("err in post plate", error);
+        toast.error(error?.response?.data?.price[0]);
+      });
+  };
+  const deletePlate = (id) => {
+    axios
+      .delete(`${process.env.REACT_APP_API_BACKEND}/plates/${id}`)
+      .then((res) => {
+        if (res.status === 204) {
+          getPlates();
+          toast.error("Plate deleted successfully.");
+        }
+      })
+      .catch((error) => {
+        console.log("err in delete plate", error);
+      });
+  };
+  const editePlate = (payload, id) => {
+    axios
+      .put(`${process.env.REACT_APP_API_BACKEND}/plates/${id}/`, payload)
+      .then((res) => {
+        if (res.status === 200) {
+          getPlates();
+          toast.success("Plate Updated successfully.");
+        }
+      })
+      .catch((error) => {
+        console.log("err in put plate", error);
+        toast.error(error?.response?.data?.price[0]);
+      });
+  };
 
-  const openModal = (plate = { id: null, name: "", price: "" }) => {
+  const openModal = (plate = { plate_id: null, plate_type: "", price: "" }) => {
     setModalData(plate);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
-    setModalData({ id: null, name: "", price: "" });
+    setModalData({ plate_id: null, plate_type: "", price: "" });
     setIsModalOpen(false);
   };
 
@@ -35,33 +82,35 @@ const Plate = () => {
   };
 
   const savePlate = () => {
-    if (!modalData.name || !modalData.price) {
+    if (!modalData.plate_type || !modalData.price) {
       toast.error("Please fill in all fields.");
       return;
     }
 
-    if (modalData.id) {
-      // Edit existing plate
-      setPlateItems((prev) =>
-        prev.map((plate) =>
-          plate.id === modalData.id ? { ...plate, ...modalData } : plate
-        )
-      );
-      toast.success("Plate updated successfully.");
+    if (modalData.plate_id) {
+      const payload = {
+        plate_type: modalData.plate_type,
+        price: modalData.price,
+      };
+      editePlate(payload, modalData.plate_id);
     } else {
-      // Add new plate
-      const newPlate = { ...modalData, id: Date.now() };
-      setPlateItems((prev) => [...prev, newPlate]);
-      toast.success("Plate added successfully.");
+      const payload = {
+        plate_type: modalData.plate_type,
+        price: modalData.price,
+      };
+      addPlate(payload);
     }
-
     closeModal();
   };
 
-  const deletePlate = (id) => {
-    setPlateItems((prev) => prev.filter((plate) => plate.id !== id));
-    toast.success("Plate removed successfully.");
-  };
+  const breadcrumbItems = [
+    { label: "Food List", href: "/listfood" },
+    { label: "Add Plate", href: "" },
+  ];
+
+  useEffect(() => {
+    getPlates();
+  }, []);
 
   return (
     <div className="px-6 md:px-12">
@@ -82,47 +131,55 @@ const Plate = () => {
 
       <div className="mx-auto">
         <div className="flex justify-end">
-          <button
+          {/* <button
             onClick={() => openModal()}
             className="d-flex align-items-center btn btn-dark hover:bg-[#53230A] px-3"
           >
             <FaPlus className="me-1" />
             <span>Create Plate</span>
-          </button>
+          </button> */}
         </div>
 
-        <table className="table mt-4 border border-2">
-          <thead>
+        <table className="table mt-4 border border-2 border-gray-300">
+          <thead className="border-b border-gray-300">
             <tr>
-              <th>Name</th>
-              <th>Price</th>
-              <th>Edit</th>
-              <th>Delete</th>
+              <th className="border-r border-gray-300 p-2">Name</th>
+              <th className="border-r border-gray-300 p-2">Price</th>
+              {/* <th className="border-r border-gray-300 p-2 text-center w-25">
+                Actions
+              </th> */}
             </tr>
           </thead>
           <tbody>
             {plateItems.length > 0 ? (
               plateItems.map((plate) => (
-                <tr key={plate.id}>
-                  <td>{plate.name}</td>
-                  <td>₹ {plate.price}</td>
-                  <td>
-                    <FaPencilAlt
-                      className="text-primary cursor-pointer"
-                      onClick={() => openModal(plate)}
-                    />
+                <tr key={plate.plate_id} className="border-b border-gray-300">
+                  <td className="border-r border-gray-300 p-2">
+                    {plate.plate_type}
                   </td>
-                  <td>
-                    <FaTrashAlt
-                      className="text-danger cursor-pointer"
-                      onClick={() => deletePlate(plate.id)}
-                    />
+                  <td className="border-r border-gray-300 p-2">
+                    ₹ {plate.price}
                   </td>
+                  {/* <td className="p-2 text-center">
+                    <div className="flex justify-center items-center space-x-12">
+                      <FaPencilAlt
+                        className="text-primary cursor-pointer"
+                        onClick={() => openModal(plate)}
+                      />
+                      <FaTrashAlt
+                        className="text-danger cursor-pointer"
+                        onClick={() => deletePlate(plate.plate_id)}
+                      />
+                    </div>
+                  </td> */}
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="4" className="text-center">
+                <td
+                  colSpan="3"
+                  className="text-center p-4 border border-gray-300"
+                >
                   No plates are created.
                 </td>
               </tr>
@@ -133,11 +190,13 @@ const Plate = () => {
 
       {isModalOpen && (
         <div className="modal show d-block" tabIndex="-1">
-          <div className="modal-dialog">
+          <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">
-                  {modalData.id ? "Edit Plate" : "Add Plate"}
+                  {modalData.plate_id
+                    ? "Edit Plate Details"
+                    : "Add Plate Details"}
                 </h5>
                 <button
                   type="button"
@@ -150,9 +209,9 @@ const Plate = () => {
                   <label className="form-label">Name</label>
                   <input
                     type="text"
-                    className="form-control"
-                    name="name"
-                    value={modalData.name}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    name="plate_type"
+                    value={modalData.plate_type}
                     onChange={handleInputChange}
                   />
                 </div>
@@ -160,7 +219,7 @@ const Plate = () => {
                   <label className="form-label">Price</label>
                   <input
                     type="number"
-                    className="form-control"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                     name="price"
                     value={modalData.price}
                     onChange={handleInputChange}

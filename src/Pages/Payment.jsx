@@ -190,9 +190,8 @@ const Payment = () => {
             setOnline("");
             setCash("");
 
-            setTimeout(() => {
-              navigate("/mobilehome");
-            }, 2000);
+            navigate("/mobilehome");
+
             setIsLoading(false);
           } catch (error) {
             toast.error("Submission failed. Please try again.");
@@ -200,10 +199,9 @@ const Payment = () => {
           } finally {
             setIsLoading(false);
           }
-
-          setIsLoading(false);
         } else {
           toast.info("Submission cancelled.");
+          setIsLoading(false);
         }
       });
     } else {

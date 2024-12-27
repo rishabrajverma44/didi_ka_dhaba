@@ -176,17 +176,11 @@ const DidiRegistration = () => {
   }, [initialValues.district]);
 
   const handleSubmit = async (values, { resetForm }) => {
-    const cleanedDocuments = imagesAdhar.map(
-      (doc) => `"${doc.replace("/9j/4AAQSkZJRgABAQAAAQABAAD/", "")}"`
-    );
-
     const payload = {
       ...values,
       image: imageSrc ? imageSrc : "",
-      document: cleanedDocuments.length === 0 ? [] : cleanedDocuments,
+      document: imagesAdhar,
     };
-
-    console.log(payload.document);
 
     setIsLoading(true);
     try {
@@ -443,6 +437,11 @@ const DidiRegistration = () => {
                     id="mobile_no"
                     name="mobile_no"
                     placeholder="Enter your mobile number"
+                    onInput={(e) => {
+                      if (e.target.value.length > 10) {
+                        e.target.value = e.target.value.slice(0, 10);
+                      }
+                    }}
                     className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                   <ErrorMessage
@@ -465,6 +464,11 @@ const DidiRegistration = () => {
                     id="alternate_mobile_no"
                     name="alternate_mobile_no"
                     placeholder="Enter your alternate mobile number"
+                    onInput={(e) => {
+                      if (e.target.value.length > 10) {
+                        e.target.value = e.target.value.slice(0, 10);
+                      }
+                    }}
                     className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                   <ErrorMessage
