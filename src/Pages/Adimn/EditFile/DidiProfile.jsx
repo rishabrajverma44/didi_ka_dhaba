@@ -11,6 +11,7 @@ const DidiProfile = () => {
   const [district, setDistrict] = useState([]);
   const [city, setCity] = useState([]);
   const [route, setRoute] = useState();
+  const [identity, setIdentity] = useState([]);
 
   useEffect(() => {
     const userCredentials = JSON.parse(localStorage.getItem("userCredentials"));

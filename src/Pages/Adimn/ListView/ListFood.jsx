@@ -213,7 +213,7 @@ const ListFood = () => {
                   <tr>
                     <td
                       colSpan={columns.length}
-                      className="text-center p-4 text-red-500"
+                      className="text-center text-red-500"
                     >
                       No results found.
                     </td>

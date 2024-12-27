@@ -192,7 +192,7 @@ const ListDidi = () => {
         <p className="text-slate-600">Loading...</p>
       ) : (
         <>
-          <div className="overflow-x-auto mb-3">
+          <div className="overflow-x-auto mb-2">
             <table
               {...getTableProps()}
               className="w-full table table-bordered table-hover"
@@ -236,7 +236,7 @@ const ListDidi = () => {
                   <tr>
                     <td
                       colSpan={columns.length}
-                      className="py-2 text-slate-600"
+                      className="py-2 text-slate-600 text-center"
                     >
                       No data found
                     </td>

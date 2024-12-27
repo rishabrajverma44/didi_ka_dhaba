@@ -36,19 +36,7 @@ const ReceivedFood = () => {
     Lunch: [],
     Dinner: [],
   });
-  const [plateValues, setPlateValues] = useState({
-    plate1: "",
-    plate2: "",
-    plate3: "",
-    plate4: "",
-  });
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setPlateValues({
-      ...plateValues,
-      [name]: value,
-    });
-  };
+
   const captureImage = (mealType, index) => {
     if (webcamRef.current) {
       const screenshot = webcamRef.current.getScreenshot();
@@ -413,24 +401,22 @@ const ReceivedFood = () => {
       ),
     };
 
-    console.log(payload);
-
-    // const actualStatus = await checkInternetConnection();
-    // if (actualStatus) {
-    //   setIsLoading(true);
-    //   try {
-    //     await sendRecivedFood(payload);
-    //   } catch (error) {
-    //     toast.error("Failed to submit food data!");
-    //     console.error("Error sending food data:", error);
-    //   }
-    // } else {
-    //   Swal.fire({
-    //     html: `<b>Check Internet connection!</b>`,
-    //     allowOutsideClick: false,
-    //     confirmButtonColor: "#A24C4A",
-    //   });
-    // }
+    const actualStatus = await checkInternetConnection();
+    if (actualStatus) {
+      setIsLoading(true);
+      try {
+        await sendRecivedFood(payload);
+      } catch (error) {
+        toast.error("Failed to submit food data!");
+        console.error("Error sending food data:", error);
+      }
+    } else {
+      Swal.fire({
+        html: `<b>Check Internet connection!</b>`,
+        allowOutsideClick: false,
+        confirmButtonColor: "#A24C4A",
+      });
+    }
   };
 
   return (
@@ -939,111 +925,6 @@ const ReceivedFood = () => {
                   </div>
                 </div>
               )}
-
-              {breakfast.length > 0 || lunch.length > 0 || dinner.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="flex items-center justify-between md:block border border-2 p-2 rounded-md">
-                    <div className="mr-2 w-75 text-center font-bold md:mb-2">
-                      Plate (40 ₹)
-                    </div>
-                    <div className="row">
-                      <div className="col">
-                        <input
-                          type="number"
-                          value={"88"}
-                          min="0"
-                          className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div className="col">
-                        <input
-                          type="number"
-                          name="plate1"
-                          value={plateValues.plate1}
-                          onChange={handleChange}
-                          min="0"
-                          className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between md:block border border-2 p-2 rounded-md">
-                    <div className="mr-2 w-75 text-center font-bold md:mb-2">
-                      Container (30 ₹)
-                    </div>
-                    <div className="row">
-                      <div className="col">
-                        <input
-                          type="number"
-                          value={"77"}
-                          min="0"
-                          className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div className="col">
-                        <input
-                          type="number"
-                          name="plate2"
-                          value={plateValues.plate2}
-                          onChange={handleChange}
-                          min="0"
-                          className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between md:block border border-2 p-2 rounded-md">
-                    <div className="mr-2 w-75 text-center font-bold md:mb-2">
-                      Dona (20 ₹)
-                    </div>
-                    <div className="row">
-                      <div className="col">
-                        <input
-                          type="number"
-                          value={"44"}
-                          min="0"
-                          className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div className="col">
-                        <input
-                          type="number"
-                          name="plate3"
-                          value={plateValues.plate3}
-                          onChange={handleChange}
-                          min="0"
-                          className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between md:block border border-2 p-2 rounded-md">
-                    <div className="mr-2 w-75 text-center font-bold md:mb-2">
-                      Plate (5 ₹)
-                    </div>
-                    <div className="row">
-                      <div className="col">
-                        <input
-                          type="number"
-                          value={"34"}
-                          min="0"
-                          className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div className="col">
-                        <input
-                          type="number"
-                          name="plate4"
-                          value={plateValues.plate4}
-                          onChange={handleChange}
-                          min="0"
-                          className="w-full px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
 
               {selectedDidi && (
                 <div className="flex justify-between my-4">

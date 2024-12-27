@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const DailyLog = () => {
   return (
@@ -12,6 +12,7 @@ const DailyLog = () => {
           </b>
         </div>
       </div>
+      <div></div>
     </div>
   );
 };
