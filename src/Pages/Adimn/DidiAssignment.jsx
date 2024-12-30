@@ -128,7 +128,7 @@ const DidiAssignment = () => {
             );
             setTimeout(() => {
               navigate("/assign_list");
-            }, 2000);
+            }, 1000);
           }
         })
         .catch((err) => {

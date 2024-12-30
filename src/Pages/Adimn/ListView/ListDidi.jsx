@@ -72,7 +72,20 @@ const ListDidi = () => {
             <span className="text-gray-500">No image</span>
           ),
       },
-      { Header: "Full Name", accessor: "full_name" },
+      {
+        Header: "Full Name",
+        accessor: "full_name",
+        Cell: ({ value, row }) =>
+          value ? (
+            <button
+              onClick={() => navigate(`${route2}/${row.original.didi_id}`)}
+            >
+              {row.original.full_name}
+            </button>
+          ) : (
+            <span className="text-gray-500">No name</span>
+          ),
+      },
       { Header: "Mobile No", accessor: "mobile_no" },
       { Header: "Alternate Mobile No", accessor: "alternate_mobile_no" },
       { Header: "Husband Name", accessor: "husband_name" },

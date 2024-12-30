@@ -7,7 +7,7 @@ import { useReactToPrint } from "react-to-print";
 import Swal from "sweetalert2";
 import { FaPencilAlt, FaPrint, FaTrashAlt } from "react-icons/fa";
 
-const HomeEdit = () => {
+const DailyLogEdit = () => {
   const [didiDetails, setDidiDetails] = useState([]);
   const [data, setData] = useState(null);
 
@@ -107,7 +107,7 @@ const HomeEdit = () => {
 
   const FoodDetails = ({ selectedRowData }) => {
     return (
-      <div className="p-1 w-full bg-white mb-8 rounded-md pb-4">
+      <div className="p-1 w-full bg-white mb-4 rounded-md pb-2">
         {selectedRowData ? (
           <div className="space-y-6 px-3">
             {Object.keys(selectedRowData.issued_food).length > 0 ||
@@ -317,8 +317,8 @@ const HomeEdit = () => {
   });
 
   const breadcrumbItems = [
-    { label: "Home", href: "/admin" },
-    { label: "Didi Details", href: `/admin/` },
+    { label: "Daily log", href: "/dailylog" },
+    { label: "Didi Details", href: `/` },
   ];
   return (
     <div className="md:px-12 px-6 py-2">
@@ -384,10 +384,10 @@ const HomeEdit = () => {
             <div className="d-flex justify-content-end m-0 p-0 px-3">
               <button
                 onClick={handlePrint}
-                className="mb-2 px-2 py-1 btn btn-dark text-white rounded hover:bg-[#53230A]"
+                className="px-2 btn btn-dark text-white rounded hover:bg-[#53230A]"
               >
                 <div className="flex items-center">
-                  <FaPrint className="mr-2" />
+                  <FaPrint className="" />
                 </div>
               </button>
             </div>
@@ -395,7 +395,7 @@ const HomeEdit = () => {
               className="float-none w-auto ml-6 px-2"
               style={{ color: "#5E6E82", fontWeight: "bolder" }}
             >
-              Log
+              Daily Log
             </legend>
             <FoodDetails selectedRowData={data} />
           </fieldset>
@@ -474,4 +474,4 @@ const HomeEdit = () => {
   );
 };
 
-export default HomeEdit;
+export default DailyLogEdit;

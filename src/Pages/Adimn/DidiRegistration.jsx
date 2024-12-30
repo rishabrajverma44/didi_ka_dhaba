@@ -203,11 +203,11 @@ const DidiRegistration = () => {
           if (email === "admin@gmail.com") {
             setTimeout(() => {
               navigate("/didilist");
-            }, 2000);
+            }, 1000);
           } else {
             setTimeout(() => {
               navigate("/didilist-register");
-            }, 2000);
+            }, 1000);
           }
         }
         resetForm();

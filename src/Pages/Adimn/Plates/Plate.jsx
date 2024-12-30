@@ -120,7 +120,7 @@ const Plate = () => {
           <b
             style={{ color: "#5E6E82", fontWeight: "bolder", fontSize: "18px" }}
           >
-            Add Plates
+            Plates
           </b>
         </div>
 

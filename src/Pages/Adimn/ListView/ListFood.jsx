@@ -150,8 +150,8 @@ const ListFood = () => {
               to="/plateDetails"
               className="d-flex align-items-center btn btn-dark hover:bg-[#53230A] px-3"
             >
-              <FaPlus className="me-1" />
-              <span>Add Plate</span>
+              {/* <FaPlus className="me-1" /> */}
+              <span> Plates</span>
             </Link>
             <Link
               to="/addfood"

@@ -36,6 +36,8 @@ const ReceivedFood = () => {
     Lunch: [],
     Dinner: [],
   });
+  const [plateValues, setPlateValues] = useState({});
+  const [errors, setErrors] = useState({});
 
   const captureImage = (mealType, index) => {
     if (webcamRef.current) {
@@ -154,14 +156,14 @@ const ReceivedFood = () => {
       })),
       ...lunch.map((item, index) => ({
         received_quantity: item.received_quantity + "",
-        issue_food_id: item.issue_food_id + "",
+        issue_food_id: item.issue_food_id,
         total_quantity: item.total_quantity + "",
         meal_type: "Lunch",
         image: capturedImages.Lunch[index] || null,
       })),
       ...dinner.map((item, index) => ({
         received_quantity: item.received_quantity + "",
-        issue_food_id: item.issue_food_id + "",
+        issue_food_id: item.issue_food_id,
         total_quantity: item.total_quantity + "",
         meal_type: "Dinner",
         image: capturedImages.Dinner[index] || null,
@@ -273,10 +275,37 @@ const ReceivedFood = () => {
     }
   };
 
+  const getPlate = async (selectedDidi, date) => {
+    const payload = {
+      didi_id: selectedDidi,
+      issue_date: date,
+    };
+    axios
+      .post(`${process.env.REACT_APP_API_BACKEND}/filter-issue-food/`, payload)
+      .then((res) => {
+        if (res.status === 200) {
+          setPlateValues(res.data);
+        }
+      })
+      .catch((e) => {
+        console.log("error in get filter-issue-food plate", e);
+      });
+  };
+  const handleInputChange = (item_name, value) => {
+    setPlateValues((prevValues) =>
+      prevValues.map((plate) =>
+        plate.item_name === item_name
+          ? { ...plate, return_quantity: value || 0 }
+          : plate
+      )
+    );
+  };
+
   useEffect(() => {
     const date = getDate();
     if (selectedDidi != null && date) {
       getAssignedFoods(selectedDidi, date);
+      getPlate(selectedDidi, date);
     }
   }, [selectedDidi]);
 
@@ -302,7 +331,7 @@ const ReceivedFood = () => {
 
         setTimeout(() => {
           navigate("/mobilehome");
-        }, 2000);
+        }, 1000);
         setIsLoading(false);
       }
     } catch (e) {
@@ -381,25 +410,34 @@ const ReceivedFood = () => {
       toast.error("Please select a valid Didi from the dropdown!");
       return;
     }
+    const filteredPlates = plateValues.map((plate) => ({
+      issue_food_id: plate.issue_food_id,
+      received_quantity: plate?.return_quantity || 0,
+      total_quantity: plate.total_quantity,
+      meal_type: plate.meal_type,
+    }));
+    const filterFood = finalData.map(
+      ({
+        issue_food_id,
+        total_quantity,
+        received_quantity,
+        meal_type,
+        image,
+      }) => ({
+        issue_food_id,
+        total_quantity,
+        received_quantity,
+        meal_type,
+        image: image || null,
+      })
+    );
+
     const did_id = selectedDidi;
     const payload = {
       didi_id: did_id,
-      food_data: finalData.map(
-        ({
-          issue_food_id,
-          total_quantity,
-          received_quantity,
-          meal_type,
-          image,
-        }) => ({
-          issue_food_id,
-          total_quantity,
-          received_quantity,
-          meal_type,
-          image: image || null,
-        })
-      ),
+      food_data: [...filterFood, ...filteredPlates],
     };
+    console.log(payload);
 
     const actualStatus = await checkInternetConnection();
     if (actualStatus) {
@@ -524,7 +562,7 @@ const ReceivedFood = () => {
                           return (
                             <tr key={uniqueIndex}>
                               <td className="text-center font-bold">
-                                {item.food_name}
+                                {item.item_name}
                               </td>
                               <td className="text-center">
                                 <span className="font-bold">
@@ -674,7 +712,7 @@ const ReceivedFood = () => {
                           return (
                             <tr key={uniqueIndex}>
                               <td className="text-center font-bold">
-                                {item.food_name}
+                                {item.item_name}
                               </td>
                               <td className="text-center">
                                 <span className="font-bold">
@@ -821,7 +859,7 @@ const ReceivedFood = () => {
                           return (
                             <tr key={uniqueIndex}>
                               <td className="text-center font-bold">
-                                {item.food_name}
+                                {item.item_name}
                               </td>
                               <td className="text-center">
                                 <span className="font-bold">
@@ -925,6 +963,47 @@ const ReceivedFood = () => {
                   </div>
                 </div>
               )}
+
+              {(breakfast || lunch || dinner) &&
+              (breakfast.length > 0 ||
+                lunch.length > 0 ||
+                dinner.length > 0) ? (
+                <div className="overflow-x-auto">
+                  <div className="flex space-x-4">
+                    {Array.isArray(plateValues) &&
+                      plateValues.map((plate) => (
+                        <div
+                          className="min-w-[200px] mx-2 mb-4 lg:mb-0 px-4"
+                          key={plate.issue_food_id}
+                        >
+                          <div className="row my-2">
+                            <span>
+                              <span className="font-bold">
+                                {" "}
+                                {plate.item_name}{" "}
+                              </span>
+                              <span> ( {plate.total_quantity} )</span>
+                            </span>
+                          </div>
+                          <div className="row">
+                            <input
+                              type="number"
+                              placeholder="Quantity"
+                              min="0"
+                              onChange={(e) =>
+                                handleInputChange(
+                                  plate.item_name,
+                                  Number(e.target.value)
+                                )
+                              }
+                              className="px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              ) : null}
 
               {selectedDidi && (
                 <div className="flex justify-between my-4">
