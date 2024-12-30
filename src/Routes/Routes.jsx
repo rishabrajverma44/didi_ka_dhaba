@@ -13,7 +13,6 @@ import AdminRoute from "./AdminRoute";
 import DidiAssignment from "../Pages/Adimn/DidiAssignment";
 import AddFood from "../Pages/Adimn/AddFood";
 import DidiEdit from "../Pages/Adimn/EditFile/DidiEdit";
-import HomeEdit from "../Pages/Adimn/EditFile/HomeEdit";
 import DailyLog from "../Pages/Adimn/DailyLog";
 import ListAssigned from "../Pages/Adimn/ListView/ListAssigned";
 import ListFood from "../Pages/Adimn/ListView/ListFood";
@@ -25,6 +24,7 @@ import AssignEdit from "../Pages/Adimn/EditFile/AssignEdit";
 import RegistarRout from "./RegistarRoute";
 import DidiProfile from "../Pages/Adimn/EditFile/DidiProfile";
 import Plate from "../Pages/Adimn/Plates/Plate";
+import DailyLogEdit from "../Pages/Adimn/EditFile/DailyLog";
 
 const routes = [
   {
@@ -44,7 +44,7 @@ const routes = [
         path: "admin/:id/:date",
         element: (
           <AdminRoute>
-            <HomeEdit />
+            <DailyLogEdit />
           </AdminRoute>
         ),
       },

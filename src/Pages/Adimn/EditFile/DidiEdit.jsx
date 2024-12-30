@@ -50,6 +50,7 @@ const DidiEdit = () => {
                 return `${process.env.REACT_APP_API_BACKEND}/media/documents/${lastSegment}`;
               });
               setImagesAdhar(documents);
+              setImagesAdharSend(documents);
             }
           }
           setIsCaptured(true);
@@ -130,6 +131,7 @@ const DidiEdit = () => {
 
   //adhar
   const [imagesAdhar, setImagesAdhar] = useState([]);
+  const [imagesAdharSend, setImagesAdharSend] = useState([]);
   const [isCameraOpenAdhar, setIsCameraOpenAdhar] = useState(false);
   const [isBackCameraAdhar, setIsBackCameraAdhar] = useState(true);
   const webcamRef2 = useRef(null);
@@ -145,12 +147,16 @@ const DidiEdit = () => {
       const screenshot = webcamRef2.current.getScreenshot();
       if (screenshot) {
         setImagesAdhar((prevImages) => [...prevImages, screenshot]);
+        setImagesAdharSend((prevImages) => [...prevImages, screenshot]);
       }
     }
   };
 
   const removeImageAdhar = (index) => {
     setImagesAdhar((prevImages) => prevImages.filter((_, i) => i !== index));
+    setImagesAdharSend((prevImages) =>
+      prevImages.filter((_, i) => i !== index)
+    );
   };
 
   const toggleCameraAdhar = () => {
@@ -248,10 +254,10 @@ const DidiEdit = () => {
     }
 
     let base64AdharImages = [];
-    if (imagesAdhar.length > 0) {
+    if (imagesAdharSend.length > 0) {
       try {
         base64AdharImages = await Promise.all(
-          imagesAdhar.map(async (image) => {
+          imagesAdharSend.map(async (image) => {
             if (!image.startsWith("data:image")) {
               return await convertImageToBase64(image);
             }
@@ -269,7 +275,6 @@ const DidiEdit = () => {
       image: finalImage || null,
       document: base64AdharImages,
     };
-
     setIsLoading(true);
     try {
       const res = await axios.put(

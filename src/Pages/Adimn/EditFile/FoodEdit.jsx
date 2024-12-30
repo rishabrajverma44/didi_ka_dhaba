@@ -109,7 +109,7 @@ const FoodEdit = () => {
             toast.success("Food added Successfully !");
             setTimeout(() => {
               navigate("/listfood");
-            }, 2000);
+            }, 1000);
           }
         });
     } catch (error) {

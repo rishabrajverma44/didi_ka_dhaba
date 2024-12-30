@@ -134,7 +134,7 @@ const AssignEdit = () => {
             toast.success(res.data.message);
             setTimeout(() => {
               navigate("/assign_list");
-            }, 2000);
+            }, 1000);
           }
         })
         .catch((err) => {

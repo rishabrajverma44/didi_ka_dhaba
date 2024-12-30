@@ -91,11 +91,11 @@ const StallEdite = () => {
               if (email === "admin@gmail.com") {
                 setTimeout(() => {
                   navigate("/stall_list");
-                }, 2000);
+                }, 1000);
               } else {
                 setTimeout(() => {
                   navigate("/stall_list-register");
-                }, 2000);
+                }, 1000);
               }
             }
           }

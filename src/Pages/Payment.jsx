@@ -72,7 +72,6 @@ const Payment = () => {
         .then((res) => {
           if (res.status === 200) {
             setNamesDidi(res.data);
-            console.log(res.data);
           } else {
             setNamesDidi([]);
           }
@@ -116,7 +115,6 @@ const Payment = () => {
       newRemuneration = 200 + Math.floor((total - 500) / 500) * 100;
       setRemuneration(newRemuneration);
     }
-    console.log(Math.floor((total - 1000) / 500));
   }, [online, cash]);
 
   const submitFinal = async () => {

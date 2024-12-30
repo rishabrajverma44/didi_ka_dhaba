@@ -24,19 +24,9 @@ const IssueFood = () => {
   const [lunch, setLunch] = useState([]);
   const [dinner, setDinner] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [plateValues, setPlateValues] = useState({
-    plate1: "",
-    plate2: "",
-    plate3: "",
-    plate4: "",
-  });
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setPlateValues({
-      ...plateValues,
-      [name]: value,
-    });
-  };
+  const [plateValues, setPlateValues] = useState({});
+  const [quantities, setQuantities] = useState({});
+  const [errors, setErrors] = useState({});
 
   const handleMealChange = (e) => {
     setMealType(e.target.value);
@@ -167,6 +157,44 @@ const IssueFood = () => {
     setCurrentDate(formattedDate);
   }, []);
 
+  const getPlates = () => {
+    axios
+      .get(`${process.env.REACT_APP_API_BACKEND}/plates/`)
+      .then((res) => {
+        setPlateValues(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const handleInputChange = (plate_id, value) => {
+    if (/^[0-9]*$/.test(value)) {
+      setQuantities((prev) => ({
+        ...prev,
+        [plate_id]: value ? parseInt(value, 10) : "",
+      }));
+      // setErrors((prev) => ({
+      //   ...prev,
+      //   [plate_id]: "",
+      // }));
+    }
+  };
+
+  const validateQuantities = () => {
+    const newErrors = {};
+    plateValues.forEach(({ plate_id }) => {
+      const quantity = quantities[plate_id];
+      if (quantity === "" || quantity === undefined) {
+        newErrors[plate_id] = "Quantity cannot be empty";
+      } else if (quantity < 0) {
+        newErrors[plate_id] = "Quantity must be 0 or greater";
+      }
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const getDidiName = async () => {
     try {
       axios
@@ -188,6 +216,7 @@ const IssueFood = () => {
 
   useEffect(() => {
     getDidiName();
+    getPlates();
   }, []);
 
   const checkInternetConnection = async () => {
@@ -256,7 +285,7 @@ const IssueFood = () => {
             setLunch([]);
             setTimeout(() => {
               navigate("/mobilehome");
-            }, 2000);
+            }, 1000);
             setIsLoading(false);
           }
         })
@@ -286,6 +315,13 @@ const IssueFood = () => {
       toast.error("Please select any Food");
       return;
     }
+    // if (!validateQuantities()) {
+    //   toast.error("Please fill Plate Quantity");
+    // }
+    const formattedQuantities = plateValues.map(({ plate_id }) => ({
+      plate_id: plate_id,
+      quantity: quantities[plate_id] || 0,
+    }));
     const payload = {
       didi_thela_id: selectedDidi,
       meals: [
@@ -304,11 +340,10 @@ const IssueFood = () => {
           food_items: dinner.map(({ food_name, unit_name, ...rest }) => rest),
         },
       ],
+      plates: formattedQuantities,
     };
 
-    console.log(plateValues);
-
-    //postFoodItem(payload);
+    postFoodItem(payload);
   };
 
   return (
@@ -438,55 +473,27 @@ const IssueFood = () => {
               (breakfast.length > 0 ||
                 lunch.length > 0 ||
                 dinner.length > 0) ? (
-                <div>
-                  <div className="row mb-1">
-                    <div className="col text-center">Plate (40 ₹)</div>
-                    <div className="col text-center">Container (30 ₹)</div>
-                    <div className="col text-center">Dona (20 ₹)</div>
-                    <div className="col text-center">Plate (5 ₹)</div>
-                  </div>
-                  <div className="row">
-                    <div className="col">
-                      <input
-                        type="number"
-                        name="plate1"
-                        value={plateValues.plate1}
-                        onChange={handleChange}
-                        min="0"
-                        className="w-full px-1 py-1 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
-                      />
+                <div className="row px-2">
+                  {plateValues.map((plate) => (
+                    <div className="col mx-2" key={plate.plate_id}>
+                      <div className="row">{plate.plate_type}</div>
+                      <div className="row">
+                        <input
+                          type="number"
+                          value={
+                            quantities[plate.plate_id] !== undefined
+                              ? quantities[plate.plate_id]
+                              : ""
+                          }
+                          placeholder="Quantity"
+                          onChange={(e) =>
+                            handleInputChange(plate.plate_id, e.target.value)
+                          }
+                          className="px-1 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
+                      </div>
                     </div>
-                    <div className="col">
-                      <input
-                        type="number"
-                        name="plate2"
-                        value={plateValues.plate2}
-                        onChange={handleChange}
-                        min="0"
-                        className="w-full px-1 py-1 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div className="col">
-                      <input
-                        type="number"
-                        name="plate3"
-                        value={plateValues.plate3}
-                        onChange={handleChange}
-                        min="0"
-                        className="w-full px-1 py-1 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                    <div className="col">
-                      <input
-                        type="number"
-                        name="plate4"
-                        value={plateValues.plate4}
-                        onChange={handleChange}
-                        min="0"
-                        className="w-full px-1 py-1 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                  </div>
+                  ))}
                 </div>
               ) : null}
             </div>
