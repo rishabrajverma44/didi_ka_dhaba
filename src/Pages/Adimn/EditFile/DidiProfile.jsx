@@ -144,18 +144,19 @@ const DidiProfile = () => {
                 </div>
               </button>
             </div>
-            <div className="flex flex-col items-center mb-4 md:mb-6">
+            <div className="flex flex-col items-center mb-2 md:mb-6">
               {data.image && (
-                <div className="flex justify-center mb-4">
+                <div className="flex justify-center mb-2">
                   <img
+                    style={{ height: "200px" }}
                     src={`${process.env.REACT_APP_API_BACKEND}/${data.image}`}
                     alt="Profile"
-                    className="w-40 h-40 sm:w-56 sm:h-56 md:w-72 md:h-72 object-cover rounded-full shadow-md border-2 border-blue-200"
+                    className="w-full object-cover rounded rounded-md shadow-md border-2 border-blue-200"
                   />
                 </div>
               )}
 
-              <h2 className="text-lg md:text-xl font-bold text-gray-800">
+              <h2 className="text-lg md:text-xl font-bold text-amber-900">
                 {data?.full_name
                   ? `${data.full_name}'s Profile`
                   : "Didi Profile"}
@@ -229,6 +230,9 @@ const DidiProfile = () => {
               </div>
             </div>
             <div className="item-center p-1 my-4 w-full md:p-1 p-3">
+              <h2 className="text-lg text-center md:text-xl font-bold text-amber-900">
+                identity
+              </h2>
               {identity.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
                   {identity.map((imagepath, index) => (
@@ -238,9 +242,9 @@ const DidiProfile = () => {
                     >
                       <img
                         src={imagepath}
-                        style={{ height: "400px" }}
+                        style={{ height: "200px" }}
                         alt="Captured identity"
-                        className="w-full h-32 object-cover rounded-md"
+                        className="w-full object-cover rounded-md"
                       />
                     </span>
                   ))}

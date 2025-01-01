@@ -256,18 +256,18 @@ const DailyLog = () => {
                   {headerGroup.headers.map((column) => (
                     <th
                       {...column.getHeaderProps(column.getSortByToggleProps())}
-                      className="p-2 cursor-pointer text-md font-normal"
+                      className="p-2 cursor-pointer text-md font-normal border border-2"
                       style={{ backgroundColor: "#682C13", color: "white" }}
                     >
                       {column.render("Header")}
                       <span>
                         {column.isSorted ? (
                           column.isSortedDesc ? (
-                            <span className="ml-2 border p-1 rounded text-white">
+                            <span className="ml-2 border p-2 rounded text-white">
                               <i className="fa">&#xf150;</i>
                             </span>
                           ) : (
-                            <span className="ml-2 border p-1 rounded text-white">
+                            <span className="ml-2 border p-2 rounded text-white">
                               <i className="fa">&#xf0d8;</i>
                             </span>
                           )
@@ -298,7 +298,7 @@ const DailyLog = () => {
                       {row.cells.map((cell) => (
                         <td
                           {...cell.getCellProps()}
-                          className="p-2 border"
+                          className="p-2 border border border-2"
                           style={{ color: "#5E6E82" }}
                         >
                           {cell.render("Cell")}

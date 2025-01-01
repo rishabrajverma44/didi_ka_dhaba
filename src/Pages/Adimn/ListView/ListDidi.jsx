@@ -210,7 +210,7 @@ const ListDidi = () => {
               {...getTableProps()}
               className="w-full table table-bordered table-hover"
             >
-              <thead className="bg-[#682C13] text-normal">
+              <thead className="bg-[#682C13]">
                 {headerGroups.map((headerGroup) => (
                   <tr
                     {...headerGroup.getHeaderGroupProps()}
@@ -220,7 +220,11 @@ const ListDidi = () => {
                       <th
                         {...column.getHeaderProps()}
                         className="py-2 border-b text-white"
-                        style={{ backgroundColor: "#682C13", color: "white" }}
+                        style={{
+                          backgroundColor: "#682C13",
+                          color: "white",
+                          fontWeight: "inherit",
+                        }}
                       >
                         {column.render("Header")}
                         <span>
@@ -266,7 +270,7 @@ const ListDidi = () => {
                         {row.cells.map((cell) => (
                           <td
                             {...cell.getCellProps()}
-                            className="py-2 border-b"
+                            className="py-2 border border-2"
                             style={{ color: "#5E6E82" }}
                           >
                             {cell.render("Cell")}

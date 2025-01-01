@@ -149,7 +149,6 @@ const AdminHome = () => {
   );
 
   //graph section
-
   const [options, setOptions] = useState({
     chart: {
       type: "column",
@@ -297,7 +296,7 @@ const AdminHome = () => {
                 {headerGroup.headers.map((column) => (
                   <th
                     {...column.getHeaderProps(column.getSortByToggleProps())}
-                    className="p-2 cursor-pointer text-md font-normal"
+                    className="p-2 cursor-pointer text-md font-normal border border-2"
                     style={{ backgroundColor: "#682C13", color: "white" }}
                   >
                     {column.render("Header")}
@@ -322,22 +321,37 @@ const AdminHome = () => {
             ))}
           </thead>
           <tbody {...getTableBodyProps()}>
-            {page.map((row) => {
-              prepareRow(row);
-              return (
-                <tr {...row.getRowProps()}>
-                  {row.cells.map((cell) => (
-                    <td
-                      {...cell.getCellProps()}
-                      className="p-2 border"
-                      style={{ color: "#5E6E82" }}
-                    >
-                      {cell.render("Cell")}
-                    </td>
-                  ))}
-                </tr>
-              );
-            })}
+            {page.length > 0 ? (
+              page.map((row) => {
+                prepareRow(row);
+                return (
+                  <tr
+                    key={row.id}
+                    {...row.getRowProps()}
+                    className="hover:bg-gray-100"
+                  >
+                    {row.cells.map((cell) => (
+                      <td
+                        {...cell.getCellProps()}
+                        className="p-2 border text-slate-600 border border-2"
+                        style={{ color: "#5E6E82" }}
+                      >
+                        {cell.render("Cell")}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  className="p-4 text-center text-slate-600"
+                >
+                  No Data Available
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
