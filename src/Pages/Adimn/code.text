@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import {
   useTable,
   useSortBy,
@@ -41,12 +41,8 @@ const AdminHome = () => {
   };
 
   const PostFilterDate = async () => {
-    if (!selectedFromDate && !selectedToDate) {
-      toast.error("select date !");
-      return;
-    }
     const payload = {
-      from_date: selectedFromDate,
+      date: selectedFromDate,
       to_date: selectedToDate,
     };
     await axios
@@ -67,14 +63,21 @@ const AdminHome = () => {
   };
 
   const handleReset = async () => {
+    console.log(selectedFromDate);
     setSelectedFromDate(today);
     setSelectedToDate("");
-    await PostFilterDate();
+    PostFilterDate();
+  };
+
+  const handleSearch = async () => {
+    setSelectedFromDate(today);
+    console.log(selectedFromDate);
+    PostFilterDate();
   };
 
   useEffect(() => {
     PostFilterDate();
-  }, [selectedFromDate, selectedToDate]);
+  }, []);
 
   const [totalSale, setTotalSale] = useState(0);
   const [totalRemuneration, setTotalRemuneration] = useState(0);
@@ -86,6 +89,10 @@ const AdminHome = () => {
         Header: "Date",
         accessor: "date",
       },
+      // {
+      //   Header: "To Date",
+      //   accessor: "to_date",
+      // },
       {
         Header: "Didi Name",
         accessor: "full_name",
@@ -127,8 +134,9 @@ const AdminHome = () => {
     getTableProps,
     getTableBodyProps,
     headerGroups,
+    rows,
     prepareRow,
-    page,
+    state: { pageIndex, pageSize },
     canNextPage,
     canPreviousPage,
     nextPage,
@@ -136,12 +144,11 @@ const AdminHome = () => {
     gotoPage,
     setPageSize,
     pageCount,
-    state: { pageIndex, pageSize },
   } = useTable(
     {
       columns,
       data: filteredData,
-      initialState: { pageIndex: 0, pageSize: 10 },
+      initialState: { pageIndex: 0 },
     },
     useGlobalFilter,
     useSortBy,
@@ -149,6 +156,7 @@ const AdminHome = () => {
   );
 
   //graph section
+
   const [options, setOptions] = useState({
     chart: {
       type: "column",
@@ -234,6 +242,29 @@ const AdminHome = () => {
     },
   });
 
+  //map details
+  const containerStyle = {
+    width: "100%",
+    height: "500px",
+  };
+
+  const center = { lat: 28.536482, lng: 77.270955 };
+
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+  });
+
+  const [selectedPlace, setSelectedPlace] = useState(null);
+
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
+
+  const handleMarkerClick = (place) => {
+    setSelectedPlace(place);
+    //navigate(`/place/${place.id}`);
+  };
+
   return (
     <div className="py-2 px-6 md:px-12">
       <ToastContainer />
@@ -260,6 +291,11 @@ const AdminHome = () => {
             />
           </div>
 
+          <div className="col-md-1">
+            <button onClick={handleSearch} className="btn btn-dark">
+              Search
+            </button>
+          </div>
           <div className="col-md-1">
             <button type="reset" className="btn btn-dark" onClick={handleReset}>
               Reset
@@ -296,7 +332,7 @@ const AdminHome = () => {
                 {headerGroup.headers.map((column) => (
                   <th
                     {...column.getHeaderProps(column.getSortByToggleProps())}
-                    className="p-2 cursor-pointer text-md font-normal border border-2"
+                    className="p-2 cursor-pointer text-md font-normal"
                     style={{ backgroundColor: "#682C13", color: "white" }}
                   >
                     {column.render("Header")}
@@ -321,19 +357,24 @@ const AdminHome = () => {
             ))}
           </thead>
           <tbody {...getTableBodyProps()}>
-            {page.length > 0 ? (
-              page.map((row) => {
+            {rows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={headerGroups[0].headers.length}
+                  className="text-center p-2"
+                >
+                  No data available
+                </td>
+              </tr>
+            ) : (
+              rows.map((row) => {
                 prepareRow(row);
                 return (
-                  <tr
-                    key={row.id}
-                    {...row.getRowProps()}
-                    className="hover:bg-gray-100"
-                  >
+                  <tr {...row.getRowProps()}>
                     {row.cells.map((cell) => (
                       <td
                         {...cell.getCellProps()}
-                        className="p-2 border text-slate-600 border border-2"
+                        className="p-2 border"
                         style={{ color: "#5E6E82" }}
                       >
                         {cell.render("Cell")}
@@ -342,15 +383,6 @@ const AdminHome = () => {
                   </tr>
                 );
               })
-            ) : (
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  className="p-4 text-center text-slate-600"
-                >
-                  No Data Available
-                </td>
-              </tr>
             )}
           </tbody>
         </table>
@@ -369,6 +401,27 @@ const AdminHome = () => {
 
       <div>
         <HighchartsReact highcharts={Highcharts} options={options} />
+      </div>
+      <div>
+        <div className="border p-2 mb-6 bg-white rounded-lg shadow-sm flex gap-24 justify-center items-center">
+          <div className="flex gap-6">
+            <div className="text-xl font-semibold text-gray-800">
+              Total Active Stalls:
+            </div>
+            <div className="text-lg text-green-500 font-bold">
+              {stalls.length}
+            </div>
+          </div>
+        </div>
+        <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={10}>
+          {stalls.map((place) => (
+            <MarkerF
+              key={place.id}
+              position={place.position}
+              onClick={() => handleMarkerClick(place)}
+            />
+          ))}
+        </GoogleMap>
       </div>
     </div>
   );

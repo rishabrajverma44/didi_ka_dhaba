@@ -11,99 +11,6 @@ import { useNavigate } from "react-router-dom";
 import Pagination from "../../Components/prebuiltComponent/Pagination";
 
 const DailyLog = () => {
-  const [cardData, setCardData] = useState([
-    {
-      id: 1,
-      from_date: "28-12-2024",
-      to_date: "02-01-2025",
-      didi_name: "surya umesh",
-      city: "Gurugram",
-      amount_sold_inr: 946,
-      remuneration: 200,
-    },
-    {
-      id: 2,
-      from_date: "27-12-2024",
-      to_date: "30-12-2024",
-      didi_name: "Priyanka Mishra",
-      city: "Gurugram",
-      amount_sold_inr: 556,
-      remuneration: 200,
-    },
-    {
-      id: 3,
-      from_date: "15-12-2024",
-      to_date: "20-12-2024",
-      didi_name: "Anjali Sharma",
-      city: "Noida",
-      amount_sold_inr: 1123,
-      remuneration: 250,
-    },
-    {
-      id: 4,
-      from_date: "22-12-2024",
-      to_date: "27-12-2024",
-      didi_name: "Ravi Kumar",
-      city: "Delhi",
-      amount_sold_inr: 987,
-      remuneration: 220,
-    },
-    {
-      id: 5,
-      from_date: "10-12-2024",
-      to_date: "14-12-2024",
-      didi_name: "Nina Gupta",
-      city: "Gurugram",
-      amount_sold_inr: 754,
-      remuneration: 180,
-    },
-    {
-      id: 6,
-      from_date: "05-12-2024",
-      to_date: "09-12-2024",
-      didi_name: "Vikram Singh",
-      city: "Faridabad",
-      amount_sold_inr: 880,
-      remuneration: 210,
-    },
-    {
-      id: 7,
-      from_date: "01-12-2024",
-      to_date: "05-12-2024",
-      didi_name: "Seema Verma",
-      city: "Gurugram",
-      amount_sold_inr: 1034,
-      remuneration: 240,
-    },
-    {
-      id: 8,
-      from_date: "18-11-2024",
-      to_date: "22-11-2024",
-      didi_name: "Amit Kapoor",
-      city: "Delhi",
-      amount_sold_inr: 910,
-      remuneration: 230,
-    },
-    {
-      id: 9,
-      from_date: "25-11-2024",
-      to_date: "28-11-2024",
-      didi_name: "Ritu Yadav",
-      city: "Noida",
-      amount_sold_inr: 1250,
-      remuneration: 270,
-    },
-    {
-      id: 10,
-      from_date: "12-11-2024",
-      to_date: "17-11-2024",
-      didi_name: "Karan Jain",
-      city: "Gurugram",
-      amount_sold_inr: 880,
-      remuneration: 210,
-    },
-    // Add more data as required...
-  ]);
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedDidi, setSelectedDidi] = useState("");
@@ -153,8 +60,10 @@ const DailyLog = () => {
       { Header: "S. No.", Cell: ({ row }) => row.index + 1 },
       {
         Header: "Pyment Date",
+        accessor: "date",
         Cell: ({ row }) => {
-          return row.original.date.split("-").reverse().join("-");
+          const date = row.original.date;
+          return date ? date.split("-").reverse().join("-") : "N/A";
         },
       },
       { Header: "Didi Name", accessor: "full_name" },
@@ -347,18 +256,18 @@ const DailyLog = () => {
                   {headerGroup.headers.map((column) => (
                     <th
                       {...column.getHeaderProps(column.getSortByToggleProps())}
-                      className="p-2 cursor-pointer text-md font-normal"
+                      className="p-2 cursor-pointer text-md font-normal border border-2"
                       style={{ backgroundColor: "#682C13", color: "white" }}
                     >
                       {column.render("Header")}
                       <span>
                         {column.isSorted ? (
                           column.isSortedDesc ? (
-                            <span className="ml-2 border p-1 rounded text-white">
+                            <span className="ml-2 border p-2 rounded text-white">
                               <i className="fa">&#xf150;</i>
                             </span>
                           ) : (
-                            <span className="ml-2 border p-1 rounded text-white">
+                            <span className="ml-2 border p-2 rounded text-white">
                               <i className="fa">&#xf0d8;</i>
                             </span>
                           )
@@ -389,7 +298,7 @@ const DailyLog = () => {
                       {row.cells.map((cell) => (
                         <td
                           {...cell.getCellProps()}
-                          className="p-2 border"
+                          className="p-2 border border border-2"
                           style={{ color: "#5E6E82" }}
                         >
                           {cell.render("Cell")}

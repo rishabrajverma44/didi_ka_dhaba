@@ -291,14 +291,47 @@ const ReceivedFood = () => {
         console.log("error in get filter-issue-food plate", e);
       });
   };
-  const handleInputChange = (item_name, value) => {
-    setPlateValues((prevValues) =>
-      prevValues.map((plate) =>
-        plate.item_name === item_name
-          ? { ...plate, return_quantity: value || 0 }
-          : plate
-      )
-    );
+
+  const handleInputChange = (itemName, value) => {
+    const parsedValue = value === "" ? "" : parseFloat(value);
+
+    const plate = plateValues.find((p) => p.item_name === itemName);
+
+    if (parsedValue === "" || parsedValue <= plate.total_quantity) {
+      setPlateValues((prev) =>
+        prev.map((plate) =>
+          plate.item_name === itemName
+            ? { ...plate, value: parsedValue }
+            : plate
+        )
+      );
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[itemName];
+        return newErrors;
+      });
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        [itemName]: `Value cannot exceed ${plate.total_quantity}`,
+      }));
+    }
+  };
+
+  const validateFieldsPlates = () => {
+    const newErrors = {};
+    plateValues.forEach((plate) => {
+      if (plate.value === undefined || plate.value === "" || plate.value < 0) {
+        newErrors[plate.item_name] = "Required.";
+      } else if (plate.value > plate.total_quantity) {
+        newErrors[
+          plate.item_name
+        ] = `Value cannot exceed ${plate.total_quantity}`;
+      }
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   useEffect(() => {
@@ -402,7 +435,7 @@ const ReceivedFood = () => {
   };
 
   const handleSubmit = async () => {
-    if (!validateFields()) {
+    if (!validateFields() || !validateFieldsPlates()) {
       toast.error("Validate all fields");
       return;
     }
@@ -437,7 +470,6 @@ const ReceivedFood = () => {
       didi_id: did_id,
       food_data: [...filterFood, ...filteredPlates],
     };
-    console.log(payload);
 
     const actualStatus = await checkInternetConnection();
     if (actualStatus) {
@@ -974,13 +1006,12 @@ const ReceivedFood = () => {
                       plateValues.map((plate) => (
                         <div
                           className="min-w-[200px] mx-2 mb-4 lg:mb-0 px-4"
-                          key={plate.issue_food_id}
+                          key={plate.item_name}
                         >
                           <div className="row my-2">
                             <span>
                               <span className="font-bold">
-                                {" "}
-                                {plate.item_name}{" "}
+                                {plate.item_name}
                               </span>
                               <span> ( {plate.total_quantity} )</span>
                             </span>
@@ -990,14 +1021,24 @@ const ReceivedFood = () => {
                               type="number"
                               placeholder="Quantity"
                               min="0"
+                              value={
+                                plate.value === 0 ? "0" : plate.value || ""
+                              }
                               onChange={(e) =>
                                 handleInputChange(
                                   plate.item_name,
-                                  Number(e.target.value)
+                                  e.target.value
                                 )
                               }
-                              className="px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
+                              className={`px-2 py-1 border rounded-md focus:outline-none focus:ring-2 w-full ${
+                                errors[plate.item_name] ? "border-red-500" : ""
+                              }`}
                             />
+                            {errors[plate.item_name] && (
+                              <div className="text-red-500 text-sm mt-1 w-full">
+                                {errors[plate.item_name]}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}

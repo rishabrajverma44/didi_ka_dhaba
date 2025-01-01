@@ -22,7 +22,6 @@ const Pagination = ({
             : "btn btn-dark hover:bg-[#53230A] text-white px-4 py-2 rounded-md transition-colors cursor-not-allowed"
         }`}
         onClick={previousPage}
-        disabled={!canPreviousPage}
       >
         Previous
       </button>
@@ -41,7 +40,6 @@ const Pagination = ({
             : "btn btn-dark hover:bg-[#53230A] text-white px-4 py-2 rounded-md transition-colors  cursor-not-allowed"
         }`}
         onClick={nextPage}
-        disabled={!canNextPage}
       >
         Next
       </button>

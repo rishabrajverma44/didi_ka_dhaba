@@ -43,7 +43,10 @@ const ThelaRegistration = () => {
   const sendData = (payload) => {
     try {
       const res = axios
-        .post(`${process.env.REACT_APP_API_BACKEND}/thelas/`, payload)
+        .post(
+          "https://didikadhababackend.indevconsultancy.in/dhaba/thelas/",
+          payload
+        )
         .then((res) => {
           if (res.status) {
             toast.success("Registration Completed ");
@@ -56,11 +59,11 @@ const ThelaRegistration = () => {
               if (email === "admin@gmail.com") {
                 setTimeout(() => {
                   navigate("/stall_list");
-                }, 1000);
+                }, 2000);
               } else {
                 setTimeout(() => {
                   navigate("/stall_list-register");
-                }, 1000);
+                }, 2000);
               }
             }
           }
@@ -112,7 +115,7 @@ const ThelaRegistration = () => {
 
   const getState = () => {
     axios
-      .get(`${process.env.REACT_APP_API_BACKEND}/states/`)
+      .get("https://didikadhababackend.indevconsultancy.in/dhaba/states/")
       .then((res) => {
         setState(res.data);
       })
@@ -123,7 +126,9 @@ const ThelaRegistration = () => {
 
   const getDistrict = (state) => {
     axios
-      .get(`${process.env.REACT_APP_API_BACKEND}/filter-districts/${state}`)
+      .get(
+        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-districts/${state}`
+      )
       .then((res) => {
         setDistrict(res.data);
       })
@@ -134,7 +139,9 @@ const ThelaRegistration = () => {
 
   const getCity = (district) => {
     axios
-      .get(`${process.env.REACT_APP_API_BACKEND}/filter-cities/${district}`)
+      .get(
+        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-cities/${district}`
+      )
       .then((res) => {
         setCity(res.data);
       })
@@ -380,7 +387,6 @@ const ThelaRegistration = () => {
                   id="location"
                   name="location"
                   placeholder="Enter your address"
-                  disabled={true}
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
                 <ErrorMessage
@@ -402,7 +408,6 @@ const ThelaRegistration = () => {
                   id="longitude"
                   name="longitude"
                   value={mapCenter.lng || ""}
-                  disabled={true}
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
                 <ErrorMessage
@@ -424,7 +429,6 @@ const ThelaRegistration = () => {
                   id="latitude"
                   name="latitude"
                   value={mapCenter.lat || ""}
-                  disabled={true}
                   className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                 />
                 <ErrorMessage
