@@ -62,7 +62,7 @@ const DailyLog = () => {
         Header: "Pyment Date",
         accessor: "date",
         Cell: ({ row }) => {
-          const date = row.original.from_date;
+          const date = row.original.date;
           return date ? date.split("-").reverse().join("-") : "N/A";
         },
       },

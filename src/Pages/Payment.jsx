@@ -187,9 +187,9 @@ const Payment = () => {
             setSelectedDidi(null);
             setOnline("");
             setCash("");
-
-            navigate("/mobilehome");
-
+            setTimeout(() => {
+              navigate("/mobilehome");
+            }, 1000);
             setIsLoading(false);
           } catch (error) {
             toast.error("Submission failed. Please try again.");

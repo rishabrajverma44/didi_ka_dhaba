@@ -174,10 +174,10 @@ const IssueFood = () => {
         ...prev,
         [plate_id]: value ? parseInt(value, 10) : "",
       }));
-      // setErrors((prev) => ({
-      //   ...prev,
-      //   [plate_id]: "",
-      // }));
+      setErrors((prev) => ({
+        ...prev,
+        [plate_id]: "",
+      }));
     }
   };
 
@@ -186,7 +186,7 @@ const IssueFood = () => {
     plateValues.forEach(({ plate_id }) => {
       const quantity = quantities[plate_id];
       if (quantity === "" || quantity === undefined) {
-        newErrors[plate_id] = "Quantity cannot be empty";
+        newErrors[plate_id] = "Required";
       } else if (quantity < 0) {
         newErrors[plate_id] = "Quantity must be 0 or greater";
       }
@@ -315,9 +315,10 @@ const IssueFood = () => {
       toast.error("Please select any Food");
       return;
     }
-    // if (!validateQuantities()) {
-    //   toast.error("Please fill Plate Quantity");
-    // }
+    if (!validateQuantities()) {
+      toast.error("Please fill Plate Quantity");
+      return;
+    }
     const formattedQuantities = plateValues.map(({ plate_id }) => ({
       plate_id: plate_id,
       quantity: quantities[plate_id] || 0,
@@ -342,8 +343,7 @@ const IssueFood = () => {
       ],
       plates: formattedQuantities,
     };
-
-    postFoodItem(payload);
+    await postFoodItem(payload);
   };
 
   return (
@@ -489,8 +489,15 @@ const IssueFood = () => {
                           onChange={(e) =>
                             handleInputChange(plate.plate_id, e.target.value)
                           }
-                          className="px-1 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          className={`px-1 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                            errors[plate.plate_id] ? "is-invalid" : "is-valid"
+                          }`}
                         />
+                        {errors[plate.plate_id] && (
+                          <div className="invalid-feedback">
+                            {errors[plate.plate_id]}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
