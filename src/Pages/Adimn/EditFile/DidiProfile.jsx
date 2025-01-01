@@ -146,12 +146,14 @@ const DidiProfile = () => {
             </div>
             <div className="flex flex-col items-center mb-2 md:mb-6">
               {data.image && (
-                <div className="flex justify-center mb-2">
+                <div
+                  className="flex justify-center mb-2"
+                  style={{ height: "200px" }}
+                >
                   <img
-                    style={{ height: "200px" }}
                     src={`${process.env.REACT_APP_API_BACKEND}/${data.image}`}
                     alt="Profile"
-                    className="w-full object-cover rounded rounded-md shadow-md border-2 border-blue-200"
+                    className="w-full h-full object-contain rounded-md shadow-md border-2 border-blue-200"
                   />
                 </div>
               )}
@@ -230,7 +232,7 @@ const DidiProfile = () => {
               </div>
             </div>
             <div className="item-center p-1 my-4 w-full md:p-1 p-3">
-              <h2 className="text-lg text-center md:text-xl font-bold text-amber-900">
+              <h2 className="text-lg text-center  md:text-xl font-bold text-amber-900">
                 identity
               </h2>
               {identity.length > 0 ? (
@@ -242,15 +244,14 @@ const DidiProfile = () => {
                     >
                       <img
                         src={imagepath}
-                        style={{ height: "200px" }}
                         alt="Captured identity"
-                        className="w-full object-cover rounded-md"
+                        className="w-full h-[200px] object-contain rounded-md"
                       />
                     </span>
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-gray-600">No identity images</p>
+                <p>No identity images available.</p>
               )}
             </div>
           </div>
