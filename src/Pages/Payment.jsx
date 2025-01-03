@@ -181,18 +181,20 @@ const Payment = () => {
               `${process.env.REACT_APP_API_BACKEND}/payment-details/`,
               payload
             );
-            toast.success("Submitted successfully!");
-            setPhotos([]);
-            setSearchTermDidi("");
-            setSelectedDidi(null);
-            setOnline("");
-            setCash("");
-            setTimeout(() => {
-              navigate("/mobilehome");
-            }, 1000);
-            setIsLoading(false);
+            if (response.status == 201) {
+              toast.success("Submitted successfully!");
+              setPhotos([]);
+              setSearchTermDidi("");
+              setSelectedDidi(null);
+              setOnline("");
+              setCash("");
+              setTimeout(() => {
+                navigate("/mobilehome");
+              }, 1000);
+              setIsLoading(false);
+            } else toast.error("somthing went wrong");
           } catch (error) {
-            toast.error("Submission failed. Please try again.");
+            toast.error(error.response.data.error);
             console.error("Error:", error);
           } finally {
             setIsLoading(false);

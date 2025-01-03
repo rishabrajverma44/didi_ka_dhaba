@@ -144,7 +144,7 @@ const DidiProfile = () => {
                 </div>
               </button>
             </div>
-            <div className="flex flex-col items-center mb-2 md:mb-6">
+            <div className="flex flex-col items-center mb-2 mt-2 md:mb-6">
               {data.image && (
                 <div
                   className="flex justify-center mb-2"

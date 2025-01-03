@@ -15,8 +15,8 @@ const DidiEdit = () => {
   const [data, setData] = useState([]);
   const { id } = useParams();
   const [imageSrc, setImageSrc] = useState(null);
-  const [isCaptured, setIsCaptured] = useState(false);
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [isCaptured, setIsCaptured] = useState(true);
+  const [isCameraOpen, setIsCameraOpen] = useState(true);
   const [isBackCamera, setIsBackCamera] = useState(false);
   const webcamRef = useRef(null);
   const [route, setRoute] = useState();
@@ -77,6 +77,7 @@ const DidiEdit = () => {
     city: data.city || "",
     address: data.address || "",
     remarks: data.remarks || "",
+    scanner_no: data.scanner_no || "",
   };
 
   const validationSchema = Yup.object({
@@ -94,9 +95,11 @@ const DidiEdit = () => {
     state: Yup.string().required("State is required"),
     district: Yup.string().required("District is required"),
     city: Yup.string().required("City is required"),
+    scanner_no: Yup.number().required("Scanner is required"),
   });
 
   const handleToggleCamera = () => {
+    setIsCameraOpen(false);
     setIsCameraOpen((prev) => !prev);
     if (isCameraOpen) {
       resetCaptureState();
@@ -244,7 +247,8 @@ const DidiEdit = () => {
   const handleSubmit = async (values, { resetForm }) => {
     let finalImage = imageSrc;
 
-    if (!imageSrc.startsWith("data:image")) {
+    if (imageSrc && imageSrc.startsWith("data:image")) {
+    } else if (imageSrc) {
       try {
         finalImage = await convertImageToBase64(imageSrc);
       } catch (error) {
@@ -617,6 +621,26 @@ const DidiEdit = () => {
                     className="text-red-500 text-sm"
                   />
                 </div>
+                <div className="w-full">
+                  <label
+                    htmlFor="scanner_no"
+                    className="block text-slate-600 mb-1 font-medium"
+                  >
+                    Scanner No.
+                  </label>
+                  <Field
+                    type="text"
+                    id="scanner_no"
+                    name="scanner_no"
+                    placeholder="Enter any scanner no."
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="scanner_no"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
               </div>
               <div className="row inline-block p-2">
                 {isCameraOpen && !isCaptured && (
@@ -679,7 +703,7 @@ const DidiEdit = () => {
                         onClick={handleRetake}
                         className="py-2 px-4 rounded-lg shadow-md text-white bg-[#0B1727] hover:bg-[#53230A]"
                       >
-                        Retake
+                        Change Image
                       </button>
                     </div>
                   </div>

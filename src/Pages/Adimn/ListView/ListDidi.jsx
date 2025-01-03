@@ -87,7 +87,7 @@ const ListDidi = () => {
           ),
       },
       { Header: "Mobile No", accessor: "mobile_no" },
-      { Header: "Alternate Mobile No", accessor: "alternate_mobile_no" },
+      { Header: "Scanner No", accessor: "scanner_no" },
       { Header: "Husband Name", accessor: "husband_name" },
       { Header: "Address", accessor: "address" },
       {

@@ -18,8 +18,13 @@ import {
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import HighchartsDrilldown from "highcharts/modules/drilldown";
+import CryptoJS from "crypto-js";
 
 const AdminHome = () => {
+  const secretKey = process.env.SECRET_KEY;
+  const encrypt = (value) => {
+    return CryptoJS.AES.encrypt(value, secretKey).toString();
+  };
   const [cardData, setCardData] = useState([]);
   const navigate = useNavigate();
   const today = () => {
@@ -33,10 +38,19 @@ const AdminHome = () => {
 
   const handleDateChange = (event) => {
     const { name, value } = event.target;
+
     if (name === "selectedFromDate") {
-      setSelectedFromDate(value);
+      if (new Date(value) > new Date(selectedToDate)) {
+        toast.error("From Date cannot be later than To Date.");
+      } else {
+        setSelectedFromDate(value);
+      }
     } else if (name === "selectedToDate") {
-      setSelectedToDate(value);
+      if (new Date(selectedFromDate) > new Date(value)) {
+        toast.error("To Date cannot be earlier than From Date.");
+      } else {
+        setSelectedToDate(value);
+      }
     }
   };
 
@@ -55,7 +69,10 @@ const AdminHome = () => {
         payload
       )
       .then((res) => {
-        setFilteredData(res.data.List);
+        const sortedData = res.data.List.sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        );
+        setFilteredData(sortedData);
         setTotalSale(res.data?.total_payment_sum);
         setTotalRemuneration(res.data?.remuneration);
       });
@@ -83,8 +100,12 @@ const AdminHome = () => {
     () => [
       { Header: "S. No.", Cell: ({ row }) => row.index + 1 },
       {
-        Header: "Date",
+        Header: "Pyment Date",
         accessor: "date",
+        Cell: ({ row }) => {
+          const date = row.original.date;
+          return date ? date.split("-").reverse().join("-") : "N/A";
+        },
       },
       {
         Header: "Didi Name",
@@ -109,14 +130,16 @@ const AdminHome = () => {
       {
         Header: "Action",
         Cell: ({ row }) => (
-          <button
-            onClick={() =>
-              navigate(`/admin/${row.original.didi_id}/${row.original.date}`)
-            }
-            className="text-center w-full"
-          >
-            <i className="fas fa-eye"></i>
-          </button>
+          <>
+            <button
+              onClick={() =>
+                navigate(`/admin/${row.original.didi_id}/${row.original.date}`)
+              }
+              className="text-center w-full"
+            >
+              <i className="fas fa-eye"></i>
+            </button>
+          </>
         ),
       },
     ],
@@ -149,22 +172,70 @@ const AdminHome = () => {
   );
 
   //graph section
+  const [graphSeries, setGraphSeries] = useState([]);
+  const [graphDrillDown, setGraphDrillDown] = useState([]);
+
+  const getGraph = async () => {
+    axios
+      .get(`${process.env.REACT_APP_API_BACKEND}/api_didi_payments/`)
+      .then((res) => {
+        if (res.status == 200) {
+          const jsonData = res.data;
+
+          const graphSeries = jsonData.series.map((item) => ({
+            name: item.name,
+            colorByPoint: item.colorByPoint,
+            data: item.data.map((dataPoint) => ({
+              name: dataPoint.name,
+              y: dataPoint.y,
+              drilldown: dataPoint.drilldown,
+            })),
+          }));
+
+          const graphDrillDown = jsonData.drilldown.map((item) => ({
+            id: item.id,
+            data: item.data.map((drillData) => ({
+              name: drillData[0],
+              y: drillData[1],
+            })),
+          }));
+
+          setOptions((prevOptions) => ({
+            ...prevOptions,
+            series: graphSeries,
+            drilldown: {
+              series: graphDrillDown,
+            },
+          }));
+        }
+      })
+      .catch((error) => {
+        console.log("error in graph", error);
+      });
+  };
+  useState(() => {
+    getGraph();
+  }, []);
+
   const [options, setOptions] = useState({
     chart: {
       type: "column",
     },
     title: {
-      text: "Basic Column Chart with Drilldown",
+      text: "Total Sale Details",
     },
     xAxis: {
       type: "category",
     },
     yAxis: {
       title: {
-        text: "Total values",
+        text: "Total 	Amount Sold (INR)",
       },
     },
     legend: {
+      enabled: false,
+    },
+    credits: {
       enabled: false,
     },
     plotOptions: {
@@ -181,59 +252,34 @@ const AdminHome = () => {
       pointFormat:
         "<span style='color:{point.color}'>{point.name}</span>: <b>{point.y}</b><br/>",
     },
-    series: [
-      {
-        name: "Categories",
-        colorByPoint: true,
-        data: [
-          {
-            name: "Category 1",
-            y: 24,
-            drilldown: "category1",
-          },
-          {
-            name: "Category 2",
-            y: 18,
-            drilldown: "category2",
-          },
-          {
-            name: "Category 3",
-            y: 15,
-            drilldown: "category3",
-          },
-        ],
-      },
-    ],
+    series: [],
     drilldown: {
-      series: [
-        {
-          id: "category1",
-          data: [
-            ["Subcategory 1.1", 5],
-            ["Subcategory 1.2", 7],
-            ["Subcategory 1.3", 12],
-          ],
-        },
-        {
-          id: "category2",
-          data: [
-            ["Subcategory 2.1", 3],
-            ["Subcategory 2.2", 6],
-            ["Subcategory 2.3", 9],
-          ],
-        },
-        {
-          id: "category3",
-          data: [
-            ["Subcategory 3.1", 4],
-            ["Subcategory 3.2", 6],
-            ["Subcategory 3.3", 5],
-          ],
-        },
-      ],
+      series: [],
     },
   });
 
+  //map details
+  const containerStyle = {
+    width: "100%",
+    height: "500px",
+  };
+
+  const center = { lat: 28.536482, lng: 77.270955 };
+
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+  });
+
+  const [selectedPlace, setSelectedPlace] = useState(null);
+
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
+
+  const handleMarkerClick = (place) => {
+    setSelectedPlace(place);
+    //navigate(`/place/${place.id}`);
+  };
   return (
     <div className="py-2 px-6 md:px-12">
       <ToastContainer />
@@ -368,7 +414,31 @@ const AdminHome = () => {
       />
 
       <div>
-        <HighchartsReact highcharts={Highcharts} options={options} />
+        {console.log(graphSeries)}
+        <div className="border-2 rounded-lg shadow-md p-4 bg-white">
+          <HighchartsReact highcharts={Highcharts} options={options} />
+        </div>
+      </div>
+      <div className="mt-4">
+        <div className="border p-2 mb-6 bg-white rounded-lg shadow-sm flex gap-24 justify-center items-center">
+          <div className="flex gap-6 py-4">
+            <div className="text-xl font-semibold text-gray-800">
+              Total Active Stalls:
+            </div>
+            <div className="text-lg text-green-500 font-bold">
+              {stalls.length}
+            </div>
+          </div>
+        </div>
+        <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={14}>
+          {stalls.map((place) => (
+            <MarkerF
+              key={place.id}
+              position={place.position}
+              onClick={() => handleMarkerClick(place)}
+            />
+          ))}
+        </GoogleMap>
       </div>
     </div>
   );

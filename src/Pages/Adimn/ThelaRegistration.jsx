@@ -43,10 +43,7 @@ const ThelaRegistration = () => {
   const sendData = (payload) => {
     try {
       const res = axios
-        .post(
-          "https://didikadhababackend.indevconsultancy.in/dhaba/thelas/",
-          payload
-        )
+        .post(`${process.env.REACT_APP_API_BACKEND}/thelas/`, payload)
         .then((res) => {
           if (res.status) {
             toast.success("Registration Completed ");
@@ -115,7 +112,7 @@ const ThelaRegistration = () => {
 
   const getState = () => {
     axios
-      .get("https://didikadhababackend.indevconsultancy.in/dhaba/states/")
+      .get(`${process.env.REACT_APP_API_BACKEND}/states/`)
       .then((res) => {
         setState(res.data);
       })
@@ -126,9 +123,7 @@ const ThelaRegistration = () => {
 
   const getDistrict = (state) => {
     axios
-      .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-districts/${state}`
-      )
+      .get(`${process.env.REACT_APP_API_BACKEND}/filter-districts/${state}`)
       .then((res) => {
         setDistrict(res.data);
       })
@@ -139,9 +134,7 @@ const ThelaRegistration = () => {
 
   const getCity = (district) => {
     axios
-      .get(
-        `https://didikadhababackend.indevconsultancy.in/dhaba/filter-cities/${district}`
-      )
+      .get(`${process.env.REACT_APP_API_BACKEND}/filter-cities/${district}`)
       .then((res) => {
         setCity(res.data);
       })

@@ -23,6 +23,7 @@ const DidiRegistration = () => {
     city: "",
     address: "",
     remarks: "",
+    scanner_no: "",
   };
 
   const validationSchema = Yup.object({
@@ -40,6 +41,7 @@ const DidiRegistration = () => {
     state: Yup.string().required("State is required"),
     district: Yup.string().required("District is required"),
     city: Yup.string().required("City is required"),
+    scanner_no: Yup.number().required("Scanner is required"),
   });
 
   //adhar
@@ -176,6 +178,10 @@ const DidiRegistration = () => {
   }, [initialValues.district]);
 
   const handleSubmit = async (values, { resetForm }) => {
+    if (imageSrc == null) {
+      toast.error("Add profile image");
+      return;
+    }
     const payload = {
       ...values,
       image: imageSrc ? imageSrc : "",
@@ -515,6 +521,28 @@ const DidiRegistration = () => {
                   />
                   <ErrorMessage
                     name="address"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label
+                    htmlFor="scanner_no"
+                    className="block text-slate-600 mb-1 font-medium"
+                  >
+                    Scanner No.
+                  </label>
+                  <Field
+                    type="number"
+                    id="scanner_no"
+                    min="0"
+                    name="scanner_no"
+                    placeholder="Enter any scanner no."
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="scanner_no"
                     component="div"
                     className="text-red-500 text-sm"
                   />
