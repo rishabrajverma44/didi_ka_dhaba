@@ -114,152 +114,163 @@ const DidiProfile = () => {
   ];
 
   return (
-    <div className="py-2 px-6 md:px-12" ref={printRef}>
-      <ToastContainer />
+    <>
+      <div className="py-2 px-6 md:px-12" ref={printRef}>
+        <ToastContainer />
 
-      <div className="d-flex justify-content-between">
-        <div>
-          <b
-            style={{ color: "#5E6E82", fontWeight: "bolder", fontSize: "18px" }}
-          >
-            Profile
-          </b>
-        </div>
-
-        <div className="">
-          <Breadcrumb items={breadcrumbItems} />
-        </div>
-      </div>
-
-      <div className="border border-2 rounded-md px-2">
-        {data ? (
-          <div className="bg-white rounded-lg md:p-6 max-w-8xl mx-auto">
-            <div className="d-flex justify-content-end m-0 p-0 px-3">
-              <button
-                onClick={handlePrint}
-                className="px-2 btn btn-dark text-white rounded hover:bg-[#53230A]"
-              >
-                <div className="flex items-center">
-                  <FaPrint className="mr-2" />
-                </div>
-              </button>
-            </div>
-            <div className="flex flex-col items-center mb-2 mt-2 md:mb-6">
-              {data.image && (
-                <div
-                  className="flex justify-center mb-2"
-                  style={{ height: "200px" }}
-                >
-                  <img
-                    src={`${process.env.REACT_APP_API_BACKEND}/${data.image}`}
-                    alt="Profile"
-                    className="w-full h-full object-contain rounded-md shadow-md border-2 border-blue-200"
-                  />
-                </div>
-              )}
-
-              <h2 className="text-lg md:text-xl font-bold text-amber-900">
-                {data?.full_name
-                  ? `${data.full_name}'s Profile`
-                  : "Didi Profile"}
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 md:gap-1">
-              <div className="p-1 md:p-1">
-                <label className="block text-sm font-semibold text-gray-500">
-                  Husband/Father's Name
-                </label>
-                <p className="text-gray-800 font-medium m-0">
-                  {data.husband_name}
-                </p>
-              </div>
-              <div className="p-1 md:p-1">
-                <label className="block text-sm font-semibold text-gray-500">
-                  Mobile Number
-                </label>
-                <p className="text-gray-800 font-medium m-0">
-                  {data.mobile_no}
-                </p>
-              </div>
-              <div className="p-1 md:p-1">
-                <label className="block text-sm font-semibold text-gray-500">
-                  Alternate Mobile Number
-                </label>
-                <p className="text-gray-800 font-medium m-0">
-                  {data.alternate_mobile_no || "Not Available"}
-                </p>
-              </div>
-              <div className="p-1 md:p-1">
-                <label className="block text-sm font-semibold text-gray-500">
-                  State
-                </label>
-                <p className="text-gray-800 font-medium m-0">
-                  {state.find((item) => item.state_id === data.state)
-                    ?.state_name || "N/A"}
-                </p>
-              </div>
-              <div className="p-1 md:p-1">
-                <label className="block text-sm font-semibold text-gray-500">
-                  District
-                </label>
-                <p className="text-gray-800 font-medium m-0">
-                  {district.find((item) => item.dist_id === data.district)
-                    ?.dist_name || "N/A"}
-                </p>
-              </div>
-              <div className="p-1 md:p-1">
-                <label className="block text-sm font-semibold text-gray-500">
-                  City
-                </label>
-                <p className="text-gray-800 font-medium m-0">
-                  {city.find((item) => item.city_id === data.city)?.city_name ||
-                    "N/A"}
-                </p>
-              </div>
-              <div className="p-1 md:p-1">
-                <label className="block text-sm font-semibold text-gray-500">
-                  Address
-                </label>
-                <p className="text-gray-800 font-medium m-0">{data.address}</p>
-              </div>
-              <div className="p-1 md:p-1">
-                <label className="block text-sm font-semibold text-gray-500">
-                  Remarks
-                </label>
-                <p className="text-gray-800 font-medium m-0">
-                  {data.remarks || "N/A"}
-                </p>
-              </div>
-            </div>
-            <div className="item-center p-1 my-4 w-full md:p-1 p-3">
-              <h2 className="text-lg text-center  md:text-xl font-bold text-amber-900">
-                identity
-              </h2>
-              {identity.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
-                  {identity.map((imagepath, index) => (
-                    <span
-                      key={index}
-                      className="block bg-white p-2 rounded-lg shadow-md hover:shadow-xl transform hover:scale-105 transition duration-300"
-                    >
-                      <img
-                        src={imagepath}
-                        alt="Captured identity"
-                        className="w-full h-[200px] object-contain rounded-md"
-                      />
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <p>No identity images available.</p>
-              )}
-            </div>
+        <div className="d-flex justify-content-between">
+          <div>
+            <b
+              style={{
+                color: "#5E6E82",
+                fontWeight: "bolder",
+                fontSize: "18px",
+              }}
+            >
+              Profile
+            </b>
           </div>
-        ) : (
-          <p className="text-gray-600 text-center">Loading profile...</p>
-        )}
+
+          <div className="">
+            <Breadcrumb items={breadcrumbItems} />
+          </div>
+        </div>
+
+        <div className="border border-2 rounded-md px-2">
+          {data ? (
+            <div className="bg-white rounded-lg md:p-1 max-w-8xl mx-auto">
+              <div className="d-flex justify-content-end m-0 p-0 px-3">
+                <button
+                  onClick={handlePrint}
+                  className="px-2 btn btn-dark text-white rounded hover:bg-[#53230A]"
+                >
+                  <div className="flex items-center">
+                    <FaPrint className="mr-2" />
+                  </div>
+                </button>
+              </div>
+              <div className="flex flex-col items-center mb-2 mt-2 md:mb-6">
+                {data.image && (
+                  <div
+                    className="flex justify-center mb-2"
+                    style={{ height: "300px" }}
+                  >
+                    <img
+                      src={`${process.env.REACT_APP_API_BACKEND}/${data.image}`}
+                      alt="Profile"
+                      className="w-full h-full object-contain rounded-md shadow-md border-2 border-blue-200"
+                    />
+                  </div>
+                )}
+
+                <h2 className="text-lg md:text-xl font-bold text-amber-900">
+                  {data?.full_name ? `${data.full_name}` : "Didi Profile"}
+                </h2>
+                <h3 className="text-lg md:text-md text-amber-600 mb-4">
+                  {data?.scanner_no
+                    ? `Scanner No. ${data.scanner_no}`
+                    : "Scanner"}
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 md:gap-1">
+                <div className="p-1 md:p-1">
+                  <label className="block text-sm font-semibold text-gray-500">
+                    Husband/Father's Name
+                  </label>
+                  <p className="text-gray-800 font-medium m-0">
+                    {data.husband_name}
+                  </p>
+                </div>
+                <div className="p-1 md:p-1">
+                  <label className="block text-sm font-semibold text-gray-500">
+                    Mobile Number
+                  </label>
+                  <p className="text-gray-800 font-medium m-0">
+                    {data.mobile_no}
+                  </p>
+                </div>
+                <div className="p-1 md:p-1">
+                  <label className="block text-sm font-semibold text-gray-500">
+                    Alternate Mobile Number
+                  </label>
+                  <p className="text-gray-800 font-medium m-0">
+                    {data.alternate_mobile_no || "Not Available"}
+                  </p>
+                </div>
+                <div className="p-1 md:p-1">
+                  <label className="block text-sm font-semibold text-gray-500">
+                    State
+                  </label>
+                  <p className="text-gray-800 font-medium m-0">
+                    {state.find((item) => item.state_id === data.state)
+                      ?.state_name || "N/A"}
+                  </p>
+                </div>
+                <div className="p-1 md:p-1">
+                  <label className="block text-sm font-semibold text-gray-500">
+                    District
+                  </label>
+                  <p className="text-gray-800 font-medium m-0">
+                    {district.find((item) => item.dist_id === data.district)
+                      ?.dist_name || "N/A"}
+                  </p>
+                </div>
+                <div className="p-1 md:p-1">
+                  <label className="block text-sm font-semibold text-gray-500">
+                    City
+                  </label>
+                  <p className="text-gray-800 font-medium m-0">
+                    {city.find((item) => item.city_id === data.city)
+                      ?.city_name || "N/A"}
+                  </p>
+                </div>
+                <div className="p-1 md:p-1">
+                  <label className="block text-sm font-semibold text-gray-500">
+                    Address
+                  </label>
+                  <p className="text-gray-800 font-medium m-0">
+                    {data.address}
+                  </p>
+                </div>
+                <div className="p-1 md:p-1">
+                  <label className="block text-sm font-semibold text-gray-500">
+                    Remarks
+                  </label>
+                  <p className="text-gray-800 font-medium m-0">
+                    {data.remarks || "N/A"}
+                  </p>
+                </div>
+              </div>
+              <div className="item-center p-1 my-4 w-full md:p-1 p-3">
+                <h2 className="text-lg text-center  md:text-xl font-bold text-amber-900">
+                  identity
+                </h2>
+                {identity.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">
+                    {identity.map((imagepath, index) => (
+                      <span
+                        key={index}
+                        className="block bg-white p-2 rounded-lg shadow-md hover:shadow-ml transform hover:scale-105 transition duration-300"
+                      >
+                        <img
+                          src={imagepath}
+                          alt="Captured identity"
+                          className="w-full h-[200px] object-contain rounded-md"
+                        />
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p>No identity images available.</p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-600 text-center">Loading profile...</p>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

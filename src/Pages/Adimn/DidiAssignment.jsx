@@ -9,6 +9,7 @@ const DidiAssignment = () => {
   const [searchTermDidi, setSearchTermDidi] = useState("");
   const [isDropdownOpenDidi, setIsDropdownOpenDidi] = useState(false);
   const [selectedDidi, setSelectedDidi] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
   const [searchTermStall, setSearchTermStall] = useState("");
   const [isDropdownOpenStall, setIsDropdownOpenStall] = useState(false);
   const [selectedStall, setSelectedStall] = useState(null);
@@ -169,6 +170,7 @@ const DidiAssignment = () => {
       thela_id: selectedStall,
       from_date: selectedDateFrom,
       to_date: selectedDateTo,
+      city: selectedCity,
     };
     await sendData(payload);
   };
@@ -299,6 +301,7 @@ const DidiAssignment = () => {
                             setSelectedStall(stall.thela_id);
                             setSearchTermStall(stall.thela_name);
                             setIsDropdownOpenStall(false);
+                            setSelectedCity(stall.city);
                           }}
                         >
                           {stall.thela_name}

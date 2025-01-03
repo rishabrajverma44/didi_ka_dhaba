@@ -434,7 +434,7 @@ const ThelaRegistration = () => {
               <div className="my-4">
                 <GoogleMap
                   center={mapCenter}
-                  zoom={18}
+                  zoom={12}
                   mapContainerStyle={mapContainerStyle}
                 >
                   {location.latitude && location.longitude && (

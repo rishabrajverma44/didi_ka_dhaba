@@ -435,20 +435,20 @@ const ReceivedFood = () => {
   };
 
   const handleSubmit = async () => {
-    if (!validateFields() || !validateFieldsPlates()) {
-      toast.error("Validate all fields");
-      return;
-    }
+    // if (!validateFields() || !validateFieldsPlates()) {
+    //   toast.error("Validate all fields");
+    //   return;
+    // }
     if (!selectedDidi) {
       toast.error("Please select a valid Didi from the dropdown!");
       return;
     }
-    const filteredPlates = plateValues.map((plate) => ({
-      issue_food_id: plate.issue_food_id,
-      received_quantity: plate?.return_quantity || 0,
-      total_quantity: plate.total_quantity,
-      meal_type: plate.meal_type,
-    }));
+    // const filteredPlates = plateValues.map((plate) => ({
+    //   issue_food_id: plate.issue_food_id,
+    //   received_quantity: plate?.return_quantity || 0,
+    //   total_quantity: plate.total_quantity,
+    //   meal_type: plate.meal_type,
+    // }));
     const filterFood = finalData.map(
       ({
         issue_food_id,
@@ -468,7 +468,7 @@ const ReceivedFood = () => {
     const did_id = selectedDidi;
     const payload = {
       didi_id: did_id,
-      food_data: [...filterFood, ...filteredPlates],
+      food_data: [...filterFood],
     };
 
     const actualStatus = await checkInternetConnection();
@@ -1001,7 +1001,7 @@ const ReceivedFood = () => {
                 lunch.length > 0 ||
                 dinner.length > 0) ? (
                 <div className="overflow-x-auto">
-                  <div className="flex space-x-4">
+                  {/* <div className="flex space-x-4">
                     {Array.isArray(plateValues) &&
                       plateValues.map((plate) => (
                         <div
@@ -1042,7 +1042,7 @@ const ReceivedFood = () => {
                           </div>
                         </div>
                       ))}
-                  </div>
+                  </div> */}
                 </div>
               ) : null}
 

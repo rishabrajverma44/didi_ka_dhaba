@@ -162,14 +162,8 @@ const DailyLog = () => {
   return (
     <div className="py-2 px-6 md:px-12">
       <ToastContainer />
-      <div className="row px-2" style={{ color: "#5E6E82" }}>
-        <div className="col-md-3 ">Select Date</div>
-        <div className="col-md-4 ">Select Didi</div>
-        <div className="col-md-3">Select City</div>
-        <div className="col-md-2 d-flex align-items-end"></div>
-        <div className="col-md-1 d-flex align-items-end"></div>
-      </div>
-      <div className="row mb-2 px-2">
+
+      <div className="row mb-2 px-2 mt-2">
         <div className="col-md-3 px-1">
           <input
             type="date"

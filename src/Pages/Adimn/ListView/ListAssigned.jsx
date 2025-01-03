@@ -77,6 +77,7 @@ const ListAssigned = () => {
       },
       { Header: "Didi Name", accessor: "full_name" },
       { Header: "Stall Code", accessor: "thela_code" },
+      { Header: "Stall City", accessor: "city_name" },
       {
         Header: "Action",
         Cell: ({ row }) => (
@@ -208,15 +209,7 @@ const ListAssigned = () => {
     <div className="px-6 md:px-12">
       <ToastContainer />
 
-      <div className="row px-2 mt-2" style={{ color: "#5E6E82" }}>
-        <div className="col-md-3 ">From Date</div>
-        <div className="col-md-3 ">To Date</div>
-        <div className="col-md-3">Select Didi</div>
-        <div className="col-md-2 d-flex align-items-end"></div>
-        <div className="col-md-1 d-flex align-items-end"></div>
-      </div>
-
-      <div className="row pb-2 px-2">
+      <div className="row pb-2 px-2 mt-2">
         <div className="col-md-2 px-1">
           <input
             type="date"

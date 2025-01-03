@@ -112,7 +112,7 @@ const AdminHome = () => {
         accessor: "full_name",
       },
       {
-        Header: "City",
+        Header: "Stall City",
         accessor: "city",
       },
       {
@@ -222,7 +222,7 @@ const AdminHome = () => {
       type: "column",
     },
     title: {
-      text: "Total Sale Details",
+      text: "Total Sale Details Based on City",
     },
     xAxis: {
       type: "category",
@@ -430,7 +430,7 @@ const AdminHome = () => {
             </div>
           </div>
         </div>
-        <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={14}>
+        <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={10}>
           {stalls.map((place) => (
             <MarkerF
               key={place.id}
