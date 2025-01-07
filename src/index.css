@@ -12,13 +12,16 @@
 .navbar {
     position: sticky;
     top: 0;
-    z-index: 1000; /* Ensures navbar stays on top */
+    z-index: 1000; 
   }
   
   .pagination-container {
-    position: relative; /* Ensure it's not fixed or sticky */
-    z-index: 10; /* Lower than navbar */
+    position: relative; 
+    z-index: 10; 
   }
+
+  
+  
 
   .footer{
     position: sticky;

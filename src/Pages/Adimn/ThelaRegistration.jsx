@@ -168,8 +168,8 @@ const ThelaRegistration = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const newLocation = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
+            latitude: 28.606328676546738,
+            longitude: 77.22172796694939,
           };
           setLocation(newLocation);
           reverseGeocode(newLocation);

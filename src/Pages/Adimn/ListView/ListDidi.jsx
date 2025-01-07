@@ -265,13 +265,18 @@ const ListDidi = () => {
                       <tr
                         {...row.getRowProps()}
                         key={row.id}
-                        className="hover:bg-gray-50"
+                        className="hover:bg-gray-50 text-center"
+                        style={{ textAlign: "center", verticalAlign: "middle" }}
                       >
                         {row.cells.map((cell) => (
                           <td
                             {...cell.getCellProps()}
                             className="py-2 border border-2"
-                            style={{ color: "#5E6E82" }}
+                            style={{
+                              color: "#5E6E82",
+                              textAlign: "center",
+                              verticalAlign: "middle",
+                            }}
                           >
                             {cell.render("Cell")}
                           </td>

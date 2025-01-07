@@ -50,12 +50,14 @@ const Navbar = () => {
               />
               <div className="d-none d-md-block">
                 <div className="flex items-center gap-2">
-                  <span className="bg-gray-100 p-2">
+                  <span>
                     <button onClick={toggleDropdown}>
                       <img
-                        className="rounded-circle header-profile-user h-9"
                         src="/images/avatar-1.jpg"
-                        alt="Header Avatar"
+                        alt=""
+                        width="10"
+                        className="img-fluid "
+                        style={{ height: "50px", width: "50px" }}
                       />
                     </button>
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import routes from "./Routes/Routes";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "react-datepicker/dist/react-datepicker.css";
 
 import { Button, Modal } from "react-bootstrap";
 

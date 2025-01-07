@@ -10,6 +10,7 @@ import { FaPencilAlt, FaTrashAlt, FaPlus } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import Pagination from "../../../Components/prebuiltComponent/Pagination";
+import DatePicker from "react-datepicker";
 
 const ListAssigned = () => {
   const navigate = useNavigate();
@@ -23,6 +24,16 @@ const ListAssigned = () => {
   const [didiList, setDidiList] = useState([]);
   const [cityList, setCityList] = useState([]);
   const [searchText, setSearchText] = useState("");
+
+  const formatDate = (date) => {
+    if (!date) return null;
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
 
   const fetchData = async () => {
     try {
@@ -77,6 +88,7 @@ const ListAssigned = () => {
       },
       { Header: "Didi Name", accessor: "full_name" },
       { Header: "Stall Code", accessor: "thela_code" },
+      { Header: "Stall Name", accessor: "thela_name" },
       { Header: "Stall City", accessor: "city_name" },
       {
         Header: "Action",
@@ -139,28 +151,39 @@ const ListAssigned = () => {
   };
 
   const handleSearch = () => {
-    let filteredData = data;
+    let filteredData = [...data];
+    console.log(filteredData);
 
-    if (fromDate) {
-      filteredData = filteredData.filter((item) => item.from_date >= fromDate);
+    const formattedFromDate = fromDate ? formatDate(fromDate) : null;
+    const formattedToDate = toDate ? formatDate(toDate) : null;
+
+    if (formattedFromDate) {
+      filteredData = filteredData.filter(
+        (item) => new Date(item.from_date) >= new Date(formattedFromDate)
+      );
     }
-    if (toDate) {
-      filteredData = filteredData.filter((item) => item.to_date <= toDate);
+    if (formattedToDate) {
+      filteredData = filteredData.filter(
+        (item) => new Date(item.to_date) <= new Date(formattedToDate)
+      );
     }
 
     if (selectedDidi) {
       filteredData = filteredData.filter(
-        (item) => item.full_name === selectedDidi
+        (item) => item.full_name.toLowerCase() === selectedDidi.toLowerCase()
       );
     }
 
     if (selectedStall) {
-      filteredData = filteredData.filter(
-        (item) => item.thela_code === selectedStall
+      filteredData = filteredData.filter((item) =>
+        item.didi_name_and_thela_code
+          .toLowerCase()
+          .includes(selectedStall.toLowerCase())
       );
     }
 
     setData(filteredData);
+    console.log(filteredData);
   };
 
   const getDidiName = async () => {
@@ -211,28 +234,30 @@ const ListAssigned = () => {
 
       <div className="row pb-2 px-2 mt-2">
         <div className="col-md-2 px-1">
-          <input
-            type="date"
-            style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
-            className="form-control"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
+          <DatePicker
+            selected={fromDate}
+            onChange={(date) => setFromDate(date, "fromDate")}
+            dateFormat="dd/MM/yyyy"
+            placeholderText="Enter from date"
+            className="form-control w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            wrapperClassName="w-full"
           />
         </div>
 
         <div className="col-md-2 px-1">
-          <input
-            type="date"
-            style={{ "box-shadow": "0px 1px 1px #e4e4e4" }}
-            className="form-control"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
+          <DatePicker
+            selected={toDate}
+            onChange={(date) => setToDate(date, "fromDate")}
+            dateFormat="dd/MM/yyyy"
+            placeholderText="Enter from date"
+            className="form-control w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            wrapperClassName="w-full"
           />
         </div>
 
         <div className="col-md-3 px-1">
           <select
-            className="form-control"
+            className="form-control px-3 py-2"
             value={selectedDidi}
             onChange={(e) => setSelectedDidi(e.target.value)}
             style={{
@@ -253,7 +278,7 @@ const ListAssigned = () => {
         <div className="col-md-2 d-flex align-items-end px-1">
           <button
             type="button"
-            className="btn btn-primary w-100"
+            className="btn btn-primary w-100 py-2"
             style={{ backgroundColor: "#682c13", borderColor: "#682c13" }}
             onClick={handleSearch}
           >
@@ -264,7 +289,7 @@ const ListAssigned = () => {
         <div className="col-md-2 d-flex align-items-end px-1">
           <button
             type="reset"
-            className="btn btn-dark w-100"
+            className="btn btn-dark w-100 py-2"
             onClick={handleReset}
           >
             Reset
@@ -273,7 +298,7 @@ const ListAssigned = () => {
         <div className="col-md-1 d-flex align-items-end px-1">
           <Link
             to="/assign"
-            className="d-flex align-items-center btn btn-dark hover:bg-[#53230A] px-3"
+            className="d-flex align-items-center btn btn-dark hover:bg-[#53230A] px-3 py-2"
           >
             <FaPlus className="me-1" />
             <span>Add</span>

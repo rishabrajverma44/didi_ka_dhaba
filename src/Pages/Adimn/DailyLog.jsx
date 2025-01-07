@@ -9,6 +9,7 @@ import {
 import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Pagination from "../../Components/prebuiltComponent/Pagination";
+import DatePicker from "react-datepicker";
 
 const DailyLog = () => {
   const navigate = useNavigate();
@@ -41,8 +42,19 @@ const DailyLog = () => {
     fetchData();
   }, [selectedDate, fetchData]);
 
-  const handleDateChange = (e) => {
-    setSelectedDate(e.target.value);
+  const formatDate = (date) => {
+    if (!date) return null;
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleDateChange = (date, name) => {
+    const formattedDate = formatDate(date);
+    setSelectedDate(formattedDate);
     setLoading(true);
   };
 
@@ -59,7 +71,7 @@ const DailyLog = () => {
     () => [
       { Header: "S. No.", Cell: ({ row }) => row.index + 1 },
       {
-        Header: "Pyment Date",
+        Header: "Payment Date",
         accessor: "date",
         Cell: ({ row }) => {
           const date = row.original.date;
@@ -68,10 +80,10 @@ const DailyLog = () => {
       },
       { Header: "Didi Name", accessor: "full_name" },
       { Header: "City", accessor: "city" },
-      { Header: "Amount Sold (INR)", accessor: "total_payment" },
-      { Header: "Remuneration", accessor: "remuneration" },
+      { Header: "Amount Sold ₹", accessor: "total_payment" },
+      { Header: "Remuneration ₹", accessor: "remuneration" },
       {
-        Header: "Action",
+        Header: "View",
         Cell: ({ row }) => (
           <button
             onClick={() =>
@@ -159,19 +171,20 @@ const DailyLog = () => {
     getDidiName();
     getCity();
   }, []);
+
   return (
     <div className="py-2 px-6 md:px-12">
       <ToastContainer />
 
       <div className="row mb-2 px-2 mt-2">
         <div className="col-md-3 px-1">
-          <input
-            type="date"
-            id="selectDate"
+          <DatePicker
+            selected={selectedDate}
+            onChange={(date) => handleDateChange(date, "selectedFromDate")}
+            dateFormat="dd/MM/yyyy"
+            placeholderText="Enter from date"
             className="form-control w-full py-2 px-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            name="date"
-            value={selectedDate}
-            onChange={handleDateChange}
+            wrapperClassName="w-full"
           />
         </div>
 
@@ -228,7 +241,7 @@ const DailyLog = () => {
         <div className="col-md-1 d-flex align-items-end px-1">
           <button
             type="reset"
-            className="btn btn-dark w-100"
+            className="btn btn-dark w-100 py-2"
             onClick={handleReset}
           >
             Reset

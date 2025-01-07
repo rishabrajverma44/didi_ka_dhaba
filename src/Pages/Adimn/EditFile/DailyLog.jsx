@@ -202,6 +202,139 @@ const DailyLogEdit = () => {
             ) : (
               <p className="text-gray-500">No food data available.</p>
             )}
+            {selectedRowData && selectedRowData.issued_plates.length > 0 ? (
+              <div>
+                <h3 className="text-xl font-semibold mb-2 text-gray-700">
+                  Issued and Returned Plates Details
+                </h3>
+
+                <table className="min-w-full bg-white border border-gray-200 rounded-md">
+                  <thead>
+                    <tr className="bg-gray-100">
+                      <th className="py-2 px-4 border text-left text-slate-600">
+                        Plate Name
+                      </th>
+                      <th className="py-2 px-4 border text-left text-slate-600">
+                        Issued Plate Number
+                      </th>
+                      <th className="py-2 px-4 border text-left text-slate-600">
+                        Returned Plate Number
+                      </th>
+                      <th className="py-2 px-4 border text-left text-slate-600">
+                        Difference
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Array.from(
+                      new Set([
+                        ...selectedRowData.issued_plates.map(
+                          (plate) => plate.plate_type
+                        ),
+                        ...selectedRowData.returned_plates.map(
+                          (returned) => returned.plate_type
+                        ),
+                      ])
+                    ).map((plateType, index) => {
+                      // Aggregate the issued quantity for the plate type
+                      const totalIssuedQuantity = selectedRowData.issued_plates
+                        .filter((plate) => plate.plate_type === plateType)
+                        .reduce((total, plate) => total + plate.quantity, 0);
+
+                      // Aggregate the returned quantity for the plate type
+                      const totalReturnedQuantity =
+                        selectedRowData.returned_plates
+                          .filter(
+                            (returned) => returned.plate_type === plateType
+                          )
+                          .reduce(
+                            (total, returned) =>
+                              total + returned.returned_quantity,
+                            0
+                          );
+
+                      // Calculate the difference
+                      const difference =
+                        totalIssuedQuantity - totalReturnedQuantity;
+
+                      return (
+                        <tr key={index}>
+                          <td className="py-2 px-4 border">
+                            {plateType} ₹{" "}
+                            {
+                              selectedRowData.issued_plates.find(
+                                (plate) => plate.plate_type === plateType
+                              )?.price
+                            }
+                          </td>
+                          <td className="py-2 px-4 border">
+                            {totalIssuedQuantity}
+                          </td>
+                          <td className="py-2 px-4 border">
+                            {totalReturnedQuantity}
+                          </td>
+                          <td className="py-2 px-4 border">{difference}</td>
+                        </tr>
+                      );
+                    })}
+
+                    <tr className="font-semibold bg-gray-100">
+                      <td className="py-2 px-4 border">Total</td>
+                      <td className="py-2 px-4 border">
+                        {selectedRowData.issued_plates.reduce(
+                          (total, plate) => total + plate.quantity,
+                          0
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border">
+                        {selectedRowData.returned_plates.reduce(
+                          (total, plate) => total + plate.returned_quantity,
+                          0
+                        )}
+                      </td>
+                      <td className="py-2 px-4 border">
+                        {Array.from(
+                          new Set([
+                            ...selectedRowData.issued_plates.map(
+                              (plate) => plate.plate_type
+                            ),
+                            ...selectedRowData.returned_plates.map(
+                              (returned) => returned.plate_type
+                            ),
+                          ])
+                        ).reduce((total, plateType) => {
+                          const totalIssuedQuantity =
+                            selectedRowData.issued_plates
+                              .filter((plate) => plate.plate_type === plateType)
+                              .reduce(
+                                (total, plate) => total + plate.quantity,
+                                0
+                              );
+
+                          const totalReturnedQuantity =
+                            selectedRowData.returned_plates
+                              .filter(
+                                (returned) => returned.plate_type === plateType
+                              )
+                              .reduce(
+                                (total, returned) =>
+                                  total + returned.returned_quantity,
+                                0
+                              );
+
+                          return (
+                            total +
+                            (totalIssuedQuantity - totalReturnedQuantity)
+                          );
+                        }, 0)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-gray-500">No plates available.</p>
+            )}
 
             {selectedRowData.payment_details &&
             selectedRowData.payment_details.length > 0 ? (
@@ -271,7 +404,7 @@ const DailyLogEdit = () => {
                               acc + parseFloat(payment.upi_amount || 0),
                             0
                           )
-                          .toFixed(2)}
+                          .toFixed(2)}{" "}
                       </td>
                       <td className="py-2 px-4 border">
                         ₹{" "}
@@ -281,10 +414,10 @@ const DailyLogEdit = () => {
                               acc + parseFloat(payment.cash_amount || 0),
                             0
                           )
-                          .toFixed(2)}
+                          .toFixed(2)}{" "}
                       </td>
                       <td className="py-2 px-4 border text-center">
-                        Overall Total = ₹{" "}
+                        Overall Total =₹{" "}
                         {selectedRowData.payment_details
                           .reduce(
                             (acc, payment) =>
@@ -293,7 +426,7 @@ const DailyLogEdit = () => {
                               parseFloat(payment.cash_amount || 0),
                             0
                           )
-                          .toFixed(2)}
+                          .toFixed(2)}{" "}
                       </td>
                     </tr>
                   </tbody>
@@ -341,40 +474,23 @@ const DailyLogEdit = () => {
         <div className="border border-1 rounded px-8 py-3 shadow-sm border-bottom-4">
           <div className="row mb-2">
             <div className="col-md-6">
-              <span className="fw-bold" style={{ color: "#5E6E82" }}>
-                Name :-
-              </span>
-              <span style={{ color: "#5E6E82" }}> {didiDetails.didi_name}</span>
+              <span className="fw-bold ">Name :</span>
+              <span className=""> {didiDetails.didi_name}</span>
             </div>
             <div className="col-md-6">
-              <span className="fw-bold" style={{ color: "#5E6E82" }}>
-                Date :-
-              </span>
-              <span style={{ color: "#5E6E82" }}>
-                {" "}
-                {date.split("-").reverse().join("-")}
-              </span>
+              <span className="fw-bold ">Date :</span>
+              <span className=""> {date.split("-").reverse().join("-")}</span>
             </div>
           </div>
 
           <div className="row mb-2">
             <div className="col-md-6">
-              <span className="fw-bold" style={{ color: "#5E6E82" }}>
-                Stall Name :-
-              </span>
-              <span style={{ color: "#5E6E82" }}>
-                {" "}
-                {didiDetails.thela_code}
-              </span>
+              <span className="fw-bold ">Stall Name :</span>
+              <span className=""> {didiDetails.thela_code}</span>
             </div>
             <div className="col-md-6">
-              <span className="fw-bold" style={{ color: "#5E6E82" }}>
-                Total Sale :-
-              </span>
-              <span style={{ color: "#5E6E82" }}>
-                {" "}
-                {didiDetails.total_payment}
-              </span>
+              <span className="fw-bold ">Total Sale :</span>
+              <span className=""> {didiDetails.total_payment}</span>
             </div>
           </div>
         </div>

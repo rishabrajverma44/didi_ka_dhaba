@@ -292,40 +292,45 @@ const ReceivedFood = () => {
       });
   };
 
-  const handleInputChange = (itemName, value) => {
+  const handleInputChange = (issue_food_id, value) => {
     const parsedValue = value === "" ? "" : parseFloat(value);
 
-    const plate = plateValues.find((p) => p.item_name === itemName);
+    const plate = plateValues.find((p) => p.issue_food_id === issue_food_id);
 
     if (parsedValue === "" || parsedValue <= plate.total_quantity) {
       setPlateValues((prev) =>
         prev.map((plate) =>
-          plate.item_name === itemName
-            ? { ...plate, value: parsedValue }
+          plate.issue_food_id === issue_food_id
+            ? { ...plate, returned_quantity: parsedValue }
             : plate
         )
       );
       setErrors((prev) => {
         const newErrors = { ...prev };
-        delete newErrors[itemName];
+        delete newErrors[issue_food_id];
         return newErrors;
       });
     } else {
       setErrors((prev) => ({
         ...prev,
-        [itemName]: `Value cannot exceed ${plate.total_quantity}`,
+        [issue_food_id]: `Value cannot exceed ${plate.total_quantity}`,
       }));
     }
   };
+  useEffect(() => {}, [handleInputChange]);
 
   const validateFieldsPlates = () => {
     const newErrors = {};
     plateValues.forEach((plate) => {
-      if (plate.value === undefined || plate.value === "" || plate.value < 0) {
-        newErrors[plate.item_name] = "Required.";
-      } else if (plate.value > plate.total_quantity) {
+      if (
+        plate.returned_quantity === undefined ||
+        plate.returned_quantity === "" ||
+        plate.returned_quantity < 0
+      ) {
+        newErrors[plate.issue_food_id] = "Required.";
+      } else if (plate.returned_quantity > plate.total_quantity) {
         newErrors[
-          plate.item_name
+          plate.issue_food_id
         ] = `Value cannot exceed ${plate.total_quantity}`;
       }
     });
@@ -435,20 +440,20 @@ const ReceivedFood = () => {
   };
 
   const handleSubmit = async () => {
-    // if (!validateFields() || !validateFieldsPlates()) {
-    //   toast.error("Validate all fields");
-    //   return;
-    // }
+    if (!validateFields() || !validateFieldsPlates()) {
+      toast.error("Validate all fields");
+      return;
+    }
     if (!selectedDidi) {
       toast.error("Please select a valid Didi from the dropdown!");
       return;
     }
-    // const filteredPlates = plateValues.map((plate) => ({
-    //   issue_food_id: plate.issue_food_id,
-    //   received_quantity: plate?.return_quantity || 0,
-    //   total_quantity: plate.total_quantity,
-    //   meal_type: plate.meal_type,
-    // }));
+    const filteredPlates = plateValues.map((plate) => ({
+      issue_food_id: plate.issue_food_id,
+      received_quantity: plate?.returned_quantity || 0,
+      total_quantity: plate.total_quantity,
+      meal_type: plate.meal_type,
+    }));
     const filterFood = finalData.map(
       ({
         issue_food_id,
@@ -468,24 +473,15 @@ const ReceivedFood = () => {
     const did_id = selectedDidi;
     const payload = {
       didi_id: did_id,
-      food_data: [...filterFood],
+      food_data: [...filterFood, ...filteredPlates],
     };
-
-    const actualStatus = await checkInternetConnection();
-    if (actualStatus) {
-      setIsLoading(true);
-      try {
-        await sendRecivedFood(payload);
-      } catch (error) {
-        toast.error("Failed to submit food data!");
-        console.error("Error sending food data:", error);
-      }
-    } else {
-      Swal.fire({
-        html: `<b>Check Internet connection!</b>`,
-        allowOutsideClick: false,
-        confirmButtonColor: "#A24C4A",
-      });
+    setIsLoading(true);
+    try {
+      await sendRecivedFood(payload);
+    } catch (error) {
+      toast.error("Failed to submit food data!");
+      console.error("Error sending food data:", error);
+      setIsLoading(false);
     }
   };
 
@@ -1001,12 +997,12 @@ const ReceivedFood = () => {
                 lunch.length > 0 ||
                 dinner.length > 0) ? (
                 <div className="overflow-x-auto">
-                  {/* <div className="flex space-x-4">
+                  <div className="flex space-x-4">
                     {Array.isArray(plateValues) &&
                       plateValues.map((plate) => (
                         <div
                           className="min-w-[200px] mx-2 mb-4 lg:mb-0 px-4"
-                          key={plate.item_name}
+                          key={plate.issue_food_id}
                         >
                           <div className="row my-2">
                             <span>
@@ -1022,27 +1018,31 @@ const ReceivedFood = () => {
                               placeholder="Quantity"
                               min="0"
                               value={
-                                plate.value === 0 ? "0" : plate.value || ""
+                                plate.returned_quantity === 0
+                                  ? "0"
+                                  : plate.returned_quantity || ""
                               }
                               onChange={(e) =>
                                 handleInputChange(
-                                  plate.item_name,
+                                  plate.issue_food_id,
                                   e.target.value
                                 )
                               }
                               className={`px-2 py-1 border rounded-md focus:outline-none focus:ring-2 w-full ${
-                                errors[plate.item_name] ? "border-red-500" : ""
+                                errors[plate.issue_food_id]
+                                  ? "border-red-500"
+                                  : ""
                               }`}
                             />
-                            {errors[plate.item_name] && (
+                            {errors[plate.issue_food_id] && (
                               <div className="text-red-500 text-sm mt-1 w-full">
-                                {errors[plate.item_name]}
+                                {errors[plate.issue_food_id]}
                               </div>
                             )}
                           </div>
                         </div>
                       ))}
-                  </div> */}
+                  </div>
                 </div>
               ) : null}
 

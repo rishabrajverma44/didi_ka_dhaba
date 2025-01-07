@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FiMenu, FiChevronDown } from "react-icons/fi";
+import { FiMenu } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
 import clsx from "clsx";
 
@@ -8,83 +8,6 @@ const AdminNavBar = () => {
   const [isSideMenuOpen, setMenu] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const toggleDropdown = () => setIsOpen(!isOpen);
-  const [isOpenDidi, setIsOpenDidi] = useState(false);
-  const [isOpenFood, setIsOpenFood] = useState(false);
-  const [isOpenStall, setIsOpenStall] = useState(false);
-  const [isOpenAssign, setIsOpenAssign] = useState(false);
-
-  const dropdownRefDidi = useRef(null);
-  const dropdownRefFood = useRef(null);
-  const dropdownRefStall = useRef(null);
-  const dropdownRefAssign = useRef(null);
-
-  const toggleDropdownDidi = () => {
-    setIsOpenDidi(!isOpenDidi);
-    setIsOpenFood(false);
-    setIsOpenStall(false);
-    setIsOpenAssign(false);
-  };
-
-  const toggleDropdownFood = () => {
-    setIsOpenFood(!isOpenFood);
-    setIsOpenDidi(false);
-    setIsOpenStall(false);
-    setIsOpenAssign(false);
-  };
-
-  const toggleDropdownStall = () => {
-    setIsOpenStall(!isOpenStall);
-    setIsOpenDidi(false);
-    setIsOpenFood(false);
-    setIsOpenAssign(false);
-  };
-
-  const toggleDropdownAssign = () => {
-    setIsOpenAssign(!isOpenAssign);
-    setIsOpenDidi(false);
-    setIsOpenFood(false);
-    setIsOpenStall(false);
-  };
-
-  useEffect(() => {
-    const handleMouseLeave = (event) => {
-      if (
-        dropdownRefDidi.current &&
-        !dropdownRefDidi.current.contains(event.relatedTarget) &&
-        dropdownRefFood.current &&
-        !dropdownRefFood.current.contains(event.relatedTarget) &&
-        dropdownRefStall.current &&
-        !dropdownRefStall.current.contains(event.relatedTarget) &&
-        dropdownRefAssign.current &&
-        !dropdownRefAssign.current.contains(event.relatedTarget)
-      ) {
-        setIsOpenDidi(false);
-        setIsOpenFood(false);
-        setIsOpenStall(false);
-        setIsOpenAssign(false);
-      }
-    };
-
-    const refs = [
-      dropdownRefDidi,
-      dropdownRefFood,
-      dropdownRefStall,
-      dropdownRefAssign,
-    ];
-    refs.forEach((ref) => {
-      if (ref.current) {
-        ref.current.addEventListener("mouseleave", handleMouseLeave);
-      }
-    });
-
-    return () => {
-      refs.forEach((ref) => {
-        if (ref.current) {
-          ref.current.removeEventListener("mouseleave", handleMouseLeave);
-        }
-      });
-    };
-  }, []);
 
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -117,7 +40,7 @@ const AdminNavBar = () => {
                     <span className="">
                       <button onClick={toggleDropdown}>
                         <img
-                          src="https://cdn-icons-png.flaticon.com/512/1144/1144760.png"
+                          src="/images/avatar-1.jpg"
                           alt=""
                           width="10"
                           className="img-fluid "
