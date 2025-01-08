@@ -65,7 +65,7 @@ window.env = {
   "PROMPT": "$P$G",
   "PSModulePath": "C:\\Users\\risha\\OneDrive\\Documents\\WindowsPowerShell\\Modules;C:\\Program Files\\WindowsPowerShell\\Modules;C:\\WINDOWS\\system32\\WindowsPowerShell\\v1.0\\Modules",
   "PUBLIC": "C:\\Users\\Public",
-  "REACT_APP_API_BACKEND": "https://stagedidikadhaba.indevconsultancy.in/dhaba",
+  "REACT_APP_API_BACKEND": "https://didikadhababackend.indevconsultancy.in/dhaba",
   "REACT_APP_GOOGLE_MAPS_API_KEY": "AIzaSyA5KJcNipnIvGqZkcdd2lFtY3elcTViNzU&libraries=places&sensor=false&region=IN",
   "REACT_APP_SECRET_KEY": "rishab_raj_verma_12345",
   "SESSIONNAME": "Console",

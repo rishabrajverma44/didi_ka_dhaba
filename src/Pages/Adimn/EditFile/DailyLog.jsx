@@ -260,7 +260,7 @@ const DailyLogEdit = () => {
                       return (
                         <tr key={index}>
                           <td className="py-2 px-4 border">
-                            {plateType} ₹{" "}
+                            {plateType}
                             {
                               selectedRowData.issued_plates.find(
                                 (plate) => plate.plate_type === plateType
