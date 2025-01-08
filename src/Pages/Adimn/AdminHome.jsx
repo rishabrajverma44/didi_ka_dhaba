@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
+import HighchartsDrilldown from "highcharts/modules/drilldown";
 import CryptoJS from "crypto-js";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -27,7 +28,7 @@ const Map = React.lazy(() => import("./Admin/Map"));
 const AdminHome = () => {
   const [cardData] = useState([]);
   const navigate = useNavigate();
-
+  const [loading, setLoading] = useState(false);
   const [filteredData, setFilteredData] = useState(cardData);
 
   const formatDate = (date) => {
@@ -44,9 +45,14 @@ const AdminHome = () => {
     newDate.setDate(newDate.getDate() + 1);
     return newDate;
   };
+  const subOneDay = (date) => {
+    const newDate = new Date(date);
+    newDate.setDate(newDate.getDate() - 1);
+    return newDate;
+  };
 
   const [selectedFromDate, setSelectedFromDate] = useState(
-    formatDate(new Date())
+    formatDate(subOneDay(new Date()))
   );
   const [selectedToDate, setSelectedToDate] = useState(
     formatDate(addOneDay(new Date()))
@@ -85,6 +91,7 @@ const AdminHome = () => {
       from_date: selectedFromDate,
       to_date: selectedToDate,
     };
+    setLoading(true);
     await axios
       .post(
         `${process.env.REACT_APP_API_BACKEND}/didi_thela_summary_by_date/`,
@@ -94,14 +101,15 @@ const AdminHome = () => {
         const sortedData = res.data.List.sort(
           (a, b) => new Date(b.date) - new Date(a.date)
         );
+        setLoading(false);
         setFilteredData(sortedData);
         setTotalSale(res.data?.total_payment_sum);
         setTotalRemuneration(res.data?.remuneration);
       });
+    setLoading(false);
   };
-
   const handleReset = async () => {
-    setSelectedFromDate(formatDate(new Date()));
+    setSelectedFromDate(formatDate(subOneDay(new Date())));
     setSelectedToDate(formatDate(addOneDay(new Date())));
     await PostFilterDate();
   };
@@ -349,8 +357,9 @@ const AdminHome = () => {
               type="reset"
               className="btn btn-dark w-full py-2"
               onClick={handleReset}
+              disabled={loading}
             >
-              Reset
+              {loading ? <span>loading....</span> : <span>Reset</span>}
             </button>
           </div>
         </div>
@@ -396,87 +405,95 @@ const AdminHome = () => {
           </div>
         </div>
 
-        <div className="overflow-auto">
-          <table
-            {...getTableProps()}
-            className="w-full table table-bordered table-hover"
-          >
-            <thead>
-              {headerGroups.map((headerGroup) => (
-                <tr {...headerGroup.getHeaderGroupProps()}>
-                  {headerGroup.headers.map((column) => (
-                    <th
-                      {...column.getHeaderProps(column.getSortByToggleProps())}
-                      className="p-2 cursor-pointer text-md font-normal border border-2"
-                      style={{ backgroundColor: "#682C13", color: "white" }}
-                    >
-                      {column.render("Header")}
-                      <span>
-                        {column.isSorted ? (
-                          column.isSortedDesc ? (
-                            <span className="ml-2 border p-1 rounded text-white">
-                              <i className="fa">&#xf150;</i>
-                            </span>
-                          ) : (
-                            <span className="ml-2 border p-1 rounded text-white">
-                              <i className="fa">&#xf0d8;</i>
-                            </span>
-                          )
-                        ) : (
-                          ""
-                        )}
-                      </span>
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody {...getTableBodyProps()}>
-              {page.length > 0 ? (
-                page.map((row) => {
-                  prepareRow(row);
-                  return (
-                    <tr
-                      key={row.id}
-                      {...row.getRowProps()}
-                      className="hover:bg-gray-100"
-                    >
-                      {row.cells.map((cell) => (
-                        <td
-                          {...cell.getCellProps()}
-                          className="p-2 border text-slate-600 border border-2"
-                          style={{ color: "#5E6E82" }}
+        {loading ? (
+          <>loading...</>
+        ) : (
+          <>
+            {" "}
+            <div className="overflow-auto">
+              <table
+                {...getTableProps()}
+                className="w-full table table-bordered table-hover"
+              >
+                <thead>
+                  {headerGroups.map((headerGroup) => (
+                    <tr {...headerGroup.getHeaderGroupProps()}>
+                      {headerGroup.headers.map((column) => (
+                        <th
+                          {...column.getHeaderProps(
+                            column.getSortByToggleProps()
+                          )}
+                          className="p-2 cursor-pointer text-md font-normal border border-2"
+                          style={{ backgroundColor: "#682C13", color: "white" }}
                         >
-                          {cell.render("Cell")}
-                        </td>
+                          {column.render("Header")}
+                          <span>
+                            {column.isSorted ? (
+                              column.isSortedDesc ? (
+                                <span className="ml-2 border p-1 rounded text-white">
+                                  <i className="fa">&#xf150;</i>
+                                </span>
+                              ) : (
+                                <span className="ml-2 border p-1 rounded text-white">
+                                  <i className="fa">&#xf0d8;</i>
+                                </span>
+                              )
+                            ) : (
+                              ""
+                            )}
+                          </span>
+                        </th>
                       ))}
                     </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td
-                    colSpan={columns.length}
-                    className="p-4 text-center text-slate-600"
-                  >
-                    No Data Available
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <Pagination
-          canNextPage={canNextPage}
-          pageIndex={pageIndex}
-          pageSize={pageSize}
-          pageCount={pageCount}
-          gotoPage={gotoPage}
-          nextPage={nextPage}
-          previousPage={previousPage}
-          setPageSize={setPageSize}
-        />
+                  ))}
+                </thead>
+                <tbody {...getTableBodyProps()}>
+                  {page.length > 0 ? (
+                    page.map((row) => {
+                      prepareRow(row);
+                      return (
+                        <tr
+                          key={row.id}
+                          {...row.getRowProps()}
+                          className="hover:bg-gray-100"
+                        >
+                          {row.cells.map((cell) => (
+                            <td
+                              {...cell.getCellProps()}
+                              className="p-2 border text-slate-600 border border-2"
+                              style={{ color: "#5E6E82" }}
+                            >
+                              {cell.render("Cell")}
+                            </td>
+                          ))}
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={columns.length}
+                        className="p-4 text-center text-slate-600"
+                      >
+                        No Data Available
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <Pagination
+              canNextPage={canNextPage}
+              pageIndex={pageIndex}
+              pageSize={pageSize}
+              pageCount={pageCount}
+              gotoPage={gotoPage}
+              nextPage={nextPage}
+              previousPage={previousPage}
+              setPageSize={setPageSize}
+            />
+          </>
+        )}
       </div>
       <div>
         <div className="border p-2 bg-white rounded-lg shadow-sm p-2 bg-white">
