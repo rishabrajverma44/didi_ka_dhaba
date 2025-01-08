@@ -37,22 +37,22 @@ const ListDidi = () => {
 
   const base_url = process.env.REACT_APP_API_BACKEND;
 
-  const handleDelete = async () => {
-    if (deleteId === null) return;
-    try {
-      const res = await axios.delete(
-        `${process.env.REACT_APP_API_BACKEND}/didi/${deleteId}/`
-      );
-      toast.success(res.data.message);
-      setDidiData((prevData) =>
-        prevData.filter((didi) => didi.didi_id !== deleteId)
-      );
-      setShowModal(false);
-    } catch (error) {
-      console.log("Error in delete:", error);
-      toast.error("Error deleting the record");
-    }
-  };
+  // const handleDelete = async () => {
+  //   if (deleteId === null) return;
+  //   try {
+  //     const res = await axios.delete(
+  //       `${process.env.REACT_APP_API_BACKEND}/didi/${deleteId}/`
+  //     );
+  //     toast.success(res.data.message);
+  //     setDidiData((prevData) =>
+  //       prevData.filter((didi) => didi.didi_id !== deleteId)
+  //     );
+  //     setShowModal(false);
+  //   } catch (error) {
+  //     console.log("Error in delete:", error);
+  //     toast.error("Error deleting the record");
+  //   }
+  // };
 
   const columns = React.useMemo(
     () => [
@@ -93,7 +93,7 @@ const ListDidi = () => {
       {
         Header: "Actions",
         Cell: ({ row }) => (
-          <div className="flex gap-6">
+          <div className="text-center">
             <button
               onClick={() => {
                 if (route) {
@@ -105,7 +105,7 @@ const ListDidi = () => {
             >
               <FaPencilAlt />
             </button>
-            <button
+            {/* <button
               onClick={() => {
                 setDeleteId(row.original.didi_id);
                 setShowModal(true);
@@ -113,7 +113,7 @@ const ListDidi = () => {
               className="text-red-500 hover:text-red-700"
             >
               <FaTrashAlt />
-            </button>
+            </button> */}
           </div>
         ),
       },
@@ -320,12 +320,12 @@ const ListDidi = () => {
           >
             No
           </button>
-          <button
+          {/* <button
             onClick={handleDelete}
             className="px-4 py-2 bg-red-500 text-white rounded"
           >
             Yes, Delete
-          </button>
+          </button> */}
         </div>
       </Modal>
     </div>
