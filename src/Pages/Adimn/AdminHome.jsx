@@ -16,7 +16,6 @@ import Pagination from "../../Components/prebuiltComponent/Pagination";
 import axios from "axios";
 import { FaCalendarAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import HighchartsDrilldown from "highcharts/modules/drilldown";
@@ -313,7 +312,7 @@ const AdminHome = () => {
     },
     yAxis: {
       title: {
-        text: "Total 	Amount Sold (INR)",
+        text: "Total Amount Sold ( ₹ )",
       },
     },
     legend: {
@@ -353,7 +352,7 @@ const AdminHome = () => {
 
   const CustomInput = React.forwardRef(({ value, onClick }, ref) => (
     <div
-      className="flex items-center border border-gray-300 py-1 px-3 rounded w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+      className="flex items-center border border-gray-300 py-1 px-3 rounded w-full cursor-pointer"
       onClick={onClick}
       ref={ref}
     >

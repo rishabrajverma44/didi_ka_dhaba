@@ -501,7 +501,7 @@ const ReceivedFood = () => {
         <div ref={dropdownRefDidi} className="relative">
           <input
             type="text"
-            placeholder="Search Name..."
+            placeholder="Search Name"
             className="cursor-pointer w-full p-2 border-b border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
             value={searchTermDidi}
             onChange={(e) => {

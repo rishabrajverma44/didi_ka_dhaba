@@ -3,6 +3,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import Breadcrumb from "../../../Components/prebuiltComponent/Breadcrumb";
+import { FaCalendarAlt } from "react-icons/fa";
+import DatePicker from "react-datepicker";
 
 const AssignEdit = () => {
   const navigate = useNavigate();
@@ -102,6 +104,12 @@ const AssignEdit = () => {
     let errors = {};
     const currentDate = new Date().toISOString().split("T")[0];
 
+    const formattedDateFrom = selectedDateFrom
+      ? new Date(selectedDateFrom).toISOString().split("T")[0]
+      : "";
+    const formattedDateTo = selectedDateTo
+      ? new Date(selectedDateTo).toISOString().split("T")[0]
+      : "";
     if (!selectedDidi) {
       errors.didi = "Please select a Didi name!";
     }
@@ -110,18 +118,27 @@ const AssignEdit = () => {
     }
     if (!selectedDateFrom) {
       errors.dateFrom = "Please select a From date!";
-    } else if (selectedDateFrom < currentDate) {
+    } else if (formattedDateFrom < currentDate) {
       errors.dateFrom = "From date cannot be in the past!";
     }
     if (!selectedDateTo) {
       errors.dateTo = "Please select a To date!";
-    } else if (selectedDateTo < currentDate) {
+    } else if (formattedDateTo < currentDate) {
       errors.dateTo = "To date cannot be in the past!";
-    } else if (new Date(selectedDateFrom) > new Date(selectedDateTo)) {
+    } else if (new Date(formattedDateFrom) > new Date(formattedDateTo)) {
       errors.dateTo = "To date should be greater than From date!";
     }
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
+  };
+
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   const sendData = async (payload) => {
@@ -168,8 +185,8 @@ const AssignEdit = () => {
     const payload = {
       didi_id: selectedDidi,
       thela_id: selectedStallCode,
-      from_date: selectedDateFrom,
-      to_date: selectedDateTo,
+      from_date: formatDate(selectedDateFrom),
+      to_date: formatDate(selectedDateTo),
     };
     await sendData(payload);
   };
@@ -178,6 +195,23 @@ const AssignEdit = () => {
     { label: "Assign List", href: "/assign_list" },
     { label: "Assign", href: `` },
   ];
+
+  const CustomInput = React.forwardRef(({ value, onClick }, ref) => (
+    <div
+      className="bg-white flex items-center border border-gray-300 py-1 px-3 rounded w-full cursor-pointer"
+      onClick={onClick}
+      ref={ref}
+    >
+      <input
+        type="text"
+        value={value}
+        readOnly
+        placeholder="Enter from date"
+        className="w-full focus:outline-none"
+      />
+      <FaCalendarAlt className="ml-2 text-gray-500" />
+    </div>
+  ));
 
   return (
     <div
@@ -200,15 +234,14 @@ const AssignEdit = () => {
       </div>
       <div>
         <div className="mx-auto p-6">
-          <h2 className="text-xl flex flex-row mb-6 text-slate-600">
-            <span className="mx-4 w-50 text-center">
+          <div className="flex flex-row mb-3 text-slate-600">
+            <span className="w-50 text-center">
               <span>From </span>
-              <input
-                type="date"
-                id="dateFrom"
-                value={selectedDateFrom}
-                onChange={(e) => setSelectedDateFrom(e.target.value)}
-                className="mx-2 p-1 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
+              <DatePicker
+                selected={selectedDateFrom}
+                onChange={(date) => setSelectedDateFrom(date)}
+                dateFormat="dd/MM/yyyy"
+                customInput={<CustomInput />}
               />
               {formErrors.dateFrom && (
                 <div className="text-red-500 text-sm">
@@ -216,20 +249,19 @@ const AssignEdit = () => {
                 </div>
               )}
             </span>
-            <span className="mx-4 w-50  text-center">
+            <span className="pl-2 w-50 text-center">
               <span>To </span>
-              <input
-                type="date"
-                id="dateTo"
-                value={selectedDateTo || ""}
-                onChange={(e) => setSelectedDateTo(e.target.value)}
-                className="mx-2 p-1 pl-4 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition duration-200"
+              <DatePicker
+                selected={selectedDateTo}
+                onChange={(date) => setSelectedDateTo(date)}
+                dateFormat="dd/MM/yyyy"
+                customInput={<CustomInput />}
               />
               {formErrors.dateTo && (
                 <div className="text-red-500 text-sm">{formErrors.dateTo}</div>
               )}
             </span>
-          </h2>
+          </div>
 
           <form onSubmit={handleSubmit}>
             <div className="flex my-6 space-x-6">
@@ -239,7 +271,7 @@ const AssignEdit = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder="Search Didi Name..."
+                  placeholder="Search Didi Name"
                   className="cursor-pointer w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
                   value={searchTermDidi}
                   onChange={(e) => {
@@ -289,7 +321,7 @@ const AssignEdit = () => {
                 <input
                   type="text"
                   disabled={true}
-                  placeholder="Search Stall Name..."
+                  placeholder="Search Stall Name"
                   className="bg-white cursor-pointer w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
                   value={searchTermStall}
                 />

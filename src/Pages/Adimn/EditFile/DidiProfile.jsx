@@ -131,7 +131,7 @@ const DidiProfile = () => {
             </b>
           </div>
 
-          <div className="">
+          <div>
             <Breadcrumb items={breadcrumbItems} />
           </div>
         </div>
@@ -139,7 +139,7 @@ const DidiProfile = () => {
         <div className="border border-2 rounded-md px-2">
           {data ? (
             <div className="bg-white rounded-lg md:p-1 max-w-8xl mx-auto">
-              <div className="d-flex justify-content-end m-0 p-0 px-3">
+              <div className="d-flex justify-content-end px-3">
                 <button
                   onClick={handlePrint}
                   className="px-2 btn btn-dark text-white rounded hover:bg-[#53230A]"
@@ -149,10 +149,10 @@ const DidiProfile = () => {
                   </div>
                 </button>
               </div>
-              <div className="flex flex-col items-center mb-2 mt-2 md:mb-6">
+              <div className="flex flex-col items-center mt-2 md:mb-1">
                 {data.image && (
                   <div
-                    className="flex justify-center mb-2"
+                    className="flex justify-center"
                     style={{ height: "300px" }}
                   >
                     <img
@@ -163,87 +163,83 @@ const DidiProfile = () => {
                   </div>
                 )}
 
-                <h2 className="text-lg md:text-xl font-bold text-amber-900">
+                <div className="text-lg md:text-xl font-bold text-amber-900">
                   {data?.full_name ? `${data.full_name}` : "Didi Profile"}
-                </h2>
-                <h3 className="text-lg md:text-md text-amber-600 mb-4">
+                </div>
+                <div className="text-lg md:text-md text-amber-600">
                   {data?.scanner_no
                     ? `Scanner No. ${data.scanner_no}`
                     : "Scanner"}
-                </h3>
+                </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 md:gap-1">
-                <div className="p-1 md:p-1">
+              <div className="grid grid-cols-1 md:grid-cols-4 md:gap-1 mt-3">
+                <div>
                   <label className="block text-sm font-semibold text-gray-500">
                     Husband/Father's Name
                   </label>
-                  <p className="text-gray-800 font-medium m-0">
+                  <p className="text-gray-800 font-medium">
                     {data.husband_name}
                   </p>
                 </div>
-                <div className="p-1 md:p-1">
+                <div>
                   <label className="block text-sm font-semibold text-gray-500">
                     Mobile Number
                   </label>
-                  <p className="text-gray-800 font-medium m-0">
-                    {data.mobile_no}
-                  </p>
+                  <p className="text-gray-800 font-medium">{data.mobile_no}</p>
                 </div>
-                <div className="p-1 md:p-1">
+                <div>
                   <label className="block text-sm font-semibold text-gray-500">
                     Alternate Mobile Number
                   </label>
-                  <p className="text-gray-800 font-medium m-0">
+                  <p className="text-gray-800 font-medium">
                     {data.alternate_mobile_no || "Not Available"}
                   </p>
                 </div>
-                <div className="p-1 md:p-1">
+                <div>
                   <label className="block text-sm font-semibold text-gray-500">
                     State
                   </label>
-                  <p className="text-gray-800 font-medium m-0">
+                  <p className="text-gray-800 font-medium">
                     {state.find((item) => item.state_id === data.state)
                       ?.state_name || "N/A"}
                   </p>
                 </div>
-                <div className="p-1 md:p-1">
+                <div>
                   <label className="block text-sm font-semibold text-gray-500">
                     District
                   </label>
-                  <p className="text-gray-800 font-medium m-0">
+                  <p className="text-gray-800 font-medium">
                     {district.find((item) => item.dist_id === data.district)
                       ?.dist_name || "N/A"}
                   </p>
                 </div>
-                <div className="p-1 md:p-1">
+                <div>
                   <label className="block text-sm font-semibold text-gray-500">
                     City
                   </label>
-                  <p className="text-gray-800 font-medium m-0">
+                  <p className="text-gray-800 font-medium">
                     {city.find((item) => item.city_id === data.city)
                       ?.city_name || "N/A"}
                   </p>
                 </div>
-                <div className="p-1 md:p-1">
+                <div>
                   <label className="block text-sm font-semibold text-gray-500">
                     Address
                   </label>
-                  <p className="text-gray-800 font-medium m-0">
-                    {data.address}
-                  </p>
+                  <p className="text-gray-800 font-medium">{data.address}</p>
                 </div>
-                <div className="p-1 md:p-1">
+                <div>
                   <label className="block text-sm font-semibold text-gray-500">
                     Remarks
                   </label>
-                  <p className="text-gray-800 font-medium m-0">
+                  <p className="text-gray-800 font-medium">
                     {data.remarks || "N/A"}
                   </p>
                 </div>
               </div>
               <div className="item-center p-1 my-4 w-full md:p-1 p-3">
                 <h2 className="text-lg text-center  md:text-xl font-bold text-amber-900">
-                  identity
+                  Identity
                 </h2>
                 {identity.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-4">

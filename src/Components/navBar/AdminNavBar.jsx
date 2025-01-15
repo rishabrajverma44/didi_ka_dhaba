@@ -220,7 +220,7 @@ const AdminNavBar = () => {
                 to="/assign_list"
                 onClick={() => setMenu(false)}
               >
-                Assign List
+                Assigned List
               </Link>
 
               {/* <div className="relative" ref={dropdownRefDidi}>

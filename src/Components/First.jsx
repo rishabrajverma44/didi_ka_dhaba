@@ -4,7 +4,6 @@ import Loader from "./prebuiltComponent/Loader";
 
 const First = () => {
   const home_url = "http://localhost:3000/";
-
   const [products, setProducts] = useState([]);
   const [show] = useState(10);
   const [page, setPage] = useState(2);

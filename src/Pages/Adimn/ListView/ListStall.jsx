@@ -177,8 +177,8 @@ const ListStall = () => {
               type="text"
               value={searchText}
               onChange={handleSearchChange}
-              placeholder="Search..."
-              className="w-64 p-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A24C4A] transition duration-200"
+              placeholder="Search"
+              className="w-64 p-2 py-1 border border-gray-300 rounded-md focus:outline-none"
             />
             <Link
               to={route3}

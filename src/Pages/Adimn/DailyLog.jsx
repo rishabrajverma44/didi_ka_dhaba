@@ -82,7 +82,7 @@ const DailyLog = () => {
       { Header: "Didi Name", accessor: "full_name" },
       { Header: "City", accessor: "city" },
       {
-        Header: "Amount Sold ₹",
+        Header: "Amount Sold ( ₹ )",
         accessor: "total_payment",
         Cell: ({ row }) => {
           const amount = row.original.total_payment;
@@ -90,7 +90,7 @@ const DailyLog = () => {
         },
       },
       {
-        Header: "Remuneration ₹",
+        Header: "Remuneration ( ₹ )",
         accessor: "remuneration",
         Cell: ({ row }) => {
           const amount = row.original.remuneration;
@@ -234,7 +234,7 @@ const DailyLog = () => {
                 onChange={(e) => setSelectedDidi(e.target.value)}
               >
                 <option value="" disabled>
-                  Select Didi
+                  Select Didi Name
                 </option>
                 {didiList.map((item, index) => (
                   <option key={index} value={item.full_name}>

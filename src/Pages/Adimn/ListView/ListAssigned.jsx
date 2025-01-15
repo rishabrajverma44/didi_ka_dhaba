@@ -151,6 +151,13 @@ const ListAssigned = () => {
   };
 
   const handleSearch = () => {
+    console.log(fromDate);
+    console.log(toDate);
+    if (fromDate > toDate) {
+      toast.error("From date is earlier than To date");
+      return;
+    }
+
     let filteredData = [...data];
     console.log(filteredData);
 
@@ -276,15 +283,15 @@ const ListAssigned = () => {
 
           <div className="col-md-3 px-1">
             <select
-              className="form-control px-3 py-1"
+              className="form-control px-3 py-1 text-blue-100"
               value={selectedDidi}
               onChange={(e) => setSelectedDidi(e.target.value)}
               style={{
                 "box-shadow": "0px 1px 1px #e4e4e4",
               }}
             >
-              <option value="" disabled={true}>
-                Select Didi
+              <option value="" disabled>
+                Select Didi Name
               </option>
               {didiList.map((item, index) => (
                 <option key={index} value={item.full_name}>
