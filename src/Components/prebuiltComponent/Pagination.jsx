@@ -14,12 +14,13 @@ const Pagination = ({
   const safePageIndex = pageIndex + 1;
 
   return (
-    <div className="flex items-center justify-between py-4">
+    <div className="flex items-center justify-between">
       <button
-        className={`px-4 py-2 rounded-md border ${
+        style={{ width: "110px" }}
+        className={`px-1 py-1 rounded-md border ${
           canPreviousPage
-            ? "btn btn-dark hover:bg-[#53230A] text-white px-4 py-2 rounded-md transition-colors"
-            : "btn btn-dark hover:bg-[#53230A] text-white px-4 py-2 rounded-md transition-colors cursor-not-allowed"
+            ? "btn btn-dark hover:bg-[#53230A] text-white px-4 rounded-md transition-colors"
+            : "btn btn-dark hover:bg-[#53230A] text-white px-4 rounded-md transition-colors cursor-not-allowed"
         }`}
         onClick={previousPage}
       >
@@ -34,10 +35,11 @@ const Pagination = ({
       </div>
 
       <button
-        className={`px-4 py-2 rounded-md border ${
+        style={{ width: "110px" }}
+        className={`px-1 py-1 rounded-md border ${
           canNextPage
-            ? "btn btn-dark hover:bg-[#53230A] text-white px-4 py-2 rounded-md transition-colors"
-            : "btn btn-dark hover:bg-[#53230A] text-white px-4 py-2 rounded-md transition-colors  cursor-not-allowed"
+            ? "btn btn-dark hover:bg-[#53230A] text-white px-4 rounded-md transition-colors"
+            : "btn btn-dark hover:bg-[#53230A] text-white px-4 rounded-md transition-colors  cursor-not-allowed"
         }`}
         onClick={nextPage}
       >

@@ -97,12 +97,6 @@ const IssueFood = () => {
       quantity: value,
     };
 
-    // if (
-    //   item.food_name.startsWith("rice") ||
-    //   item.food_name.startsWith("roti")
-    // ) {
-    // }
-
     const updateMealList = (mealListSetter) => {
       mealListSetter((prev) => {
         const existingIndex = prev.findIndex(
@@ -272,7 +266,7 @@ const IssueFood = () => {
   const postFoodItem = async (payload) => {
     setIsLoading(true);
     const actualStatus = await checkInternetConnection();
-    if (actualStatus) {
+    if (true) {
       setIsLoading(true);
       axios
         .post(`${process.env.REACT_APP_API_BACKEND}/issue-food/`, payload)
@@ -435,7 +429,7 @@ const IssueFood = () => {
 
         <div className="flex justify-center">
           {selectedDidi && (
-            <div className="mt-3 bg-white shadow rounded-lg p-2 w-full max-w-xl">
+            <div className="mt-3 bg-white shadow-md rounded-lg p-2 w-full max-w-xl">
               <h3 className="text-xl flex items-center justify-between font-semibold text-gray-800 mb-1">
                 <span>Add Items for {searchTerm}</span>
                 <button
@@ -478,10 +472,10 @@ const IssueFood = () => {
             </div>
           )}
         </div>
-        <div className="mt-3">
+        <div className="mt-3 flex justify-center ">
           {(breakfast || lunch || dinner) &&
           (breakfast.length > 0 || lunch.length > 0 || dinner.length > 0) ? (
-            <div className="row px-2">
+            <div className="row px-2 w-full max-w-xl">
               {plateValues.map((plate) => (
                 <div className="col mx-2" key={plate.plate_id}>
                   <div className="row font-bold">{plate.plate_type}</div>

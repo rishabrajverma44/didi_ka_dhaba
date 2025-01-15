@@ -180,7 +180,10 @@ const AssignEdit = () => {
   ];
 
   return (
-    <div className="py-2 px-6 md:px-12">
+    <div
+      className="px-6 md:px-12 bg-slate-100 py-2"
+      style={{ minHeight: "100vh" }}
+    >
       <ToastContainer />
       <div className="d-flex justify-content-between">
         <div>
@@ -287,7 +290,7 @@ const AssignEdit = () => {
                   type="text"
                   disabled={true}
                   placeholder="Search Stall Name..."
-                  className="cursor-pointer w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
+                  className="bg-white cursor-pointer w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
                   value={searchTermStall}
                 />
               </div>

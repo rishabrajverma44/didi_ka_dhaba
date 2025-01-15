@@ -325,7 +325,10 @@ const DidiEdit = () => {
   ];
 
   return (
-    <div className="py-2 px-6 md:px-12">
+    <div
+      className="px-6 md:px-12 bg-slate-100 py-2"
+      style={{ minHeight: "100vh" }}
+    >
       <ToastContainer />
       <div className="d-flex justify-content-between">
         <div>
@@ -340,7 +343,7 @@ const DidiEdit = () => {
           <Breadcrumb items={breadcrumbItems} />
         </div>
       </div>
-      <div className="bg-white">
+      <div className="">
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
@@ -349,7 +352,7 @@ const DidiEdit = () => {
         >
           {({ values, setFieldValue }) => (
             <Form>
-              <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-3">
+              <div className="flex flex-col gap-4 md:grid md:grid-cols-2 lg:grid-cols-2">
                 <div className="w-full">
                   <label
                     htmlFor="first_name"
@@ -603,26 +606,6 @@ const DidiEdit = () => {
 
                 <div className="w-full">
                   <label
-                    htmlFor="address"
-                    className="block text-slate-600 mb-1 font-medium"
-                  >
-                    Address
-                  </label>
-                  <Field
-                    as="textarea"
-                    id="address"
-                    name="address"
-                    placeholder="Enter any address here"
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  />
-                  <ErrorMessage
-                    name="address"
-                    component="div"
-                    className="text-red-500 text-sm"
-                  />
-                </div>
-                <div className="w-full">
-                  <label
                     htmlFor="scanner_no"
                     className="block text-slate-600 mb-1 font-medium"
                   >
@@ -637,6 +620,27 @@ const DidiEdit = () => {
                   />
                   <ErrorMessage
                     name="scanner_no"
+                    component="div"
+                    className="text-red-500 text-sm"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label
+                    htmlFor="address"
+                    className="block text-slate-600 mb-1 font-medium"
+                  >
+                    Address
+                  </label>
+                  <Field
+                    as="textarea"
+                    id="address"
+                    name="address"
+                    placeholder="Enter any address here"
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <ErrorMessage
+                    name="address"
                     component="div"
                     className="text-red-500 text-sm"
                   />
@@ -739,12 +743,14 @@ const DidiEdit = () => {
                           )}
                         </button>
                         <button
+                          type="button"
                           onClick={toggleCameraMode}
                           className="py-2 px-3 rounded-full shadow-md bg-[#0B1727] text-white hover:bg-[#53230A] transition-all"
                         >
                           <FiRefreshCcw size={24} />
                         </button>
                         <button
+                          type="button"
                           onClick={toggleCameraAdhar}
                           className="py-2 px-3 rounded-full shadow-md bg-red-500 text-white hover:bg-red-600 transition-all"
                         >

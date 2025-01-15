@@ -43,11 +43,11 @@ const Map = () => {
   };
   return (
     <div>
-      <div className="mt-4">
-        <div className="border p-2 mb-6 bg-white rounded-lg shadow-sm">
+      <div className="mt-2">
+        <div className="mb-6 bg-white">
           <div className="flex gap-24 justify-center items-center">
-            <div className="flex gap-6 py-2">
-              <div className="text-xl font-semibold text-gray-800">
+            <div className="flex gap-6 py-3">
+              <div className="text-xl font-bold text-gray-800">
                 Total Active Stalls:
               </div>
               <div className="text-lg text-green-500 font-bold">
@@ -70,7 +70,7 @@ const Map = () => {
                   url: svgStall,
                   scaledSize: new window.google.maps.Size(40, 40),
                   origin: new window.google.maps.Point(0, 0),
-                  anchor: new window.google.maps.Point(20, 40),
+                  anchor: new window.google.maps.Point(20, 20),
                 }}
               />
             ))}

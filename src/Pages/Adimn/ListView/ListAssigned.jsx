@@ -6,7 +6,7 @@ import {
   usePagination,
   useGlobalFilter,
 } from "react-table";
-import { FaPencilAlt, FaTrashAlt, FaPlus } from "react-icons/fa";
+import { FaPencilAlt, FaTrashAlt, FaPlus, FaCalendarAlt } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import Pagination from "../../../Components/prebuiltComponent/Pagination";
@@ -228,185 +228,208 @@ const ListAssigned = () => {
     (pageIndex + 1) * pageSize
   );
 
-  return (
-    <div className="px-6 md:px-12">
-      <ToastContainer />
-
-      <div className="row pb-2 px-2 mt-2">
-        <div className="col-md-2 px-1">
-          <DatePicker
-            selected={fromDate}
-            onChange={(date) => setFromDate(date, "fromDate")}
-            dateFormat="dd/MM/yyyy"
-            placeholderText="Enter from date"
-            className="form-control w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            wrapperClassName="w-full"
-          />
-        </div>
-
-        <div className="col-md-2 px-1">
-          <DatePicker
-            selected={toDate}
-            onChange={(date) => setToDate(date, "fromDate")}
-            dateFormat="dd/MM/yyyy"
-            placeholderText="Enter from date"
-            className="form-control w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            wrapperClassName="w-full"
-          />
-        </div>
-
-        <div className="col-md-3 px-1">
-          <select
-            className="form-control px-3 py-2"
-            value={selectedDidi}
-            onChange={(e) => setSelectedDidi(e.target.value)}
-            style={{
-              "box-shadow": "0px 1px 1px #e4e4e4",
-            }}
-          >
-            <option value="" disabled={true}>
-              Select Didi
-            </option>
-            {didiList.map((item, index) => (
-              <option key={index} value={item.full_name}>
-                {item.full_name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="col-md-2 d-flex align-items-end px-1">
-          <button
-            type="button"
-            className="btn btn-primary w-100 py-2"
-            style={{ backgroundColor: "#682c13", borderColor: "#682c13" }}
-            onClick={handleSearch}
-          >
-            Search
-          </button>
-        </div>
-
-        <div className="col-md-2 d-flex align-items-end px-1">
-          <button
-            type="reset"
-            className="btn btn-dark w-100 py-2"
-            onClick={handleReset}
-          >
-            Reset
-          </button>
-        </div>
-        <div className="col-md-1 d-flex align-items-end px-1">
-          <Link
-            to="/assign"
-            className="d-flex align-items-center btn btn-dark hover:bg-[#53230A] px-3 py-2"
-          >
-            <FaPlus className="me-1" />
-            <span>Add</span>
-          </Link>
-        </div>
+  const CustomInput = React.forwardRef(
+    ({ value, onClick, placeholder }, ref) => (
+      <div
+        className="flex items-center border border-gray-300 py-1 px-3 rounded w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+        onClick={onClick}
+        ref={ref}
+      >
+        <input
+          type="text"
+          value={value}
+          readOnly
+          placeholder={placeholder}
+          className="w-full focus:outline-none"
+        />
+        <FaCalendarAlt className="ml-2 text-gray-500" />
       </div>
+    )
+  );
 
-      {loading ? (
-        <p>Loading data...</p>
-      ) : (
-        <>
-          <div className="overflow-auto">
-            <table
-              {...getTableProps()}
-              className="w-full table table-bordered table-hover"
-            >
-              <thead>
-                {headerGroups.map((headerGroup) => (
-                  <tr
-                    {...headerGroup.getHeaderGroupProps()}
-                    className="border border-2"
-                  >
-                    {headerGroup.headers.map((column) => (
-                      <th
-                        {...column.getHeaderProps(
-                          column.getSortByToggleProps()
-                        )}
-                        className="p-2 cursor-pointer text-md font-normal"
-                        style={{ backgroundColor: "#682C13", color: "white" }}
-                      >
-                        {column.render("Header")}
-                        <span>
-                          {column.isSorted ? (
-                            column.isSortedDesc ? (
-                              <span className="ml-2 border p-1 rounded text-white">
-                                <i className="fa">&#xf150;</i>{" "}
-                              </span>
-                            ) : (
-                              <span className="ml-2 border p-1 rounded text-white">
-                                <i className="fa">&#xf0d8;</i>{" "}
-                              </span>
-                            )
-                          ) : (
-                            ""
-                          )}
-                        </span>
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-              <tbody {...getTableBodyProps()}>
-                {currentPageData.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={columns.length}
-                      className="text-center text-red-500"
-                    >
-                      No results found.
-                    </td>
-                  </tr>
-                ) : (
-                  currentPageData.map((row, index) => {
-                    prepareRow(row);
-                    return (
-                      <tr
-                        {...row.getRowProps()}
-                        key={row.id}
-                        className="hover:bg-gray-200"
-                      >
-                        <td
-                          className="p-2 border border-2"
-                          style={{ color: "#5E6E82" }}
-                        >
-                          {index + 1}
-                        </td>
-                        {row.cells.map((cell, idx) => {
-                          if (idx === 0) return null;
-                          return (
-                            <td
-                              {...cell.getCellProps()}
-                              className="p-2 border border-2"
-                              style={{ color: "#5E6E82" }}
-                            >
-                              {cell.render("Cell")}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+  return (
+    <div className="px-6 md:px-12 bg-slate-100 py-2 pb-4">
+      <ToastContainer />
+      <div className="bg-white p-2">
+        <div className="row pb-2">
+          <div className="col-md-3 w-full">
+            <DatePicker
+              selected={fromDate}
+              onChange={(date) => setFromDate(date, "fromDate")}
+              placeholderText="Enter from date"
+              dateFormat="dd/MM/yyyy"
+              customInput={<CustomInput />}
+              wrapperClassName="w-full"
+            />
           </div>
-          <Pagination
-            canPreviousPage={canPreviousPage}
-            canNextPage={canNextPage}
-            pageIndex={pageIndex}
-            pageSize={pageSize}
-            pageCount={Math.ceil(data.length / pageSize)}
-            gotoPage={gotoPage}
-            previousPage={previousPage}
-            nextPage={nextPage}
-            setPageSize={setPageSize}
-          />
-        </>
-      )}
+
+          <div className="col-md-3 px-1">
+            <DatePicker
+              selected={toDate}
+              onChange={(date) => setToDate(date, "toDate")}
+              dateFormat="dd/MM/yyyy"
+              placeholderText="Enter to date"
+              customInput={<CustomInput />}
+              wrapperClassName="w-full"
+            />
+          </div>
+
+          <div className="col-md-3 px-1">
+            <select
+              className="form-control px-3 py-1"
+              value={selectedDidi}
+              onChange={(e) => setSelectedDidi(e.target.value)}
+              style={{
+                "box-shadow": "0px 1px 1px #e4e4e4",
+              }}
+            >
+              <option value="" disabled={true}>
+                Select Didi
+              </option>
+              {didiList.map((item, index) => (
+                <option key={index} value={item.full_name}>
+                  {item.full_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-md-1 d-flex align-items-end px-1">
+            <button
+              type="button"
+              className="btn btn-primary w-100 py-1"
+              style={{ backgroundColor: "#682c13", borderColor: "#682c13" }}
+              onClick={handleSearch}
+            >
+              Search
+            </button>
+          </div>
+
+          <div className="col-md-1 d-flex align-items-end px-1">
+            <button
+              type="reset"
+              className="btn btn-dark w-100 py-1"
+              onClick={handleReset}
+            >
+              Reset
+            </button>
+          </div>
+
+          <div className="col-md-1 d-flex justify-content-center align-items-center px-1">
+            <Link
+              to="/assign"
+              className="d-flex align-items-center btn btn-dark hover:bg-[#53230A] px-3 py-1"
+            >
+              <FaPlus className="me-1 text-sm" />
+              <span>Add</span>
+            </Link>
+          </div>
+        </div>
+
+        {loading ? (
+          <p className="text-slate-600" style={{ minHeight: "100vh" }}>
+            Loading...
+          </p>
+        ) : (
+          <>
+            <div className="overflow-auto">
+              <table
+                {...getTableProps()}
+                className="w-full table table-bordered table-hover"
+              >
+                <thead>
+                  {headerGroups.map((headerGroup) => (
+                    <tr
+                      {...headerGroup.getHeaderGroupProps()}
+                      className="border border-1"
+                    >
+                      {headerGroup.headers.map((column) => (
+                        <th
+                          {...column.getHeaderProps(
+                            column.getSortByToggleProps()
+                          )}
+                          className="p-2 cursor-pointer text-md font-normal"
+                          style={{ backgroundColor: "#682C13", color: "white" }}
+                        >
+                          {column.render("Header")}
+                          <span>
+                            {column.isSorted ? (
+                              column.isSortedDesc ? (
+                                <span className="ml-2 border p-1 rounded text-white">
+                                  <i className="fa">&#xf150;</i>{" "}
+                                </span>
+                              ) : (
+                                <span className="ml-2 border p-1 rounded text-white">
+                                  <i className="fa">&#xf0d8;</i>{" "}
+                                </span>
+                              )
+                            ) : (
+                              ""
+                            )}
+                          </span>
+                        </th>
+                      ))}
+                    </tr>
+                  ))}
+                </thead>
+                <tbody {...getTableBodyProps()}>
+                  {currentPageData.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={columns.length}
+                        className="text-center text-red-500"
+                      >
+                        No results found.
+                      </td>
+                    </tr>
+                  ) : (
+                    currentPageData.map((row, index) => {
+                      prepareRow(row);
+                      return (
+                        <tr
+                          {...row.getRowProps()}
+                          key={row.id}
+                          className="hover:bg-gray-200"
+                        >
+                          <td
+                            className="border text-slate-600 border border-1 py-1 pl-2 m-0"
+                            style={{ color: "#5E6E82" }}
+                          >
+                            {index + 1}
+                          </td>
+                          {row.cells.map((cell, idx) => {
+                            if (idx === 0) return null;
+                            return (
+                              <td
+                                {...cell.getCellProps()}
+                                className="border text-slate-600 border border-1 py-1 pl-2 m-0"
+                                style={{ color: "#5E6E82" }}
+                              >
+                                {cell.render("Cell")}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <Pagination
+              canPreviousPage={canPreviousPage}
+              canNextPage={canNextPage}
+              pageIndex={pageIndex}
+              pageSize={pageSize}
+              pageCount={Math.ceil(data.length / pageSize)}
+              gotoPage={gotoPage}
+              previousPage={previousPage}
+              nextPage={nextPage}
+              setPageSize={setPageSize}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 };

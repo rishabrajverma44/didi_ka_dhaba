@@ -20,11 +20,11 @@ const AdminNavBar = () => {
       <div className="sticky top-0 z-50">
         <main className="sticky top-0 z-50 bg-white border-b-4 border-[#A24C4A] shadow-sm">
           <nav className="flex justify-between items-center border-0 relative z-50">
-            <div className="flex items-center w-full justify-between">
-              <section className="flex justify-between items-center w-full py-2 px-2">
+            <div className="flex items-center w-full justify-between px-9">
+              <section className="flex justify-between items-center w-full py-1 px-2">
                 <div className="flex items-center justify-center">
                   <Link to="/admin">
-                    <img src="/images/logo.png" alt="logo" width="60" />
+                    <img src="/images/logo.png" alt="logo" width="70" />
                   </Link>
                 </div>
                 <h5 className="tracking-wide font-bold text-[#344050] text-md md:text-2xl mt-2 text-center font-sans flex-1">
@@ -38,13 +38,16 @@ const AdminNavBar = () => {
                 <div className="d-none d-md-block">
                   <div className="flex items-center gap-2">
                     <span className="">
-                      <button onClick={toggleDropdown}>
+                      <button
+                        onClick={toggleDropdown}
+                        className="flex justify-between items-center"
+                      >
                         <img
                           src="/images/avatar-1.jpg"
                           alt=""
                           width="10"
                           className="img-fluid "
-                          style={{ height: "50px", width: "50px" }}
+                          style={{ height: "60px", width: "60px" }}
                         />
                       </button>
 

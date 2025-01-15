@@ -142,7 +142,10 @@ const FoodEdit = () => {
     { label: "Edit Food", href: `` },
   ];
   return (
-    <div className="py-2 px-6 md:px-12">
+    <div
+      className="px-6 md:px-12 bg-slate-100 py-2"
+      style={{ minHeight: "100vh" }}
+    >
       <ToastContainer />
       <div className="d-flex justify-content-between">
         <div>
@@ -157,7 +160,7 @@ const FoodEdit = () => {
           <Breadcrumb items={breadcrumbItems} />
         </div>
       </div>
-      <div className="mx-auto mt-6">
+      <div className="mx-auto mt-2">
         <form onSubmit={handleSubmit}>
           <div className="flex flex-wrap -mx-2">
             <div className="w-full sm:w-1/2 px-2 mb-4">

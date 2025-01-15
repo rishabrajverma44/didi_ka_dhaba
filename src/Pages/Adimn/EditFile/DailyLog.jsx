@@ -236,12 +236,10 @@ const DailyLogEdit = () => {
                         ),
                       ])
                     ).map((plateType, index) => {
-                      // Aggregate the issued quantity for the plate type
                       const totalIssuedQuantity = selectedRowData.issued_plates
                         .filter((plate) => plate.plate_type === plateType)
                         .reduce((total, plate) => total + plate.quantity, 0);
 
-                      // Aggregate the returned quantity for the plate type
                       const totalReturnedQuantity =
                         selectedRowData.returned_plates
                           .filter(
@@ -253,20 +251,12 @@ const DailyLogEdit = () => {
                             0
                           );
 
-                      // Calculate the difference
                       const difference =
                         totalIssuedQuantity - totalReturnedQuantity;
 
                       return (
                         <tr key={index}>
-                          <td className="py-2 px-4 border">
-                            {plateType}
-                            {
-                              selectedRowData.issued_plates.find(
-                                (plate) => plate.plate_type === plateType
-                              )?.price
-                            }
-                          </td>
+                          <td className="py-2 px-4 border">{plateType}</td>
                           <td className="py-2 px-4 border">
                             {totalIssuedQuantity}
                           </td>
@@ -398,35 +388,29 @@ const DailyLogEdit = () => {
                     <tr className="font-semibold bg-gray-100">
                       <td className="py-2 px-4 border">
                         ₹{" "}
-                        {selectedRowData.payment_details
-                          .reduce(
-                            (acc, payment) =>
-                              acc + parseFloat(payment.upi_amount || 0),
-                            0
-                          )
-                          .toFixed(2)}{" "}
+                        {selectedRowData.payment_details.reduce(
+                          (acc, payment) =>
+                            acc + parseFloat(payment.upi_amount || 0),
+                          0
+                        )}{" "}
                       </td>
                       <td className="py-2 px-4 border">
                         ₹{" "}
-                        {selectedRowData.payment_details
-                          .reduce(
-                            (acc, payment) =>
-                              acc + parseFloat(payment.cash_amount || 0),
-                            0
-                          )
-                          .toFixed(2)}{" "}
+                        {selectedRowData.payment_details.reduce(
+                          (acc, payment) =>
+                            acc + parseFloat(payment.cash_amount || 0),
+                          0
+                        )}{" "}
                       </td>
                       <td className="py-2 px-4 border text-center">
-                        Overall Total =₹{" "}
-                        {selectedRowData.payment_details
-                          .reduce(
-                            (acc, payment) =>
-                              acc +
-                              parseFloat(payment.upi_amount || 0) +
-                              parseFloat(payment.cash_amount || 0),
-                            0
-                          )
-                          .toFixed(2)}{" "}
+                        Overall Total = ₹{" "}
+                        {selectedRowData.payment_details.reduce(
+                          (acc, payment) =>
+                            acc +
+                            parseFloat(payment.upi_amount || 0) +
+                            parseFloat(payment.cash_amount || 0),
+                          0
+                        )}{" "}
                       </td>
                     </tr>
                   </tbody>
@@ -454,7 +438,7 @@ const DailyLogEdit = () => {
     { label: "Didi Details", href: `/` },
   ];
   return (
-    <div className="md:px-12 px-6 py-2">
+    <div className="px-6 md:px-12 bg-slate-100 py-2 pb-4" ref={printRef}>
       <ToastContainer />
       <div className="d-flex justify-content-between">
         <div>
@@ -470,8 +454,8 @@ const DailyLogEdit = () => {
         </div>
       </div>
 
-      <div className="p-1" ref={printRef}>
-        <div className="border border-1 rounded px-8 py-3 shadow-sm border-bottom-4">
+      <div className="p-1 mt-3">
+        <div className="border border-1 rounded px-8 py-3 shadow-sm border-bottom-4 bg-white">
           <div className="row mb-2">
             <div className="col-md-6">
               <span className="fw-bold ">Name :</span>
@@ -508,7 +492,7 @@ const DailyLogEdit = () => {
               </button>
             </div>
             <legend
-              className="float-none w-auto ml-6 px-2"
+              className="float-none w-auto ml-6 px-2 bg-white rounded-lg"
               style={{ color: "#5E6E82", fontWeight: "bolder" }}
             >
               Daily Log

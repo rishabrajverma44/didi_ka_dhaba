@@ -4,13 +4,13 @@ import { Link } from "react-router-dom";
 const Breadcrumb = ({ items }) => {
   return (
     <nav aria-label="breadcrumb">
-      <ol className="breadcrumb flex space-x-2">
+      <ol className="breadcrumb d-flex justify-content-center mb-0">
         {items.map((item, index) => (
           <li
             key={index}
             className={`breadcrumb-item ${
               index === items.length - 1
-                ? "text-gray-700 font-bold"
+                ? "text-gray-700 font-weight-bold"
                 : "text-gray-600"
             }`}
             aria-current={index === items.length - 1 ? "page" : undefined}
@@ -20,7 +20,7 @@ const Breadcrumb = ({ items }) => {
             ) : (
               <Link
                 to={item.href}
-                className="no-underline text-gray-700 font-bold"
+                className="text-gray-700 font-weight-bold text-decoration-none"
               >
                 {item.label}
               </Link>

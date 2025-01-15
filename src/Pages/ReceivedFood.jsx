@@ -997,7 +997,7 @@ const ReceivedFood = () => {
                 lunch.length > 0 ||
                 dinner.length > 0) ? (
                 <div className="overflow-x-auto">
-                  <div className="flex space-x-4">
+                  <div className="flex justify-center">
                     {Array.isArray(plateValues) &&
                       plateValues.map((plate) => (
                         <div
@@ -1009,7 +1009,6 @@ const ReceivedFood = () => {
                               <span className="font-bold">
                                 {plate.item_name}
                               </span>
-                              <span> ( {plate.total_quantity} )</span>
                             </span>
                           </div>
                           <div className="row">

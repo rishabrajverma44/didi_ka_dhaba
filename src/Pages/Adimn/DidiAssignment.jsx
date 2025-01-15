@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import Breadcrumb from "../../Components/prebuiltComponent/Breadcrumb";
 
 const DidiAssignment = () => {
   const navigate = useNavigate();
@@ -18,6 +19,20 @@ const DidiAssignment = () => {
   const [formErrors, setFormErrors] = useState({});
   const [didiOptions, setDidiOptions] = useState([]);
   const [stallOptions, setStallOptions] = useState([]);
+  const [route, setRoute] = useState();
+
+  useEffect(() => {
+    const userCredentials = JSON.parse(localStorage.getItem("userCredentials"));
+    if (userCredentials) {
+      const { email } = userCredentials;
+
+      if (email === "admin@gmail.com") {
+        setRoute("/assign_list");
+      } else {
+        setRoute("/assign_list-register");
+      }
+    }
+  }, []);
 
   const getDidiName = async () => {
     try {
@@ -175,9 +190,24 @@ const DidiAssignment = () => {
     await sendData(payload);
   };
 
+  const breadcrumbItems = [
+    { label: "Assign List", href: route },
+    { label: "Assign", href: `` },
+  ];
+
   return (
-    <div className="py-2 px-6 md:px-12">
+    <div
+      className="px-6 md:px-12 bg-slate-100 py-2"
+      style={{ minHeight: "100vh" }}
+    >
       <ToastContainer />
+      <div className="d-flex justify-content-between">
+        <div>
+          <b
+            style={{ color: "#5E6E82", fontWeight: "bolder", fontSize: "18px" }}
+          ></b>
+        </div>
+      </div>
       <div className="d-flex justify-content-between">
         <div>
           <b
@@ -185,6 +215,10 @@ const DidiAssignment = () => {
           >
             Add Didi Assignment
           </b>
+        </div>
+
+        <div className="">
+          <Breadcrumb items={breadcrumbItems} />
         </div>
       </div>
       <div>

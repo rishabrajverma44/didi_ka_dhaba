@@ -14,6 +14,7 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import Pagination from "../../Components/prebuiltComponent/Pagination";
 import axios from "axios";
+import { FaCalendarAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 import Highcharts from "highcharts";
@@ -30,6 +31,7 @@ const AdminHome = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [filteredData, setFilteredData] = useState(cardData);
+  const [isReset, setIsReset] = useState(false);
 
   const formatDate = (date) => {
     if (!date) return null;
@@ -60,7 +62,6 @@ const AdminHome = () => {
 
   const handleDateChange = (date, name) => {
     const formattedDate = formatDate(date);
-
     if (name === "selectedFromDate") {
       if (
         selectedToDate &&
@@ -108,16 +109,11 @@ const AdminHome = () => {
       });
     setLoading(false);
   };
-  const handleReset = async () => {
-    setSelectedFromDate(formatDate(subOneDay(new Date())));
-    setSelectedToDate(formatDate(addOneDay(new Date())));
-    await PostFilterDate();
-  };
 
   useEffect(() => {
     PostFilterDate();
     getGraph();
-  }, [selectedFromDate, selectedToDate]);
+  }, []);
 
   const [totalSale, setTotalSale] = useState(0);
   const [totalRemuneration, setTotalRemuneration] = useState(0);
@@ -126,7 +122,7 @@ const AdminHome = () => {
     () => [
       { Header: "S. No.", Cell: ({ row }) => row.index + 1 },
       {
-        Header: "Pyment Date",
+        Header: "Payment  Date",
         accessor: "date",
         Cell: ({ row }) => {
           const date = row.original.date;
@@ -136,6 +132,18 @@ const AdminHome = () => {
       {
         Header: "Didi Name",
         accessor: "full_name",
+        Cell: ({ row }) => {
+          const fullName = row.original.full_name;
+          return fullName
+            ? fullName
+                .split(" ")
+                .map(
+                  (word) =>
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                )
+                .join(" ")
+            : "N/A";
+        },
       },
       {
         Header: "Stall Location",
@@ -144,19 +152,37 @@ const AdminHome = () => {
       {
         Header: "Amount Sold ( ₹ )",
         accessor: "total_payment",
+        Cell: ({ row }) => {
+          const amount = row.original.total_payment;
+          return amount ? `₹ ${amount.toLocaleString()}` : "N/A";
+        },
       },
       {
         Header: "Remuneration ( ₹ )",
         accessor: "remuneration",
+        Cell: ({ row }) => {
+          const amount = row.original.remuneration;
+          return amount ? `₹ ${amount.toLocaleString()}` : "N/A";
+        },
       },
+
       {
-        Header: " Plate-wise ( ₹ )",
+        Header: "Plate-wise ( ₹ )",
         accessor: "plate_total_price",
+        Cell: ({ row }) => {
+          const amount = row.original.plate_total_price;
+          return amount ? `₹ ${Math.floor(amount).toLocaleString()}` : "N/A";
+        },
       },
       {
         Header: "Quantity-wise ( ₹ )",
         accessor: "food_total_price",
+        Cell: ({ row }) => {
+          const amount = row.original.food_total_price;
+          return amount ? `₹ ${Math.floor(amount).toLocaleString()}` : "N/A";
+        },
       },
+
       {
         Header: "Color Code",
         accessor: "color",
@@ -325,37 +351,95 @@ const AdminHome = () => {
     });
   }, []);
 
+  const CustomInput = React.forwardRef(({ value, onClick }, ref) => (
+    <div
+      className="flex items-center border border-gray-300 py-1 px-3 rounded w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+      onClick={onClick}
+      ref={ref}
+    >
+      <input
+        type="text"
+        value={value}
+        readOnly
+        placeholder="Enter from date"
+        className="w-full focus:outline-none"
+      />
+      <FaCalendarAlt className="ml-2 text-gray-500" />
+    </div>
+  ));
+
+  useEffect(() => {
+    if (isReset) {
+      const fetchData = async () => {
+        await PostFilterDate();
+        await getGraph();
+        setIsReset(false);
+      };
+
+      fetchData();
+    }
+  }, [isReset]);
+
+  const handleReset = async () => {
+    const fromDate = formatDate(subOneDay(new Date()));
+    const toDate = formatDate(addOneDay(new Date()));
+
+    setSelectedFromDate(fromDate);
+    setSelectedToDate(toDate);
+    setIsReset(true);
+  };
+
+  const handleSearch = async () => {
+    await PostFilterDate();
+    await getGraph();
+  };
+
   return (
-    <div className="py-2 px-6 md:px-12">
+    <div className="px-6 md:px-12 bg-slate-100 pt-2 pb-2">
       <ToastContainer />
 
-      <div className="border p-2 bg-white rounded-lg shadow-sm mb-2">
+      <div className="pt-2 bg-white mb-2 px-2 pb-2">
         <div className="row">
-          <div className="col-md-4">
+          <div className="col-md-1 d-flex align-items-center justify-content-center">
+            <span>From Date </span>
+          </div>
+
+          <div className="col-md-3">
             <DatePicker
               selected={selectedFromDate}
               onChange={(date) => handleDateChange(date, "selectedFromDate")}
               dateFormat="dd/MM/yyyy"
-              placeholderText="Enter from date"
-              className="form-control w-full py-2 px-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              wrapperClassName="w-full"
+              customInput={<CustomInput />}
             />
           </div>
-          <div className="col-md-4">
+          <div className="col-md-1 d-flex align-items-center justify-content-start">
+            <span>To Date </span>
+          </div>
+          <div className="col-md-3">
             <DatePicker
               selected={selectedToDate}
               onChange={(date) => handleDateChange(date, "selectedToDate")}
               dateFormat="dd/MM/yyyy"
-              placeholderText="Enter to date"
-              className="form-control w-full py-2 px-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              wrapperClassName="w-full"
+              customInput={<CustomInput />}
             />
           </div>
 
-          <div className="col-md-4">
+          <div className="col-md-2">
             <button
               type="reset"
-              className="btn btn-dark w-full py-2"
+              className="btn btn-primary w-100 py-1"
+              style={{ backgroundColor: "#682c13", borderColor: "#682c13" }}
+              onClick={handleSearch}
+              disabled={loading}
+            >
+              {loading ? <span>loading....</span> : <span>Search</span>}
+            </button>
+          </div>
+
+          <div className="col-md-2">
+            <button
+              type="reset"
+              className="btn btn-dark w-full py-1"
               onClick={handleReset}
               disabled={loading}
             >
@@ -364,44 +448,54 @@ const AdminHome = () => {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 justify-between items-center my-3">
-          <div className="text-xl font-semibold text-gray-800">
-            Total Sale: ₹{" "}
-            <span className="text-lg font-bold text-[#A24C4A]">
-              {totalSale}
-            </span>
+        <div className="row my-2">
+          <div className="col-md-4">
+            <div className="text-xl font-semibold text-gray-800">
+              Total Sale: ₹{" "}
+              <span className="text-lg font-bold text-[#A24C4A] ml-2">
+                {totalSale}
+              </span>
+            </div>
           </div>
-
-          <div className="text-xl font-semibold text-gray-800">
-            Total Remuneration: ₹{" "}
-            <span className="text-lg font-bold text-[#A24C4A]">
-              {totalRemuneration}
-            </span>
+          <div className="col-md-4">
+            <div className="text-xl font-semibold text-gray-800">
+              Total Remuneration: ₹{" "}
+              <span className="text-lg font-bold text-[#A24C4A] ml-2">
+                {totalRemuneration}
+              </span>
+            </div>
           </div>
-
-          <div
-            className="p-1 border rounded-lg bg-[#FFA500] font-semibold text-slate-950 text-center w-[80px] sm:w-[100px]"
-            title="<0%"
-          >
-            {"< 0%"}
+          <div className="col-md-1">
+            <div
+              className="p-1 border rounded-lg bg-[#FFA500] font-semibold text-slate-950 text-center "
+              title="<0%"
+            >
+              {"< 0%"}
+            </div>
           </div>
-          <div
-            className="p-1 border rounded-lg bg-[#4BB543] font-semibold text-slate-950 text-center w-[80px] sm:w-[100px]"
-            title=">10%"
-          >
-            {"0-10%"}
+          <div className="col-md-1">
+            <div
+              className="p-1 border rounded-lg bg-[#4BB543] font-semibold text-slate-950 text-center "
+              title=">10%"
+            >
+              {"0-10%"}
+            </div>
           </div>
-          <div
-            className="p-1 border rounded-lg bg-[#FFFF00] font-semibold text-slate-950 text-center w-[80px] sm:w-[100px]"
-            title="<20%"
-          >
-            {"10-20%"}
+          <div className="col-md-1">
+            <div
+              className="p-1 border rounded-lg bg-[#FFFF00] font-semibold text-slate-950 text-center "
+              title="<20%"
+            >
+              {"10-20%"}
+            </div>
           </div>
-          <div
-            className="p-1 border rounded-lg bg-[#FF0000] font-semibold text-slate-950 text-center w-[80px] sm:w-[100px]"
-            title="<20%"
-          >
-            {">21%"}
+          <div className="col-md-1">
+            <div
+              className="p-1 border rounded-lg bg-[#FF0000] font-semibold text-slate-950 text-center "
+              title="<20%"
+            >
+              {">21%"}
+            </div>
           </div>
         </div>
 
@@ -423,7 +517,7 @@ const AdminHome = () => {
                           {...column.getHeaderProps(
                             column.getSortByToggleProps()
                           )}
-                          className="p-2 cursor-pointer text-md font-normal border border-2"
+                          className="p-2 cursor-pointer text-md font-normal border border-1"
                           style={{ backgroundColor: "#682C13", color: "white" }}
                         >
                           {column.render("Header")}
@@ -460,7 +554,7 @@ const AdminHome = () => {
                           {row.cells.map((cell) => (
                             <td
                               {...cell.getCellProps()}
-                              className="p-2 border text-slate-600 border border-2"
+                              className="border text-slate-600 border border-1 py-0 pl-2 m-0"
                               style={{ color: "#5E6E82" }}
                             >
                               {cell.render("Cell")}
@@ -473,7 +567,7 @@ const AdminHome = () => {
                     <tr>
                       <td
                         colSpan={columns.length}
-                        className="p-4 text-center text-slate-600"
+                        className="p-2 text-center text-slate-600"
                       >
                         No Data Available
                       </td>
@@ -482,21 +576,23 @@ const AdminHome = () => {
                 </tbody>
               </table>
             </div>
-            <Pagination
-              canNextPage={canNextPage}
-              pageIndex={pageIndex}
-              pageSize={pageSize}
-              pageCount={pageCount}
-              gotoPage={gotoPage}
-              nextPage={nextPage}
-              previousPage={previousPage}
-              setPageSize={setPageSize}
-            />
+            {filteredData.length > 0 && (
+              <Pagination
+                canNextPage={canNextPage}
+                pageIndex={pageIndex}
+                pageSize={pageSize}
+                pageCount={pageCount}
+                gotoPage={gotoPage}
+                nextPage={nextPage}
+                previousPage={previousPage}
+                setPageSize={setPageSize}
+              />
+            )}
           </>
         )}
       </div>
       <div>
-        <div className="border p-2 bg-white rounded-lg shadow-sm p-2 bg-white">
+        <div className="p-2 bg-white p-2 bg-white">
           <HighchartsReact highcharts={Highcharts} options={options} />
         </div>
       </div>

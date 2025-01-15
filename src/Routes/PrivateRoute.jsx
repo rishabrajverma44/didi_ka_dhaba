@@ -10,8 +10,8 @@ const PrivateRoute = ({ children }) => {
     const userCredentials = JSON.parse(localStorage.getItem("userCredentials"));
 
     if (
-      userCredentials?.email === "rishab@gmail.com" &&
-      userCredentials?.password === "Rishab@123"
+      userCredentials?.email === "vender@gmail.com" &&
+      userCredentials?.password === "foodvender@123"
     ) {
       setIsAuthenticated(true);
     } else {

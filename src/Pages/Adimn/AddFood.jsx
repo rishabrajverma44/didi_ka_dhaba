@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import Breadcrumb from "../../Components/prebuiltComponent/Breadcrumb";
 
 const mealCategories = [{ Breakfast: 1 }, { Lunch: 2 }, { Dinner: 3 }];
 const unitTypes = [{ kg: 1 }, { liter: 2 }, { pieces: 3 }];
@@ -101,8 +102,16 @@ const AddFood = () => {
     }
   };
 
+  const breadcrumbItems = [
+    { label: "Food List", href: "/listfood" },
+    { label: "Edit Food", href: `` },
+  ];
+
   return (
-    <div className="py-2 px-6 md:px-12">
+    <div
+      className="px-6 md:px-12 bg-slate-100 py-2"
+      style={{ minHeight: "100vh" }}
+    >
       <ToastContainer />
       <div className="d-flex justify-content-between">
         <div>
@@ -112,7 +121,12 @@ const AddFood = () => {
             Add Food
           </b>
         </div>
+
+        <div className="">
+          <Breadcrumb items={breadcrumbItems} />
+        </div>
       </div>
+
       <div className="mx-auto mt-6">
         <form onSubmit={handleSubmit}>
           <div className="flex flex-wrap -mx-2">

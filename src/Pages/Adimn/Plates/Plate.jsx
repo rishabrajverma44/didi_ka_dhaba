@@ -38,19 +38,7 @@ const Plate = () => {
         toast.error(error?.response?.data?.price[0]);
       });
   };
-  const deletePlate = (id) => {
-    axios
-      .delete(`${process.env.REACT_APP_API_BACKEND}/plates/${id}`)
-      .then((res) => {
-        if (res.status === 204) {
-          getPlates();
-          toast.error("Plate deleted successfully.");
-        }
-      })
-      .catch((error) => {
-        console.log("err in delete plate", error);
-      });
-  };
+
   const editePlate = (payload, id) => {
     axios
       .put(`${process.env.REACT_APP_API_BACKEND}/plates/${id}/`, payload)
@@ -64,11 +52,6 @@ const Plate = () => {
         console.log("err in put plate", error);
         toast.error(error?.response?.data?.price[0]);
       });
-  };
-
-  const openModal = (plate = { plate_id: null, plate_type: "", price: "" }) => {
-    setModalData(plate);
-    setIsModalOpen(true);
   };
 
   const closeModal = () => {
@@ -113,7 +96,10 @@ const Plate = () => {
   }, []);
 
   return (
-    <div className="px-6 md:px-12">
+    <div
+      className="px-6 md:px-12 bg-slate-100 py-2"
+      style={{ minHeight: "100vh" }}
+    >
       <ToastContainer />
       <div className="d-flex justify-content-between">
         <div>
@@ -140,7 +126,7 @@ const Plate = () => {
           </button> */}
         </div>
 
-        <table className="table mt-4 border border-2 border-gray-300">
+        <table className="table mt-4 border border-1 border-gray-300">
           <thead className="border-b border-gray-300">
             <tr>
               <th className="border-r border-gray-300 p-2">Name</th>
@@ -158,7 +144,7 @@ const Plate = () => {
                     {plate.plate_type}
                   </td>
                   <td className="border-r border-gray-300 p-2">
-                    ₹ {plate.price}
+                    ₹ {Math.floor(plate.price).toLocaleString()}
                   </td>
                   {/* <td className="p-2 text-center">
                     <div className="flex justify-center items-center space-x-12">

@@ -6,6 +6,8 @@ import Swal from "sweetalert2";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import { CaptchaBox, validateCaptcha, reloadCaptcha } from "react-captcha-lite";
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -50,10 +52,10 @@ const Login = () => {
     //   toast.error("CAPTCHA is incorrect. Please try again.");
     //   return;
     // }
-
+    localStorage.removeItem("userCredentials");
     if (
-      values.email === "rishab@gmail.com" &&
-      values.password === "Rishab@123"
+      values.email === "vender@gmail.com" &&
+      values.password === "foodvender@123"
     ) {
       localStorage.setItem(
         "userCredentials",
@@ -62,7 +64,7 @@ const Login = () => {
       navigate("/mobilehome");
     } else if (
       values.email === "admin@gmail.com" &&
-      values.password === "Rishab@123"
+      values.password === "foodadmin@123"
     ) {
       localStorage.setItem(
         "userCredentials",
@@ -71,7 +73,7 @@ const Login = () => {
       navigate("/admin");
     } else if (
       values.email === "registar@gmail.com" &&
-      values.password === "Rishab@123"
+      values.password === "didiregistar@123"
     ) {
       localStorage.setItem(
         "userCredentials",
@@ -85,12 +87,37 @@ const Login = () => {
 
   const formik = useFormik({
     initialValues: {
-      email: "rishab@gmail.com",
-      password: "Rishab@123",
+      email: "",
+      password: "",
     },
     validationSchema,
     onSubmit: handleSubmit,
   });
+
+  const handleSucces = (credentialResponse) => {
+    try {
+      const decoded = jwtDecode(credentialResponse?.credential);
+      const email = decoded.email;
+      const picture = decoded.picture;
+
+      if (email === "vender@gmail.com") {
+        localStorage.setItem(
+          "userCredentials",
+          JSON.stringify({ email, password: "foodvender@123", picture })
+        );
+        navigate("/mobilehome");
+      } else {
+        toast.error("Unauthorized user!");
+      }
+    } catch (error) {
+      console.error("Error decoding JWT:", error);
+      toast.error("Google OAuth failed. Please try again.");
+    }
+  };
+
+  const handelError = () => {
+    console.log("error");
+  };
 
   return (
     <>
@@ -144,7 +171,6 @@ const Login = () => {
                     </span>
                   )}
                 </div>
-
                 <div className="form-group mb-1 relative">
                   <label
                     htmlFor="password"
@@ -181,7 +207,6 @@ const Login = () => {
                     </span>
                   )}
                 </div>
-
                 {/* <div className="captcha-container mb-2">
                   <div className="captcha-box bg-light md:flex-row items-center gap-4 md:gap-8">
                     <CaptchaBox />
@@ -203,7 +228,14 @@ const Login = () => {
                     </div>
                   </div>
                 </div> */}
-
+                {/* <div className="mt-3">
+                  <GoogleOAuthProvider clientId="478127854144-a9jtakrnshrvoqdqassjkrog2vo84emn.apps.googleusercontent.com">
+                    <GoogleLogin
+                      onSuccess={handleSucces}
+                      onError={handelError}
+                    />
+                  </GoogleOAuthProvider>
+                </div> */}
                 <div className="form-group mb-3 mt-4">
                   <button
                     type="submit"

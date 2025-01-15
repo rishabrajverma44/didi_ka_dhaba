@@ -179,155 +179,159 @@ const ListDidi = () => {
   );
 
   return (
-    <div className="px-6 md:px-12">
+    <div className="px-6 md:px-12 bg-slate-100 py-2 pb-4">
       <ToastContainer />
-      <div className="mb-2 mt-2">
-        <label className="block text-slate-600 mb-1 font-medium">Search</label>
-        <div className="flex items-center justify-between space-x-2">
-          <input
-            type="text"
-            value={searchText}
-            onChange={handleSearchChange}
-            placeholder="Search..."
-            className="w-64 p-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A24C4A] transition duration-200"
-          />
-          <Link
-            to={route3}
-            className="d-flex align-items-center btn btn-dark hover:bg-[#53230A] px-3"
-          >
-            <FaPlus className="me-1" />
-            <span>Add</span>
-          </Link>
-        </div>
-      </div>
-
-      {loading ? (
-        <p className="text-slate-600">Loading...</p>
-      ) : (
-        <>
-          <div className="overflow-x-auto mb-2">
-            <table
-              {...getTableProps()}
-              className="w-full table table-bordered table-hover"
+      <div className="bg-white p-2">
+        <div className="mb-2">
+          <div className="flex items-center justify-between space-x-2">
+            <input
+              type="text"
+              value={searchText}
+              onChange={handleSearchChange}
+              placeholder="Search..."
+              className="w-64 p-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#A24C4A] transition duration-200"
+            />
+            <Link
+              to={route3}
+              className="d-flex align-items-center btn btn-dark hover:bg-[#53230A] px-3 py-1"
             >
-              <thead className="bg-[#682C13]">
-                {headerGroups.map((headerGroup) => (
-                  <tr
-                    {...headerGroup.getHeaderGroupProps()}
-                    key={headerGroup.id}
-                  >
-                    {headerGroup.headers.map((column) => (
-                      <th
-                        {...column.getHeaderProps()}
-                        className="py-2 border-b text-white"
-                        style={{
-                          backgroundColor: "#682C13",
-                          color: "white",
-                          fontWeight: "inherit",
-                        }}
-                      >
-                        {column.render("Header")}
-                        <span>
-                          {column.isSorted ? (
-                            column.isSortedDesc ? (
-                              <span className="ml-2 border p-1 rounded text-white">
-                                <i className="fa">&#xf150;</i>{" "}
-                              </span>
-                            ) : (
-                              <span className="ml-2 border p-1 rounded text-white">
-                                <i className="fa">&#xf0d8;</i>{" "}
-                              </span>
-                            )
-                          ) : (
-                            ""
-                          )}
-                        </span>
-                      </th>
-                    ))}
-                  </tr>
-                ))}
-              </thead>
-
-              <tbody {...getTableBodyProps()}>
-                {currentPageData.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={columns.length}
-                      className="py-2 text-slate-600 text-center"
-                    >
-                      No data found
-                    </td>
-                  </tr>
-                ) : (
-                  currentPageData.map((row) => {
-                    prepareRow(row);
-                    return (
-                      <tr
-                        {...row.getRowProps()}
-                        key={row.id}
-                        className="hover:bg-gray-50 text-center"
-                        style={{ textAlign: "center", verticalAlign: "middle" }}
-                      >
-                        {row.cells.map((cell) => (
-                          <td
-                            {...cell.getCellProps()}
-                            className="py-2 border border-2"
-                            style={{
-                              color: "#5E6E82",
-                              textAlign: "center",
-                              verticalAlign: "middle",
-                            }}
-                          >
-                            {cell.render("Cell")}
-                          </td>
-                        ))}
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+              <FaPlus className="me-1 text-sm" />
+              <span>Add</span>
+            </Link>
           </div>
+        </div>
 
-          <Pagination
-            canPreviousPage={canPreviousPage}
-            canNextPage={canNextPage}
-            pageIndex={pageIndex}
-            pageSize={pageSize}
-            pageCount={Math.ceil(didiData.length / pageSize)}
-            gotoPage={gotoPage}
-            previousPage={previousPage}
-            nextPage={nextPage}
-            setPageSize={setPageSize}
-          />
-        </>
-      )}
+        {loading ? (
+          <p className="text-slate-600" style={{ minHeight: "100vh" }}>
+            Loading...
+          </p>
+        ) : (
+          <>
+            <div className="overflow-x-auto mb-2">
+              <table
+                {...getTableProps()}
+                className="w-full table table-bordered table-hover"
+              >
+                <thead className="bg-[#682C13]">
+                  {headerGroups.map((headerGroup) => (
+                    <tr
+                      {...headerGroup.getHeaderGroupProps()}
+                      key={headerGroup.id}
+                    >
+                      {headerGroup.headers.map((column) => (
+                        <th
+                          {...column.getHeaderProps()}
+                          className="py-2 border-b text-white"
+                          style={{
+                            backgroundColor: "#682C13",
+                            color: "white",
+                            fontWeight: "inherit",
+                          }}
+                        >
+                          {column.render("Header")}
+                          <span>
+                            {column.isSorted ? (
+                              column.isSortedDesc ? (
+                                <span className="ml-2 border p-1 rounded text-white">
+                                  <i className="fa">&#xf150;</i>{" "}
+                                </span>
+                              ) : (
+                                <span className="ml-2 border py-0 pl-2 m-0 rounded text-white">
+                                  <i className="fa">&#xf0d8;</i>{" "}
+                                </span>
+                              )
+                            ) : (
+                              ""
+                            )}
+                          </span>
+                        </th>
+                      ))}
+                    </tr>
+                  ))}
+                </thead>
 
-      <Modal
-        isOpen={showModal}
-        onRequestClose={() => setShowModal(false)}
-        contentLabel="Delete Confirmation"
-        className="bg-white p-6 rounded-md shadow-md w-11/12 sm:w-2/3 md:w-1/2 lg:w-1/3"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
-      >
-        <h2 className="text-lg font-semibold mb-4 text-center">
-          Are you sure you want to delete this item?
-        </h2>
-        <div className="flex justify-end gap-4">
-          <button
-            onClick={() => setShowModal(false)}
-            className="px-4 py-2 bg-gray-400 text-white rounded"
-          >
-            No
-          </button>
-          {/* <button
+                <tbody {...getTableBodyProps()}>
+                  {currentPageData.length === 0 ? (
+                    <tr style={{ minHeight: "100vh" }}>
+                      <td
+                        colSpan={columns.length}
+                        className="py-2 text-slate-600 text-center"
+                      >
+                        No data found
+                      </td>
+                    </tr>
+                  ) : (
+                    currentPageData.map((row) => {
+                      prepareRow(row);
+                      return (
+                        <tr
+                          {...row.getRowProps()}
+                          key={row.id}
+                          className="hover:bg-gray-50"
+                          style={{
+                            verticalAlign: "middle",
+                          }}
+                        >
+                          {row.cells.map((cell) => (
+                            <td
+                              {...cell.getCellProps()}
+                              className="border border-1 p-1"
+                              style={{
+                                color: "#5E6E82",
+                                verticalAlign: "middle",
+                              }}
+                            >
+                              {cell.render("Cell")}
+                            </td>
+                          ))}
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <Pagination
+              canPreviousPage={canPreviousPage}
+              canNextPage={canNextPage}
+              pageIndex={pageIndex}
+              pageSize={pageSize}
+              pageCount={Math.ceil(didiData.length / pageSize)}
+              gotoPage={gotoPage}
+              previousPage={previousPage}
+              nextPage={nextPage}
+              setPageSize={setPageSize}
+            />
+          </>
+        )}
+
+        <Modal
+          isOpen={showModal}
+          onRequestClose={() => setShowModal(false)}
+          contentLabel="Delete Confirmation"
+          className="bg-white p-6 rounded-md shadow-md w-11/12 sm:w-2/3 md:w-1/2 lg:w-1/3"
+          overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+        >
+          <h2 className="text-lg font-semibold mb-4 text-center">
+            Are you sure you want to delete this item?
+          </h2>
+          <div className="flex justify-end gap-4">
+            <button
+              onClick={() => setShowModal(false)}
+              className="px-4 py-2 bg-gray-400 text-white rounded"
+            >
+              No
+            </button>
+            {/* <button
             onClick={handleDelete}
             className="px-4 py-2 bg-red-500 text-white rounded"
           >
             Yes, Delete
           </button> */}
-        </div>
-      </Modal>
+          </div>
+        </Modal>
+      </div>
     </div>
   );
 };
