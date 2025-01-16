@@ -188,21 +188,21 @@ const AdminHome = () => {
         Cell: ({ row }) => {
           const percentage = row.original.percentage_difference;
           var colorClass = "";
-          if (percentage <= 0) {
-            colorClass = "bg-[#FFA500]";
-          } else if (percentage > 0 && percentage < 10) {
-            colorClass = "bg-[#4BB543]";
-          } else if (percentage >= 10 && percentage < 20) {
-            colorClass = "bg-[#FFFF00]";
-          } else if (percentage >= 20) {
+          if (percentage <= -20) {
             colorClass = "bg-[#FF0000]";
+          } else if (percentage < -10 && percentage > -20) {
+            colorClass = "bg-[#FFFF00]";
+          } else if (percentage < 0 && percentage > -10) {
+            colorClass = "bg-[#4BB543]";
+          } else if (percentage > 0) {
+            colorClass = "bg-[#FFA500]";
           }
 
           return (
             <div
               className={`p-1 border border ${colorClass} font-semibold text-slate-950`}
             >
-              {percentage} %
+              {percentage * -1} %
             </div>
           );
         },
@@ -399,7 +399,7 @@ const AdminHome = () => {
 
       <div className="pt-2 bg-white mb-2 px-2 pb-2">
         <div className="row">
-          <div className="col-md-1 d-flex align-items-center justify-content-center">
+          <div className="col-md-1 d-flex align-items-center justify-content-start">
             <span>From Date </span>
           </div>
 
