@@ -16,7 +16,7 @@ const DidiAssignment = () => {
   const [searchTermStall, setSearchTermStall] = useState("");
   const [isDropdownOpenStall, setIsDropdownOpenStall] = useState(false);
   const [selectedStall, setSelectedStall] = useState(null);
-  const [selectedDateFrom, setSelectedDateFrom] = useState("");
+  const [selectedDateFrom, setSelectedDateFrom] = useState(new Date());
   const [selectedDateTo, setSelectedDateTo] = useState("");
   const [formErrors, setFormErrors] = useState({});
   const [didiOptions, setDidiOptions] = useState([]);

@@ -22,6 +22,7 @@ import HighchartsDrilldown from "highcharts/modules/drilldown";
 import CryptoJS from "crypto-js";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { FaDownload } from "react-icons/fa";
 
 const Map = React.lazy(() => import("./Admin/Map"));
 
@@ -192,7 +193,7 @@ const AdminHome = () => {
             colorClass = "bg-[#FF0000]";
           } else if (percentage < -10 && percentage > -20) {
             colorClass = "bg-[#FFFF00]";
-          } else if (percentage < 0 && percentage > -10) {
+          } else if (percentage <= 0 && percentage > -10) {
             colorClass = "bg-[#4BB543]";
           } else if (percentage > 0) {
             colorClass = "bg-[#FFA500]";
@@ -202,7 +203,7 @@ const AdminHome = () => {
             <div
               className={`p-1 border border ${colorClass} font-semibold text-slate-950`}
             >
-              {percentage * -1} %
+              {percentage} %
             </div>
           );
         },
@@ -393,6 +394,50 @@ const AdminHome = () => {
     await getGraph();
   };
 
+  const handleDownload = () => {
+    const payload = {
+      from_date: selectedFromDate,
+      to_date: selectedToDate,
+    };
+
+    axios
+      .post(`${process.env.REACT_APP_API_BACKEND}/download_details/`, payload, {
+        responseType: "blob",
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          const blob = new Blob([res.data], {
+            type: res.headers["content-type"],
+          });
+
+          const url = window.URL.createObjectURL(blob);
+
+          const link = document.createElement("a");
+          link.href = url;
+
+          const contentDisposition = res.headers["content-disposition"];
+          let fileName = "downloaded_file";
+          if (contentDisposition) {
+            const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+            if (fileNameMatch && fileNameMatch.length > 1) {
+              fileName = fileNameMatch[1];
+            }
+          }
+
+          link.download = fileName;
+
+          document.body.appendChild(link);
+          link.click();
+
+          link.remove();
+          window.URL.revokeObjectURL(url);
+        }
+      })
+      .catch((error) => {
+        console.error("Error in download", error);
+      });
+  };
+
   return (
     <div className="px-6 md:px-12 bg-slate-100 pt-2 pb-2">
       <ToastContainer />
@@ -403,7 +448,7 @@ const AdminHome = () => {
             <span>From Date </span>
           </div>
 
-          <div className="col-md-3">
+          <div className="col-md-2">
             <DatePicker
               selected={selectedFromDate}
               onChange={(date) => handleDateChange(date, "selectedFromDate")}
@@ -414,13 +459,25 @@ const AdminHome = () => {
           <div className="col-md-1 d-flex align-items-center justify-content-start">
             <span>To Date </span>
           </div>
-          <div className="col-md-3">
+          <div className="col-md-2">
             <DatePicker
               selected={selectedToDate}
               onChange={(date) => handleDateChange(date, "selectedToDate")}
               dateFormat="dd/MM/yyyy"
               customInput={<CustomInput />}
             />
+          </div>
+
+          <div className="col-md-1"></div>
+
+          <div className="col-md-1">
+            <button
+              onClick={handleDownload}
+              style={{ borderColor: "#682c13", color: "#682c13" }}
+              className="btn flex items-center px-4 py-2 rounded"
+            >
+              <FaDownload className="mr-2" />
+            </button>
           </div>
 
           <div className="col-md-2">
@@ -448,22 +505,24 @@ const AdminHome = () => {
         </div>
 
         <div className="row my-2">
-          <div className="col-md-4">
+          <div className="col-md-3">
             <div className="text-xl font-semibold text-gray-800">
               Total Sale: ₹{" "}
               <span className="text-lg font-bold text-[#A24C4A] ml-2">
-                {totalSale}
+                {totalSale.toLocaleString()}
               </span>
             </div>
           </div>
-          <div className="col-md-4">
+          <div className="col-md-3">
             <div className="text-xl font-semibold text-gray-800">
               Total Remuneration: ₹{" "}
               <span className="text-lg font-bold text-[#A24C4A] ml-2">
-                {totalRemuneration}
+                {totalRemuneration.toLocaleString()}
               </span>
             </div>
           </div>
+
+          <div className="col-md-2"></div>
           <div className="col-md-1">
             <div
               className="p-1 border rounded-lg bg-[#FFA500] font-semibold text-slate-950 text-center "

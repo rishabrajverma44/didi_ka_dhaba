@@ -22,11 +22,51 @@ const AdminNavBar = () => {
           <nav className="flex justify-between items-center border-0 relative z-50">
             <div className="flex items-center w-full justify-between px-9">
               <section className="flex justify-between items-center w-full py-1 px-2">
-                <div className="flex items-center justify-center">
+                <div className="flex">
                   <Link to="/admin">
                     <img src="/images/logo.png" alt="logo" width="70" />
                   </Link>
                 </div>
+                {/* <div className="w-25 flex flex justify-between">
+                  <img
+                    src="/images/Ekta.png"
+                    alt="jbf1"
+                    style={{
+                      width: "15%",
+                      height: "auto",
+                      objectFit: "contain",
+                    }}
+                  />
+
+                  <img
+                    src="/images/jbf.jpg"
+                    alt="jbf2"
+                    style={{
+                      width: "15%",
+                      height: "auto",
+                      objectFit: "contain",
+                    }}
+                  />
+                  <img
+                    src="/images/m3m.png"
+                    alt="m3m"
+                    style={{
+                      width: "30%",
+                      height: "auto",
+                      objectFit: "contain",
+                    }}
+                  />
+                  <img
+                    src="/images/sidbi.png"
+                    alt="sidbi"
+                    style={{
+                      width: "30%",
+                      height: "auto",
+                      objectFit: "contain",
+                    }}
+                  />
+                </div> */}
+
                 <h5 className="tracking-wide font-bold text-[#344050] text-md md:text-2xl mt-2 text-center font-sans flex-1">
                   DIDI KA DHABA
                 </h5>
