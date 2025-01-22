@@ -106,6 +106,8 @@ const AdminHome = () => {
         setFilteredData(sortedData);
         setTotalSale(res.data?.total_payment_sum);
         setTotalRemuneration(res.data?.remuneration);
+        setTotalIssuedFood(res.data?.total_issued_food_cost);
+        setTotalReturendFood(res.data?.total_returned_food_cost);
       });
     setLoading(false);
   };
@@ -117,6 +119,8 @@ const AdminHome = () => {
 
   const [totalSale, setTotalSale] = useState(0);
   const [totalRemuneration, setTotalRemuneration] = useState(0);
+  const [totalIssuedFood, setTotalIssuedFood] = useState(0);
+  const [totalReturendFood, setTotalReturendFood] = useState(0);
 
   const columns = useMemo(
     () => [
@@ -407,25 +411,30 @@ const AdminHome = () => {
       .then((res) => {
         if (res.status === 200) {
           const blob = new Blob([res.data], {
-            type: res.headers["content-type"],
+            type: "text/csv;charset=utf-8;",
           });
+          console.log("CSV Blob Created:", blob);
+
+          const reader = new FileReader();
+          reader.onload = () => {
+            console.log("CSV Content Preview:", reader.result);
+          };
+          reader.readAsText(blob);
 
           const url = window.URL.createObjectURL(blob);
-
           const link = document.createElement("a");
           link.href = url;
 
           const contentDisposition = res.headers["content-disposition"];
-          let fileName = "downloaded_file";
+          let fileName = "downloaded_file.csv";
           if (contentDisposition) {
             const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-            if (fileNameMatch && fileNameMatch.length > 1) {
+            if (fileNameMatch && fileNameMatch[1]) {
               fileName = fileNameMatch[1];
             }
           }
 
           link.download = fileName;
-
           document.body.appendChild(link);
           link.click();
 
@@ -434,7 +443,7 @@ const AdminHome = () => {
         }
       })
       .catch((error) => {
-        console.error("Error in download", error);
+        console.error("Error in downloading CSV:", error);
       });
   };
 
@@ -474,7 +483,7 @@ const AdminHome = () => {
             <button
               onClick={handleDownload}
               style={{ borderColor: "#682c13", color: "#682c13" }}
-              className="btn flex items-center px-4 py-2 rounded"
+              className="btn flex items-center px-4 py-2"
             >
               <FaDownload className="mr-2" />
             </button>
@@ -505,54 +514,83 @@ const AdminHome = () => {
         </div>
 
         <div className="row my-2">
-          <div className="col-md-3">
-            <div className="text-xl font-semibold text-gray-800">
-              Total Sale: ₹{" "}
-              <span className="text-lg font-bold text-[#A24C4A] ml-2">
-                {totalSale.toLocaleString()}
-              </span>
+          <div className="col-md-6">
+            <div className="row mb-2">
+              <div className="col-md-6">
+                <div className="text-xl font-semibold text-gray-800">
+                  Sale: ₹{" "}
+                  <span className="text-lg font-bold text-[#A24C4A]">
+                    {totalSale.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="text-xl font-semibold text-gray-800">
+                  Remuneration: ₹{" "}
+                  <span className="text-lg font-bold text-[#A24C4A]">
+                    {totalRemuneration.toLocaleString()}
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="col-md-3">
-            <div className="text-xl font-semibold text-gray-800">
-              Total Remuneration: ₹{" "}
-              <span className="text-lg font-bold text-[#A24C4A] ml-2">
-                {totalRemuneration.toLocaleString()}
-              </span>
+            <div className="row">
+              <div className="col-md-6">
+                <div className="text-xl font-semibold text-gray-800">
+                  Issued Food: ₹{" "}
+                  <span className="text-lg font-bold text-[#A24C4A]">
+                    {Number(Number(totalIssuedFood).toFixed()).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="text-xl font-semibold text-gray-800">
+                  Returned Food: ₹{" "}
+                  <span className="text-lg font-bold text-[#A24C4A]">
+                    {Number(
+                      Number(totalReturendFood).toFixed()
+                    ).toLocaleString()}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="col-md-2"></div>
-          <div className="col-md-1">
-            <div
-              className="p-1 border rounded-lg bg-[#FFA500] font-semibold text-slate-950 text-center "
-              title="<0%"
-            >
-              {"< 0%"}
-            </div>
-          </div>
-          <div className="col-md-1">
-            <div
-              className="p-1 border rounded-lg bg-[#4BB543] font-semibold text-slate-950 text-center "
-              title=">10%"
-            >
-              {"0-10%"}
-            </div>
-          </div>
-          <div className="col-md-1">
-            <div
-              className="p-1 border rounded-lg bg-[#FFFF00] font-semibold text-slate-950 text-center "
-              title="<20%"
-            >
-              {"10-20%"}
-            </div>
-          </div>
-          <div className="col-md-1">
-            <div
-              className="p-1 border rounded-lg bg-[#FF0000] font-semibold text-slate-950 text-center "
-              title="<20%"
-            >
-              {">21%"}
+          <div className="col-md-6 ">
+            <div className="row mt-3"></div>
+            <div className="row">
+              <div className="col-md-4"></div>
+              <div className="col-md-2">
+                <div
+                  className="border rounded-lg bg-[#FFA500] font-semibold text-slate-950 text-center py-1"
+                  title="<0%"
+                >
+                  {"< 0%"}
+                </div>
+              </div>
+              <div className="col-md-2">
+                <div
+                  className="border rounded-lg bg-[#4BB543] font-semibold text-slate-950 text-center py-1"
+                  title="0-10%"
+                >
+                  {"0-10%"}
+                </div>
+              </div>
+              <div className="col-md-2">
+                <div
+                  className="border rounded-lg bg-[#FFFF00] font-semibold text-slate-950 text-center py-1"
+                  title="10-20%"
+                >
+                  {"10-20%"}
+                </div>
+              </div>
+              <div className="col-md-2">
+                <div
+                  className="border rounded-lg bg-[#FF0000] font-semibold text-slate-950 text-center py-1"
+                  title=">20%"
+                >
+                  {"> 21%"}
+                </div>
+              </div>
             </div>
           </div>
         </div>

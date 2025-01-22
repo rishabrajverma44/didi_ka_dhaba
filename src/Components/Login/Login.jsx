@@ -55,7 +55,7 @@ const Login = () => {
     localStorage.removeItem("userCredentials");
     if (
       values.email === "vender@gmail.com" &&
-      values.password === "foodvender@123"
+      values.password === "issue@455"
     ) {
       localStorage.setItem(
         "userCredentials",
@@ -64,7 +64,7 @@ const Login = () => {
       navigate("/mobilehome");
     } else if (
       values.email === "admin@gmail.com" &&
-      values.password === "foodadmin@123"
+      values.password === "admin@4333$"
     ) {
       localStorage.setItem(
         "userCredentials",
@@ -73,7 +73,7 @@ const Login = () => {
       navigate("/admin");
     } else if (
       values.email === "registar@gmail.com" &&
-      values.password === "didiregistar@123"
+      values.password === "didi@registration$"
     ) {
       localStorage.setItem(
         "userCredentials",
@@ -93,31 +93,6 @@ const Login = () => {
     validationSchema,
     onSubmit: handleSubmit,
   });
-
-  const handleSucces = (credentialResponse) => {
-    try {
-      const decoded = jwtDecode(credentialResponse?.credential);
-      const email = decoded.email;
-      const picture = decoded.picture;
-
-      if (email === "vender@gmail.com") {
-        localStorage.setItem(
-          "userCredentials",
-          JSON.stringify({ email, password: "foodvender@123", picture })
-        );
-        navigate("/mobilehome");
-      } else {
-        toast.error("Unauthorized user!");
-      }
-    } catch (error) {
-      console.error("Error decoding JWT:", error);
-      toast.error("Google OAuth failed. Please try again.");
-    }
-  };
-
-  const handelError = () => {
-    console.log("error");
-  };
 
   return (
     <>

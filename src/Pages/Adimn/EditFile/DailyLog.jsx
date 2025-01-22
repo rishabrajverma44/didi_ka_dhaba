@@ -31,7 +31,7 @@ const DailyLogEdit = () => {
           setDidiDetails(res.data.didi_details);
           const issueFoodCost = Number(
             res.data.didi_details.total_issued_food_cost || 0
-          ).toFixed(0);
+          ).toFixed(1);
           setIssueFoodCost(issueFoodCost);
           setReturnFoodCost(
             Number(res.data.didi_details.total_returned_food_cost)
@@ -150,11 +150,11 @@ const DailyLogEdit = () => {
                         Returned Quantity
                       </th>
                       <th className="py-2 px-4 border text-left text-slate-600">
-                        Difference
+                        Used Quantity
                       </th>
-                      {/* <th className="py-2 px-4 border text-left text-slate-600">
+                      <th className="py-2 px-4 border text-left text-slate-600">
                         Price
-                      </th> */}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -216,61 +216,51 @@ const DailyLogEdit = () => {
                                 )}
                                 <td className="py-2 px-4 border">{itemName}</td>
                                 <td className="py-2 px-4 border">
-                                  {issuedQuantity.toFixed(0)} {unitName}
+                                  {issuedQuantity.toFixed(1)} {unitName}
                                 </td>
                                 <td className="py-2 px-4 border">
-                                  {returnedQuantity.toFixed(0)} {unitName}
+                                  {returnedQuantity.toFixed(1)} {unitName}
                                 </td>
                                 <td className="py-2 px-4 border">
-                                  {difference.toFixed(0)} {unitName}
+                                  {difference.toFixed(1)} {unitName}
                                 </td>
-                                {/* <td className="py-2 px-4 border">
+                                <td className="py-2 px-4 border">
                                   {price === "-"
                                     ? "N/A"
-                                    : `( ${difference}*1000/150 ₹ ${multiplier} ) = ₹ ${price.toLocaleString(
+                                    : itemName.toLowerCase() === "rice"
+                                    ? `( ${difference.toFixed(
+                                        1
+                                      )} * 1000/150 * ₹ ${multiplier} ) = ₹ ${price.toLocaleString(
                                         undefined,
                                         {
                                           minimumFractionDigits: 0,
                                           maximumFractionDigits: 0,
                                         }
-                                      )} `}
-                                </td> */}
+                                      )}`
+                                    : `( ${difference.toFixed(
+                                        1
+                                      )}  * ₹ ${multiplier} ) = ₹ ${price.toLocaleString(
+                                        undefined,
+                                        {
+                                          minimumFractionDigits: 0,
+                                          maximumFractionDigits: 0,
+                                        }
+                                      )}`}
+                                </td>
                               </tr>
                             );
                           })}
                         </React.Fragment>
                       );
                     })}
-                    {/* <tr className="font-semibold bg-gray-100">
+                    <tr className="font-semibold bg-gray-100">
+                      <td colSpan="1" className="py-2 px-4 border"></td>
+                      <td colSpan="1" className="py-2 px-4 border"></td>
+                      <td colSpan="1" className="py-2 px-4 border"></td>
+                      <td colSpan="1" className="py-2 px-4 border"></td>
                       <td
                         colSpan="1"
-                        className="py-2 px-4 border text-slate-600"
-                      ></td>
-                      <td
-                        colSpan="1"
-                        className="py-2 px-4 border text-slate-600"
-                      ></td>
-                      <td
-                        colSpan="1"
-                        className="py-2 px-4 border text-slate-600"
-                      >
-                        ₹{" "}
-                        {Number(issuefoodcost)
-                          .toFixed(0)
-                          .toLocaleString("en-IN")}
-                      </td>
-                      <td
-                        colSpan="1"
-                        className="py-2 px-4 border text-slate-600"
-                      >
-                        ₹{" "}
-                        {Number(returnfoodcost)
-                          .toFixed(0)
-                          .toLocaleString("en-IN")}
-                      </td>
-                      <td
-                        colSpan="1"
-                        className="py-2 px-4 border text-right text-slate-600"
+                        className="py-2 px-4 border text-right"
                       ></td>
                       <td className="py-2 px-4 border">
                         ₹{" "}
@@ -327,7 +317,7 @@ const DailyLogEdit = () => {
                           })}{" "}
                         Quantity wise
                       </td>
-                    </tr> */}
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -336,11 +326,10 @@ const DailyLogEdit = () => {
             )}
 
             {selectedRowData && selectedRowData.issued_plates.length > 0 ? (
-              <div>
+              <div className="overflow-x-auto">
                 <h3 className="text-xl font-semibold mb-2 text-gray-700">
                   Issued and Returned Plates Details
                 </h3>
-
                 <table className="min-w-full bg-white border border-gray-200 rounded-md">
                   <thead>
                     <tr className="bg-gray-100">
@@ -354,7 +343,7 @@ const DailyLogEdit = () => {
                         Returned Plate Number
                       </th>
                       <th className="py-2 px-4 border text-left text-slate-600">
-                        Difference
+                        Used Plate
                       </th>
                       <th className="py-2 px-4 border text-left text-slate-600">
                         Price
@@ -406,28 +395,28 @@ const DailyLogEdit = () => {
                           <td className="py-2 px-4 border">{difference}</td>
                           <td className="py-2 px-4 border">
                             {staticPrices[index % staticPrices.length]}*
-                            {difference} = ₹ {price.toLocaleString()}
+                            {difference}= ₹ {price.toLocaleString()}
                           </td>
                         </tr>
                       );
                     })}
 
                     <tr className="font-semibold bg-gray-100">
-                      <td className="py-2 px-4 border">Total</td>
+                      <td className="py-2 px-4 border"></td>
                       <td className="py-2 px-4 border">
-                        {selectedRowData.issued_plates.reduce(
+                        {/* {selectedRowData.issued_plates.reduce(
                           (total, plate) => total + plate.quantity,
                           0
-                        )}
+                        )} */}
                       </td>
                       <td className="py-2 px-4 border">
-                        {selectedRowData.returned_plates.reduce(
+                        {/* {selectedRowData.returned_plates.reduce(
                           (total, plate) => total + plate.returned_quantity,
                           0
-                        )}
+                        )} */}
                       </td>
                       <td className="py-2 px-4 border">
-                        {Array.from(
+                        {/* {Array.from(
                           new Set([
                             ...selectedRowData.issued_plates.map(
                               (plate) => plate.plate_type
@@ -460,7 +449,7 @@ const DailyLogEdit = () => {
                             total +
                             (totalIssuedQuantity - totalReturnedQuantity)
                           );
-                        }, 0)}
+                        }, 0)} */}
                       </td>
                       <td className="py-2 px-4 border">
                         ₹{" "}
@@ -684,7 +673,7 @@ const DailyLogEdit = () => {
         </div>
       </div>
 
-      <div className="p-1 mt-3">
+      <div className="mt-1">
         <div className="border border-1 rounded px-8 py-3 shadow-sm border-bottom-4 bg-white">
           <div className="row mb-2">
             <div className="col-md-6">
@@ -737,13 +726,13 @@ const DailyLogEdit = () => {
           {/* <div className="row mb-2">
             <div className="col-md-6">Value of food issue plate wise</div>
             <div className="col-md-6">
-              ₹ {Number(issueplatecost).toFixed(0).toLocaleString("en-IN")}
+              ₹ {Number(issueplatecost).toFixed(1).toLocaleString("en-IN")}
             </div>
           </div>
           <div className="row mb-2">
             <div className="col-md-6">Value of food return plate wise</div>
             <div className="col-md-6">
-              ₹ {Number(returnplatecost).toFixed(0).toLocaleString("en-IN")}
+              ₹ {Number(returnplatecost).toFixed(1).toLocaleString("en-IN")}
             </div>
           </div> */}
         </div>

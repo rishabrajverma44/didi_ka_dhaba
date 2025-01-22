@@ -12,7 +12,7 @@ const AdminRoute = ({ children }) => {
 
     if (
       userCredentials?.email === "admin@gmail.com" &&
-      userCredentials?.password === "foodadmin@123"
+      userCredentials?.password === "admin@4333$"
     ) {
       setIsAdmin(true);
     } else {

@@ -11,7 +11,7 @@ const PrivateRoute = ({ children }) => {
 
     if (
       userCredentials?.email === "vender@gmail.com" &&
-      userCredentials?.password === "foodvender@123"
+      userCredentials?.password === "issue@455"
     ) {
       setIsAuthenticated(true);
     } else {

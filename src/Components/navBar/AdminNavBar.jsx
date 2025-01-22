@@ -27,45 +27,6 @@ const AdminNavBar = () => {
                     <img src="/images/logo.png" alt="logo" width="70" />
                   </Link>
                 </div>
-                {/* <div className="w-25 flex flex justify-between">
-                  <img
-                    src="/images/Ekta.png"
-                    alt="jbf1"
-                    style={{
-                      width: "15%",
-                      height: "auto",
-                      objectFit: "contain",
-                    }}
-                  />
-
-                  <img
-                    src="/images/jbf.jpg"
-                    alt="jbf2"
-                    style={{
-                      width: "15%",
-                      height: "auto",
-                      objectFit: "contain",
-                    }}
-                  />
-                  <img
-                    src="/images/m3m.png"
-                    alt="m3m"
-                    style={{
-                      width: "30%",
-                      height: "auto",
-                      objectFit: "contain",
-                    }}
-                  />
-                  <img
-                    src="/images/sidbi.png"
-                    alt="sidbi"
-                    style={{
-                      width: "30%",
-                      height: "auto",
-                      objectFit: "contain",
-                    }}
-                  />
-                </div> */}
 
                 <h5 className="tracking-wide font-bold text-[#344050] text-md md:text-2xl mt-2 text-center font-sans flex-1">
                   DIDI KA DHABA
@@ -198,7 +159,7 @@ const AdminNavBar = () => {
                 to="/dailylog"
                 onClick={() => setMenu(false)}
               >
-                Daily Log
+                Payment Details
               </Link>
               <Link
                 className="block py-1 px-4 text-white no-underline text-md"
@@ -207,38 +168,6 @@ const AdminNavBar = () => {
               >
                 Food List
               </Link>
-
-              {/* <div className="relative" ref={dropdownRefFood}>
-                <button
-                  className="block py-1 px-4 text-white text-left text-gray-700 no-underline text-md"
-                  onMouseEnter={toggleDropdownFood}
-                >
-                  <span className="flex gap-2 justify-center items-center text-center">
-                    <span>Food Master</span> <FiChevronDown />
-                  </span>
-                </button>
-                {isOpenFood && (
-                  <div
-                    className="absolute left-0 pt-2 w-56 rounded-md bg-white shadow-sm ring-1 ring-black ring-opacity-5"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="py-2">
-                      <Link
-                        className="block w-full px-4 text-lg py-1 text-left text-sm text-gray-700 no-underline hover:bg-gray-100"
-                        to="/addfood"
-                      >
-                        Add Food
-                      </Link>
-                      <Link
-                        className="block w-full px-4 text-lg py-1 text-left text-sm text-gray-700 no-underline hover:bg-gray-100"
-                        to="/listfood"
-                      >
-                        Food List
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div> */}
 
               <Link
                 className="block py-1 px-4 text-white no-underline text-md"
