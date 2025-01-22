@@ -148,7 +148,7 @@ const Plate = () => {
                   </td>
                   {/* <td className="p-2 text-center">
                     <div className="flex justify-center items-center space-x-12">
-                      <FaPencilAlt
+                      <FaPencilAlt 
                         className="text-primary cursor-pointer"
                         onClick={() => openModal(plate)}
                       />

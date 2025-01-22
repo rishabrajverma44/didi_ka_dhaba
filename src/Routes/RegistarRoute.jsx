@@ -11,7 +11,7 @@ const RegistarRout = ({ children }) => {
 
     if (
       userCredentials?.email === "registar@gmail.com" &&
-      userCredentials?.password === "didiregistar@123"
+      userCredentials?.password === "didi@registration$"
     ) {
       setIsAuthenticated(true);
     } else {

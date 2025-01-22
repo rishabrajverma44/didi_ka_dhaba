@@ -137,7 +137,10 @@ const ListFood = () => {
   );
 
   return (
-    <div className="px-6 md:px-12 bg-slate-100 py-2 pb-4">
+    <div
+      className="px-6 md:px-12 bg-slate-100 py-2 pb-4"
+      style={{ minHeight: "100vh" }}
+    >
       <ToastContainer />
       <div className="bg-white p-2">
         <div className="mb-2">

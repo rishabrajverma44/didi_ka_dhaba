@@ -1,23 +1,27 @@
 @media print {
     @page {
-      size: landscape; /* Ensures the default print orientation is landscape */
-      margin: 20mm; /* Optional: Add margins for print */
+      size: landscape;
+      margin: 20mm;
     }
   
-    /* General print layout styles */
+    
     body {
       margin: 0;
       padding: 0;
     }
   
     .print-container {
-      display: grid; /* Maintain your desired layout */
+      display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 20px;
     }
   
     .print-container > div {
-      break-inside: avoid; /* Prevent page breaks within elements */
+      break-inside: avoid;
     }
   }
+
+
+  
+  
   

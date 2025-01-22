@@ -5,11 +5,18 @@ import Breadcrumb from "../../../Components/prebuiltComponent/Breadcrumb";
 import { toast, ToastContainer } from "react-toastify";
 import { useReactToPrint } from "react-to-print";
 import Swal from "sweetalert2";
-import { FaPencilAlt, FaPrint, FaTrashAlt } from "react-icons/fa";
+import { FaPencilAlt, FaPrint, FaTrashAlt, FaInfoCircle } from "react-icons/fa";
+import CustomTooltip from "../../../Components/CustomTooltip";
 
 const DailyLogEdit = () => {
   const [didiDetails, setDidiDetails] = useState([]);
   const [data, setData] = useState(null);
+  const [platewise, setPlatewise] = useState("no data");
+  const [issuefoodcost, setIssueFoodCost] = useState(0);
+  const [returnfoodcost, setReturnFoodCost] = useState(0);
+  const [issueplatecost, setIssuePlateCost] = useState(0);
+  const [returnplatecost, setReturnPlateCost] = useState(0);
+  const [totalsale, setTotalSale] = useState(0);
 
   const { id, date } = useParams();
   const fetchProduct = async () => {
@@ -22,6 +29,20 @@ const DailyLogEdit = () => {
         if (res.status === 200) {
           setData(res.data);
           setDidiDetails(res.data.didi_details);
+          const issueFoodCost = Number(
+            res.data.didi_details.total_issued_food_cost || 0
+          ).toFixed(1);
+          setIssueFoodCost(issueFoodCost);
+          setReturnFoodCost(
+            Number(res.data.didi_details.total_returned_food_cost)
+          );
+          setIssuePlateCost(
+            Number(res.data.didi_details.total_issued_plate_cost)
+          );
+          setReturnPlateCost(
+            Number(res.data.didi_details.total_returned_plate_cost)
+          );
+          setTotalSale(Number(res.data.didi_details.total_sales));
         }
       })
       .catch((error) => {
@@ -111,7 +132,7 @@ const DailyLogEdit = () => {
         {selectedRowData ? (
           <div className="space-y-6 px-3">
             {Object.keys(selectedRowData.issued_food).length > 0 ||
-            Object.keys(selectedRowData.returned_food).length > 0 ? (
+            selectedRowData.returned_food.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="min-w-full bg-white border border-gray-200 rounded-md">
                   <thead>
@@ -129,7 +150,10 @@ const DailyLogEdit = () => {
                         Returned Quantity
                       </th>
                       <th className="py-2 px-4 border text-left text-slate-600">
-                        Difference
+                        Used Quantity
+                      </th>
+                      <th className="py-2 px-4 border text-left text-slate-600">
+                        Price
                       </th>
                     </tr>
                   </thead>
@@ -170,6 +194,16 @@ const DailyLogEdit = () => {
                               returnedItem?.unit_name ||
                               "";
 
+                            let price = "-";
+                            let multiplier = 0;
+                            if (itemName.toLowerCase() === "rice") {
+                              multiplier = 20;
+                              price = (difference * multiplier * 1000) / 150;
+                            } else if (itemName.toLowerCase() === "roti") {
+                              multiplier = 7.5;
+                              price = difference * multiplier;
+                            }
+
                             return (
                               <tr key={`${mealType}-${index}`}>
                                 {index === 0 && (
@@ -190,24 +224,112 @@ const DailyLogEdit = () => {
                                 <td className="py-2 px-4 border">
                                   {difference.toFixed(1)} {unitName}
                                 </td>
+                                <td className="py-2 px-4 border">
+                                  {price === "-"
+                                    ? "N/A"
+                                    : itemName.toLowerCase() === "rice"
+                                    ? `( ${difference.toFixed(
+                                        1
+                                      )} * 1000/150 * ₹ ${multiplier} ) = ₹ ${price.toLocaleString(
+                                        undefined,
+                                        {
+                                          minimumFractionDigits: 0,
+                                          maximumFractionDigits: 0,
+                                        }
+                                      )}`
+                                    : `( ${difference.toFixed(
+                                        1
+                                      )}  * ₹ ${multiplier} ) = ₹ ${price.toLocaleString(
+                                        undefined,
+                                        {
+                                          minimumFractionDigits: 0,
+                                          maximumFractionDigits: 0,
+                                        }
+                                      )}`}
+                                </td>
                               </tr>
                             );
                           })}
                         </React.Fragment>
                       );
                     })}
+                    <tr className="font-semibold bg-gray-100">
+                      <td colSpan="1" className="py-2 px-4 border"></td>
+                      <td colSpan="1" className="py-2 px-4 border"></td>
+                      <td colSpan="1" className="py-2 px-4 border"></td>
+                      <td colSpan="1" className="py-2 px-4 border"></td>
+                      <td
+                        colSpan="1"
+                        className="py-2 px-4 border text-right"
+                      ></td>
+                      <td className="py-2 px-4 border">
+                        ₹{" "}
+                        {Object.keys({
+                          ...selectedRowData.issued_food,
+                          ...selectedRowData.returned_food,
+                        })
+                          .reduce((totalPrice, mealType) => {
+                            const issuedItems =
+                              selectedRowData.issued_food?.[mealType] || [];
+                            const returnedItems =
+                              selectedRowData.returned_food?.[mealType] || [];
+
+                            const maxLength = Math.max(
+                              issuedItems.length,
+                              returnedItems.length
+                            );
+
+                            return (
+                              totalPrice +
+                              Array.from({ length: maxLength }).reduce(
+                                (mealTotal, _, index) => {
+                                  const issuedItem = issuedItems[index];
+                                  const returnedItem = returnedItems[index];
+                                  const itemName =
+                                    issuedItem?.food_name ||
+                                    returnedItem?.food_name ||
+                                    "";
+                                  const issuedQuantity =
+                                    issuedItem?.quantity || 0.0;
+                                  const returnedQuantity =
+                                    returnedItem?.returned_quantity || 0.0;
+                                  const difference =
+                                    issuedQuantity - returnedQuantity;
+
+                                  let price = 0;
+                                  if (itemName.toLowerCase() === "rice") {
+                                    price = (difference * 20 * 1000) / 150;
+                                  } else if (
+                                    itemName.toLowerCase() === "roti"
+                                  ) {
+                                    price = difference * 7.5;
+                                  }
+
+                                  return mealTotal + price;
+                                },
+                                0
+                              )
+                            );
+                          }, 0)
+                          .toLocaleString(undefined, {
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                          })}{" "}
+                        Quantity wise
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
             ) : (
               <p className="text-gray-500">No food data available.</p>
             )}
+
             {selectedRowData && selectedRowData.issued_plates.length > 0 ? (
-              <div>
+              <div className="overflow-x-auto">
                 <h3 className="text-xl font-semibold mb-2 text-gray-700">
                   Issued and Returned Plates Details
                 </h3>
-
                 <table className="min-w-full bg-white border border-gray-200 rounded-md">
                   <thead>
                     <tr className="bg-gray-100">
@@ -221,7 +343,10 @@ const DailyLogEdit = () => {
                         Returned Plate Number
                       </th>
                       <th className="py-2 px-4 border text-left text-slate-600">
-                        Difference
+                        Used Plate
+                      </th>
+                      <th className="py-2 px-4 border text-left text-slate-600">
+                        Price
                       </th>
                     </tr>
                   </thead>
@@ -254,6 +379,10 @@ const DailyLogEdit = () => {
                       const difference =
                         totalIssuedQuantity - totalReturnedQuantity;
 
+                      const staticPrices = [30, 40, 20];
+                      const price =
+                        difference * staticPrices[index % staticPrices.length];
+
                       return (
                         <tr key={index}>
                           <td className="py-2 px-4 border">{plateType}</td>
@@ -264,26 +393,30 @@ const DailyLogEdit = () => {
                             {totalReturnedQuantity}
                           </td>
                           <td className="py-2 px-4 border">{difference}</td>
+                          <td className="py-2 px-4 border">
+                            {staticPrices[index % staticPrices.length]}*
+                            {difference}= ₹ {price.toLocaleString()}
+                          </td>
                         </tr>
                       );
                     })}
 
                     <tr className="font-semibold bg-gray-100">
-                      <td className="py-2 px-4 border">Total</td>
+                      <td className="py-2 px-4 border"></td>
                       <td className="py-2 px-4 border">
-                        {selectedRowData.issued_plates.reduce(
+                        {/* {selectedRowData.issued_plates.reduce(
                           (total, plate) => total + plate.quantity,
                           0
-                        )}
+                        )} */}
                       </td>
                       <td className="py-2 px-4 border">
-                        {selectedRowData.returned_plates.reduce(
+                        {/* {selectedRowData.returned_plates.reduce(
                           (total, plate) => total + plate.returned_quantity,
                           0
-                        )}
+                        )} */}
                       </td>
                       <td className="py-2 px-4 border">
-                        {Array.from(
+                        {/* {Array.from(
                           new Set([
                             ...selectedRowData.issued_plates.map(
                               (plate) => plate.plate_type
@@ -316,7 +449,55 @@ const DailyLogEdit = () => {
                             total +
                             (totalIssuedQuantity - totalReturnedQuantity)
                           );
-                        }, 0)}
+                        }, 0)} */}
+                      </td>
+                      <td className="py-2 px-4 border">
+                        ₹{" "}
+                        {Array.from(
+                          new Set([
+                            ...selectedRowData.issued_plates.map(
+                              (plate) => plate.plate_type
+                            ),
+                            ...selectedRowData.returned_plates.map(
+                              (returned) => returned.plate_type
+                            ),
+                          ])
+                        )
+                          .reduce((totalPrice, plateType, index) => {
+                            const totalIssuedQuantity =
+                              selectedRowData.issued_plates
+                                .filter(
+                                  (plate) => plate.plate_type === plateType
+                                )
+                                .reduce(
+                                  (total, plate) => total + plate.quantity,
+                                  0
+                                );
+
+                            const totalReturnedQuantity =
+                              selectedRowData.returned_plates
+                                .filter(
+                                  (returned) =>
+                                    returned.plate_type === plateType
+                                )
+                                .reduce(
+                                  (total, returned) =>
+                                    total + returned.returned_quantity,
+                                  0
+                                );
+
+                            const difference =
+                              totalIssuedQuantity - totalReturnedQuantity;
+                            const staticPrices = [30, 40, 20];
+
+                            return (
+                              totalPrice +
+                              difference *
+                                staticPrices[index % staticPrices.length]
+                            );
+                          }, 0)
+                          .toLocaleString()}{" "}
+                        Plate-wise
                       </td>
                     </tr>
                   </tbody>
@@ -437,6 +618,44 @@ const DailyLogEdit = () => {
     { label: "Daily log", href: "/dailylog" },
     { label: "Didi Details", href: `/` },
   ];
+
+  useEffect(() => {
+    if (!data || !data.issued_plates || !data.returned_plates) {
+      setPlatewise("");
+      return;
+    }
+    const calculatePlatewise = () => {
+      const staticPrices = [30, 40, 20];
+      let platewiseDetails = "";
+      Array.from(
+        new Set([
+          ...data.issued_plates.map((plate) => plate.plate_type),
+          ...data.returned_plates.map((returned) => returned.plate_type),
+        ])
+      ).forEach((plateType, index) => {
+        const totalIssuedQuantity = data.issued_plates
+          .filter((plate) => plate.plate_type === plateType)
+          .reduce((total, plate) => total + plate.quantity, 0);
+
+        const totalReturnedQuantity = data.returned_plates
+          .filter((returned) => returned.plate_type === plateType)
+          .reduce((total, returned) => total + returned.returned_quantity, 0);
+
+        const difference = totalIssuedQuantity - totalReturnedQuantity;
+
+        if (difference !== 0) {
+          const price = difference * staticPrices[index % staticPrices.length];
+          platewiseDetails += `${plateType}: ${
+            staticPrices[index % staticPrices.length]
+          } * ${difference} = ₹${price.toLocaleString()}\n`;
+        }
+      });
+
+      return platewiseDetails;
+    };
+
+    setPlatewise(calculatePlatewise());
+  }, [data]);
   return (
     <div className="px-6 md:px-12 bg-slate-100 py-2 pb-4" ref={printRef}>
       <ToastContainer />
@@ -454,29 +673,68 @@ const DailyLogEdit = () => {
         </div>
       </div>
 
-      <div className="p-1 mt-3">
+      <div className="mt-1">
         <div className="border border-1 rounded px-8 py-3 shadow-sm border-bottom-4 bg-white">
           <div className="row mb-2">
             <div className="col-md-6">
-              <span className="fw-bold ">Name :</span>
+              <span className="fw-bold ">Name:</span>
               <span className=""> {didiDetails.didi_name}</span>
             </div>
             <div className="col-md-6">
-              <span className="fw-bold ">Date :</span>
+              <span className="fw-bold ">Date:</span>
               <span className=""> {date.split("-").reverse().join("-")}</span>
             </div>
           </div>
 
           <div className="row mb-2">
             <div className="col-md-6">
-              <span className="fw-bold ">Stall Name :</span>
+              <span className="fw-bold ">Stall Name:</span>
               <span className=""> {didiDetails.thela_code}</span>
             </div>
             <div className="col-md-6">
-              <span className="fw-bold ">Total Sale :</span>
+              <span className="fw-bold ">Recived Amount:</span>
               <span className=""> {didiDetails.total_payment}</span>
             </div>
           </div>
+        </div>
+
+        <div className="border border-1 rounded px-8 py-3 shadow-sm border-bottom-4 bg-white">
+          <div className="row mb-2">
+            <div className="col-md-2">Value of food given :</div>
+            <div className="col-md-2">
+              ₹ {Number(issuefoodcost).toLocaleString("en-IN")}
+            </div>
+          </div>
+          <div className="row mb-2">
+            <div className="col-md-2">Total sale :</div>
+            <div className="col-md-2 d-flex justify-content-between align-items-center">
+              ₹ {Number(totalsale).toLocaleString("en-IN")}
+              <CustomTooltip tooltipText={platewise} position="top">
+                <button className="px-4 py-1 rounded-md">
+                  <FaInfoCircle />
+                </button>
+              </CustomTooltip>
+            </div>
+          </div>
+          <div className="row mb-2">
+            <div className="col-md-2">Value of food return :</div>
+            <div className="col-md-2">
+              ₹ {Number(returnfoodcost).toLocaleString("en-IN")}
+            </div>
+          </div>
+
+          {/* <div className="row mb-2">
+            <div className="col-md-6">Value of food issue plate wise</div>
+            <div className="col-md-6">
+              ₹ {Number(issueplatecost).toFixed(1).toLocaleString("en-IN")}
+            </div>
+          </div>
+          <div className="row mb-2">
+            <div className="col-md-6">Value of food return plate wise</div>
+            <div className="col-md-6">
+              ₹ {Number(returnplatecost).toFixed(1).toLocaleString("en-IN")}
+            </div>
+          </div> */}
         </div>
 
         <div className="mt-3">
