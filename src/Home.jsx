@@ -22,6 +22,11 @@ const Home = () => {
                 Payment Details
               </button>
             </Link>
+            <Link to="/report">
+              <button className="tracking-wide font-semibold bg-btn-primary hover:bg-btn-hoverPrimary text-white py-2 px-4 h-12 w-60 rounded">
+                Report
+              </button>
+            </Link>
           </div>
         </div>
       </div>

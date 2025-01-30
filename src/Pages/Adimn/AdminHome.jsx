@@ -25,6 +25,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { FaDownload } from "react-icons/fa";
 
 const Map = React.lazy(() => import("./Admin/Map"));
+const PymantAnnalytic = React.lazy(() => import("./PymentAnnalytic"));
 
 const AdminHome = () => {
   const [cardData] = useState([]);
@@ -346,12 +347,16 @@ const AdminHome = () => {
     },
   });
 
+  //Paymnet section
+  const [paymnet, setPayment] = useState(false);
+
   //map;
   const [showSecond, setShowSecond] = useState(false);
 
   useEffect(() => {
     startTransition(() => {
       setShowSecond(true);
+      setPayment(true);
     });
   }, []);
 
@@ -452,6 +457,11 @@ const AdminHome = () => {
       <ToastContainer />
 
       <div className="pt-2 bg-white mb-2 px-2 pb-2">
+        {/* {showSecond && (
+          <Suspense fallback={<div>Loading Pyment component...</div>}>
+            <PymantAnnalytic />
+          </Suspense>
+        )} */}
         <div className="row">
           <div className="col-md-1 d-flex align-items-center justify-content-start">
             <span>From Date </span>
@@ -694,7 +704,7 @@ const AdminHome = () => {
       </div>
 
       {showSecond && (
-        <Suspense fallback={<div>Loading second component...</div>}>
+        <Suspense fallback={<div>Loading map component...</div>}>
           <Map />
         </Suspense>
       )}

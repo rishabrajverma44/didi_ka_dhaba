@@ -9,7 +9,6 @@ import ConfirmNavigation from "../Components/prebuiltComponent/ConfirmNavigation
 const IssueFood = () => {
   const navigate = useNavigate();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [status, setStatus] = useState(null);
   const [namesDidi, setDidiName] = useState([]);
   const [currentFoodData, setCurrentFoodData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");

@@ -1,0 +1,29 @@
+Array Methods:-
+  concat(); ->{array concatination}
+  join(""); ->{string conversion}
+  indexOf(); ->{first occurence of item index}
+  pop();
+  push();
+  reverse();
+  slice();
+  sort(); ->{ sorting array}
+
+Math Methods:-
+  floor(x);
+  max(x,y,z,...,n);
+  pow(x,y);
+  round(x);
+  sqrt(x);
+
+String Methods:-
+  charAt();
+  concat();
+  indexOf();
+  match();
+  replace();
+  search()
+  slice()
+  split("")->{array conversion}
+  substr()
+  substring()
+  toLowerCase()
