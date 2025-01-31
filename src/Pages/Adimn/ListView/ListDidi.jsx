@@ -117,6 +117,17 @@ const ListDidi = () => {
           </div>
         ),
       },
+      {
+        Header: "Payment",
+        Cell: ({ row }) => (
+          <button
+            onClick={() => navigate(`/admin/${row.original.didi_id}`)}
+            className="text-center w-full"
+          >
+            <i className="fas fa-eye"></i>
+          </button>
+        ),
+      },
     ],
     [base_url, navigate, route, setDeleteId, setShowModal]
   );

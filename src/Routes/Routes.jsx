@@ -25,6 +25,8 @@ import RegistarRout from "./RegistarRoute";
 import DidiProfile from "../Pages/Adimn/EditFile/DidiProfile";
 import Plate from "../Pages/Adimn/Plates/Plate";
 import DailyLogEdit from "../Pages/Adimn/EditFile/DailyLog";
+import PaymentDetails from "../Pages/Adimn/Payment/PymantDetails";
+import Report from "../Pages/Report";
 
 const routes = [
   {
@@ -37,6 +39,14 @@ const routes = [
         element: (
           <AdminRoute>
             <AdminHome />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "admin/:id",
+        element: (
+          <AdminRoute>
+            <PaymentDetails />
           </AdminRoute>
         ),
       },
@@ -174,6 +184,14 @@ const routes = [
         element: (
           <PrivateRoute>
             <Home />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "report",
+        element: (
+          <PrivateRoute>
+            <Report />
           </PrivateRoute>
         ),
       },
