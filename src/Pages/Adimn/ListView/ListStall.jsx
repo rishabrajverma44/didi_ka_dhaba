@@ -102,12 +102,12 @@ const ListStall = () => {
             >
               <FaPencilAlt />
             </button>
-            <button
+            {/* <button
               onClick={() => handleDelete(row.original.thela_id)}
               className="text-red-500 hover:text-red-700"
             >
               <FaTrashAlt />
-            </button>
+            </button> */}
           </div>
         ),
       },

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FaCamera } from "react-icons/fa";
+import { FaCalendarAlt, FaCamera } from "react-icons/fa";
 import { FiX, FiRefreshCcw } from "react-icons/fi";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -8,12 +8,12 @@ import Swal from "sweetalert2";
 import Webcam from "react-webcam";
 import { useNavigate } from "react-router-dom";
 import ConfirmNavigation from "../Components/prebuiltComponent/ConfirmNavigation";
+import DatePicker from "react-datepicker";
 
 const ReceivedFood = () => {
   const navigate = useNavigate();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [namesDidi, setDidiName] = useState([]);
-  const [currentDate, setCurrentDate] = useState("");
   const [searchTermDidi, setSearchTermDidi] = useState("");
   const [selectedDidi, setSelectedDidi] = useState(null);
   const [isDropdownOpenDidi, setIsDropdownOpenDidi] = useState(false);
@@ -191,23 +191,6 @@ const ReceivedFood = () => {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
-  const getDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-  };
-  useEffect(() => {
-    const today = new Date();
-    const formattedDate = today.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-    setCurrentDate(formattedDate);
-  }, []);
 
   const getDidi = async () => {
     axios
@@ -235,12 +218,10 @@ const ReceivedFood = () => {
         issue_date: date,
         meal_type: mealType,
       };
-
       const res = await axios.post(
         `${process.env.REACT_APP_API_BACKEND}/filter-issue-food/`,
         payload
       );
-
       if (res.status === 200 && res.data.length > 0) {
         const mealData = res.data.map((item) => ({
           ...item,
@@ -255,7 +236,6 @@ const ReceivedFood = () => {
       }
     } catch (e) {
       setMeal([]);
-
       count++;
       return true;
     }
@@ -338,14 +318,6 @@ const ReceivedFood = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
-  useEffect(() => {
-    const date = getDate();
-    if (selectedDidi != null && date) {
-      getAssignedFoods(selectedDidi, date);
-      getPlate(selectedDidi, date);
-    }
-  }, [selectedDidi]);
 
   const sendRecivedFood = async (payload) => {
     try {
@@ -485,6 +457,45 @@ const ReceivedFood = () => {
     }
   };
 
+  const formatDate = (date) => {
+    if (!date) return null;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+  const [currentDate, setCurrentDate] = useState(formatDate(new Date()));
+  const handleDateChange = (date) => {
+    const formattedDate = formatDate(date);
+    setCurrentDate(formattedDate);
+  };
+  const CustomInput = React.forwardRef(({ value, onClick }, ref) => (
+    <div
+      className="flex items-center border border-gray-300 py-1 px-3 rounded cursor-pointer bg-white h-10"
+      onClick={onClick}
+      ref={ref}
+    >
+      <input
+        type="text"
+        value={value}
+        readOnly
+        placeholder="Enter from date"
+        className="focus:outline-none"
+      />
+      <FaCalendarAlt className="ml-2 text-gray-500" />
+    </div>
+  ));
+
+  useEffect(() => {
+    const date = currentDate;
+    if (selectedDidi != null && date) {
+      getAssignedFoods(selectedDidi, date);
+      getPlate(selectedDidi, date);
+    } else if (selectedDidi != null) {
+      toast.error("Please select Didi");
+    }
+  }, [selectedDidi, currentDate]);
+
   return (
     <div className="bg-gray-50" style={{ minHeight: "100vh" }}>
       <div className="container py-4">
@@ -542,6 +553,15 @@ const ReceivedFood = () => {
         </div>
 
         <div className="mb-3">
+          <div className="mt-2 flex items-center justify-center">
+            <DatePicker
+              selected={currentDate}
+              onChange={(date) => handleDateChange(date, "currentDate")}
+              dateFormat="dd/MM/yyyy"
+              customInput={<CustomInput />}
+            />
+          </div>
+
           <p className="mt-2 text-lg text-[#A24C4A] font-bold">{currentDate}</p>
         </div>
 

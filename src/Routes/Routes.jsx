@@ -27,6 +27,7 @@ import Plate from "../Pages/Adimn/Plates/Plate";
 import DailyLogEdit from "../Pages/Adimn/EditFile/DailyLog";
 import PaymentDetails from "../Pages/Adimn/Payment/PymantDetails";
 import Report from "../Pages/Report";
+import PaymentAnalytic from "../Pages/Adimn/PymentAnnalytic";
 
 const routes = [
   {
@@ -39,6 +40,14 @@ const routes = [
         element: (
           <AdminRoute>
             <AdminHome />
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "analytics",
+        element: (
+          <AdminRoute>
+            <PaymentAnalytic />
           </AdminRoute>
         ),
       },

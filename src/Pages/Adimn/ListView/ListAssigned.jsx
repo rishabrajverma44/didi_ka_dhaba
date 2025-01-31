@@ -73,7 +73,7 @@ const ListAssigned = () => {
 
   const columns = useMemo(
     () => [
-      { Header: "S. No", accessor: "serialNumber" },
+      { Header: "S. No", Cell: ({ row }) => row.index + 1 },
       {
         Header: "From Date",
         Cell: ({ row }) => {
@@ -103,12 +103,12 @@ const ListAssigned = () => {
               <FaPencilAlt />
             </button>
 
-            <button
+            {/* <button
               onClick={() => handleDelete(row.original.didi_thela_id)}
               className="text-red-500 hover:text-red-700 px-2"
             >
               <FaTrashAlt />
-            </button>
+            </button> */}
           </div>
         ),
       },

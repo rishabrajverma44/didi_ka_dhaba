@@ -20,7 +20,7 @@ const AdminNavBar = () => {
       <div className="sticky top-0 z-50">
         <main className="sticky top-0 z-50 bg-white border-b-4 border-[#A24C4A] shadow-sm">
           <nav className="flex justify-between items-center border-0 relative z-50">
-            <div className="flex items-center w-full justify-between px-9">
+            <div className="flex items-center w-full justify-between px-4">
               <section className="flex justify-between items-center w-full py-1 px-2">
                 <div className="flex">
                   <Link to="/admin">
@@ -91,6 +91,20 @@ const AdminNavBar = () => {
                     Home
                   </Link>
                   <Link
+                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
+                    to="/analytics"
+                    onClick={() => setMenu(false)}
+                  >
+                    Analytics
+                  </Link>
+                  <Link
+                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
+                    to="/dailylog"
+                    onClick={() => setMenu(false)}
+                  >
+                    Payment Details
+                  </Link>
+                  <Link
                     className="block w-full py-1 px-4 text-[#682C13] text-left text-gray-700 font-bold no-underline text-xl"
                     to="/listfood"
                     onClick={() => setMenu(false)}
@@ -153,6 +167,13 @@ const AdminNavBar = () => {
                 onClick={() => setMenu(false)}
               >
                 Home
+              </Link>
+              <Link
+                className="block py-1 px-4 text-white no-underline text-md"
+                to="/analytics"
+                onClick={() => setMenu(false)}
+              >
+                Analytics
               </Link>
               <Link
                 className="block py-1 px-4 text-white no-underline text-md"
