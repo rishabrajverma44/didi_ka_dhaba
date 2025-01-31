@@ -93,7 +93,7 @@ const PaymentDetails = () => {
             Cell: ({ value }) => {
               const numericValue = parseFloat(value);
               return !isNaN(numericValue)
-                ? `${numericValue.toFixed(0)}`
+                ? `${numericValue.toFixed(0)} Pice`
                 : "0.00";
             },
           },
@@ -103,7 +103,7 @@ const PaymentDetails = () => {
             Cell: ({ value }) => {
               const numericValue = parseFloat(value);
               return !isNaN(numericValue)
-                ? `${numericValue.toFixed(0)}`
+                ? `${numericValue.toFixed(0)} Pice`
                 : "0.00";
             },
           },
