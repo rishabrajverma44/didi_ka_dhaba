@@ -254,7 +254,14 @@ const PymentAnnalytic = () => {
               Daily Average Collection
             </span>{" "}
             <span className="text-xs sm:text-sm md:text-base leading-tight">
-              (01-27 Jan)
+              {response?.total_collection_label
+                ? ` (${
+                    response.total_collection_label
+                      .split("(")
+                      .slice(-1)[0]
+                      ?.split(")")[0]
+                  })`
+                : ""}
             </span>
           </div>
 
@@ -262,16 +269,16 @@ const PymentAnnalytic = () => {
             <div>
               <h3 className="text-2xl font-bold text-slate-800 pl-1">
                 ₹
-                {response?.daily_avg_collection
-                  ?.toFixed(0)
-                  .toLocaleString("en-IN")}
+                {Number(
+                  response?.daily_avg_collection?.toFixed(0)
+                ).toLocaleString("en-IN")}
               </h3>
               <div className="flex items-center">
                 <span className="font-medium text-green-600 flex items-center rounded-md">
                   <FiArrowUp className="mr-1" />₹{" "}
                   {response.daily_avg_collection_growth
                     ? Number(
-                        response.daily_avg_collection_growth.toFixed(0)
+                        response?.daily_avg_collection_growth.toFixed(0)
                       ).toLocaleString("en-IN")
                     : "N/A"}
                 </span>
@@ -285,22 +292,31 @@ const PymentAnnalytic = () => {
         <div className="p-1 rounded-lg border">
           <div className="bg-slate-100 rounded-t-lg  md:p-2 p-1">
             <span className="font-semibold text-sm sm:text-xs md:text-lg">
-              Total Transaction Count
+              Total Transaction Count{" "}
             </span>
             <span className="text-xs sm:text-sm md:text-base leading-tight">
-              (01-27 Jan)
+              {response?.total_collection_label
+                ? ` (${
+                    response.total_collection_label
+                      .split("(")
+                      .slice(-1)[0]
+                      ?.split(")")[0]
+                  })`
+                : ""}
             </span>
           </div>
           <div className="text-sm sm:text-base md:text-lg md:p-2">
             <h3 className="text-2xl font-bold text-slate-800 pl-2">
-              {response.total_transactions?.toFixed(0).toLocaleString("en-IN")}
+              {Number(response.total_transactions?.toFixed(0)).toLocaleString(
+                "en-IN"
+              )}
             </h3>
             <div className="flex items-center">
               <span className="font-medium text-green-600 flex items-center rounded-md px-1">
                 <FiArrowUp className="mr-1" />
-                {response?.transaction_growth
-                  ?.toFixed(0)
-                  .toLocaleString("en-IN")}
+                {Number(
+                  response?.transaction_growth?.toFixed(0)
+                ).toLocaleString("en-IN")}
               </span>
               <span className="ml-2 font-normal text-[12px] md:text-sm text-slate-500">
                 vs last month
