@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FiMenu } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
@@ -8,6 +8,51 @@ const AdminNavBar = () => {
   const [isSideMenuOpen, setMenu] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const toggleDropdown = () => setIsOpen(!isOpen);
+  useEffect(() => {
+    if (!document.querySelector("script[src*='translate_a/element.js']")) {
+      var addScript = document.createElement("script");
+      addScript.setAttribute(
+        "src",
+        "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+      );
+      document.body.appendChild(addScript);
+    }
+
+    window.googleTranslateElementInit = () => {
+      new window.google.translate.TranslateElement(
+        { pageLanguage: "en" },
+        "google_translate_element"
+      );
+
+      setTimeout(() => {
+        const selectElement = document.querySelector(
+          "#google_translate_element select"
+        );
+
+        if (selectElement) {
+          selectElement.className = "form-control px-3 py-1 text-blue-100";
+          selectElement.style.boxShadow = "0px 1px 1px #e4e4e4";
+        }
+      }, 1000);
+    };
+
+    const removeGoogleTranslateStyles = () => {
+      const style = document.createElement("style");
+      style.innerHTML = `
+        .goog-te-banner-frame {
+          height: 20px !important; /* Reduce banner height */
+          overflow: hidden !important;
+        }
+        .goog-te-banner-frame > div {
+          font-size: 12px !important; /* Smaller text */
+          padding: 2px 0 !important;
+        }
+      `;
+      document.head.appendChild(style);
+    };
+
+    setTimeout(removeGoogleTranslateStyles, 1000);
+  }, []);
 
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -20,7 +65,7 @@ const AdminNavBar = () => {
       <div className="sticky top-0 z-50">
         <main className="sticky top-0 z-50 bg-white border-b-4 border-[#A24C4A] shadow-sm">
           <nav className="flex justify-between items-center border-0 relative z-50">
-            <div className="flex items-center w-full justify-between px-9">
+            <div className="flex items-center w-full justify-between px-4">
               <section className="flex justify-between items-center w-full py-1 px-2">
                 <div className="flex">
                   <Link to="/admin">
@@ -31,6 +76,10 @@ const AdminNavBar = () => {
                 <h5 className="tracking-wide font-bold text-[#344050] text-md md:text-2xl mt-2 text-center font-sans flex-1">
                   DIDI KA DHABA
                 </h5>
+                <div
+                  id="google_translate_element"
+                  className="hidden md:block mr-4 h-9 overflow-hidden"
+                ></div>
 
                 <FiMenu
                   onClick={() => setMenu(true)}
@@ -89,6 +138,20 @@ const AdminNavBar = () => {
                     onClick={() => setMenu(false)}
                   >
                     Home
+                  </Link>
+                  <Link
+                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
+                    to="/analytics"
+                    onClick={() => setMenu(false)}
+                  >
+                    Analytics
+                  </Link>
+                  <Link
+                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 font-bold no-underline text-xl"
+                    to="/dailylog"
+                    onClick={() => setMenu(false)}
+                  >
+                    Payment Details
                   </Link>
                   <Link
                     className="block w-full py-1 px-4 text-[#682C13] text-left text-gray-700 font-bold no-underline text-xl"
@@ -153,6 +216,13 @@ const AdminNavBar = () => {
                 onClick={() => setMenu(false)}
               >
                 Home
+              </Link>
+              <Link
+                className="block py-1 px-4 text-white no-underline text-md"
+                to="/analytics"
+                onClick={() => setMenu(false)}
+              >
+                Analytics
               </Link>
               <Link
                 className="block py-1 px-4 text-white no-underline text-md"

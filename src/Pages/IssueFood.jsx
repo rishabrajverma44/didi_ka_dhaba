@@ -471,37 +471,45 @@ const IssueFood = () => {
             </div>
           )}
         </div>
-        <div className="mt-3 flex justify-center ">
+
+        <div>
+          {(breakfast || lunch || dinner) &&
+            (breakfast.length > 0 || lunch.length > 0 || dinner.length > 0) && (
+              <h5 className="mt-3 text-center mt-2 text-xl text-[#A24C4A] font-bold">
+                Enter Plates
+              </h5>
+            )}
+        </div>
+        <div className="flex justify-center">
           {(breakfast || lunch || dinner) &&
           (breakfast.length > 0 || lunch.length > 0 || dinner.length > 0) ? (
-            <div className="row px-2 w-full max-w-xl">
-              {plateValues.map((plate) => (
-                <div className="col mx-2" key={plate.plate_id}>
-                  <div className="row font-bold">{plate.plate_type}</div>
-                  <div className="row">
+            <div className="overflow-x-auto w-full p-2">
+              <div className="flex w-full justify-center gap-4 min-w-max">
+                {plateValues.map(({ plate_id, plate_type }) => (
+                  <div
+                    key={plate_id}
+                    className="flex flex-col items-center shrink-0"
+                  >
+                    <div className="font-bold text-center">{plate_type}</div>
                     <input
                       type="number"
-                      value={
-                        quantities[plate.plate_id] !== undefined
-                          ? quantities[plate.plate_id]
-                          : ""
-                      }
+                      value={quantities[plate_id] ?? ""}
                       placeholder="Quantity"
                       onChange={(e) =>
-                        handleInputChange(plate.plate_id, e.target.value)
+                        handleInputChange(plate_id, e.target.value)
                       }
-                      className={`px-1 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                        errors[plate.plate_id] ? "is-invalid" : "is-valid"
+                      className={`px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                        errors[plate_id] ? "border-red-500" : "border-gray-300"
                       }`}
                     />
-                    {errors[plate.plate_id] && (
-                      <div className="invalid-feedback">
-                        {errors[plate.plate_id]}
+                    {errors[plate_id] && (
+                      <div className="text-red-500 text-sm mt-1">
+                        {errors[plate_id]}
                       </div>
                     )}
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           ) : null}
         </div>

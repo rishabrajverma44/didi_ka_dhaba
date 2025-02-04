@@ -21,6 +21,26 @@
     }
   }
 
+/* Hide Google Translate logo */
+.goog-te-banner-frame,
+.goog-te-gadget span,
+.goog-te-gadget-simple img,
+.goog-logo-link {
+  display: none !important;
+}
+
+/* Hide the Google Translate bar */
+body > .skiptranslate {
+  display: none !important;
+}
+
+/* Adjust the dropdown style */
+#google_translate_element select {
+  background: white;
+  border: 1px solid #ccc;
+  padding: 5px;
+  font-size: 14px;
+}
 
   
   

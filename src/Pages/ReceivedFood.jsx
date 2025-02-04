@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FaCamera } from "react-icons/fa";
+import { FaCalendarAlt, FaCamera } from "react-icons/fa";
 import { FiX, FiRefreshCcw } from "react-icons/fi";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -8,12 +8,12 @@ import Swal from "sweetalert2";
 import Webcam from "react-webcam";
 import { useNavigate } from "react-router-dom";
 import ConfirmNavigation from "../Components/prebuiltComponent/ConfirmNavigation";
+import DatePicker from "react-datepicker";
 
 const ReceivedFood = () => {
   const navigate = useNavigate();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [namesDidi, setDidiName] = useState([]);
-  const [currentDate, setCurrentDate] = useState("");
   const [searchTermDidi, setSearchTermDidi] = useState("");
   const [selectedDidi, setSelectedDidi] = useState(null);
   const [isDropdownOpenDidi, setIsDropdownOpenDidi] = useState(false);
@@ -191,23 +191,6 @@ const ReceivedFood = () => {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
-  const getDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
-  };
-  useEffect(() => {
-    const today = new Date();
-    const formattedDate = today.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-    setCurrentDate(formattedDate);
-  }, []);
 
   const getDidi = async () => {
     axios
@@ -235,12 +218,10 @@ const ReceivedFood = () => {
         issue_date: date,
         meal_type: mealType,
       };
-
       const res = await axios.post(
         `${process.env.REACT_APP_API_BACKEND}/filter-issue-food/`,
         payload
       );
-
       if (res.status === 200 && res.data.length > 0) {
         const mealData = res.data.map((item) => ({
           ...item,
@@ -255,7 +236,6 @@ const ReceivedFood = () => {
       }
     } catch (e) {
       setMeal([]);
-
       count++;
       return true;
     }
@@ -338,14 +318,6 @@ const ReceivedFood = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
-  useEffect(() => {
-    const date = getDate();
-    if (selectedDidi != null && date) {
-      getAssignedFoods(selectedDidi, date);
-      getPlate(selectedDidi, date);
-    }
-  }, [selectedDidi]);
 
   const sendRecivedFood = async (payload) => {
     try {
@@ -453,6 +425,7 @@ const ReceivedFood = () => {
       received_quantity: plate?.returned_quantity || 0,
       total_quantity: plate.total_quantity,
       meal_type: plate.meal_type,
+      created_at: currentDate,
     }));
     const filterFood = finalData.map(
       ({
@@ -467,6 +440,7 @@ const ReceivedFood = () => {
         received_quantity,
         meal_type,
         image: image || null,
+        created_at: currentDate,
       })
     );
 
@@ -484,6 +458,60 @@ const ReceivedFood = () => {
       setIsLoading(false);
     }
   };
+
+  const formatDate = (date) => {
+    if (!date) return null;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+  const [currentDate, setCurrentDate] = useState(formatDate(new Date()));
+  const handleDateChange = (date) => {
+    const formattedDate = formatDate(date);
+    setCurrentDate(formattedDate);
+  };
+  const CustomInput = React.forwardRef(({ value, onClick }, ref) => (
+    <div
+      className="flex items-center border border-gray-300 py-1 px-3 rounded cursor-pointer bg-white h-10 w-full"
+      onClick={onClick}
+      ref={ref}
+    >
+      <input
+        type="text"
+        value={value}
+        readOnly
+        placeholder="Enter from date"
+        className="focus:outline-none w-full"
+      />
+      <FaCalendarAlt className="ml-2 text-gray-500" />
+    </div>
+  ));
+
+  useEffect(() => {
+    const datePickerWrapper = document.querySelector(
+      ".react-datepicker-wrapper"
+    );
+    if (datePickerWrapper) {
+      datePickerWrapper.classList.add("w-full");
+    }
+
+    return () => {
+      if (datePickerWrapper) {
+        datePickerWrapper.classList.remove("w-full");
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const date = currentDate;
+    if (selectedDidi != null && date) {
+      getAssignedFoods(selectedDidi, date);
+      getPlate(selectedDidi, date);
+    } else if (selectedDidi != null) {
+      toast.error("Please select Didi");
+    }
+  }, [selectedDidi, currentDate]);
 
   return (
     <div className="bg-gray-50" style={{ minHeight: "100vh" }}>
@@ -541,8 +569,21 @@ const ReceivedFood = () => {
           )}
         </div>
 
-        <div className="mb-3">
-          <p className="mt-2 text-lg text-[#A24C4A] font-bold">{currentDate}</p>
+        <div className="mt-2 flex flex-col md:flex-row flex-end w-full">
+          <h4 className="text-xl font-semibold text-gray-800 mb-2 md:mb-0 mr-4 w-full md:w-1/2">
+            Select issue date
+          </h4>
+
+          <div className="md:w-full md:flex justify-end">
+            <div className="md:w-1/2">
+              <DatePicker
+                selected={currentDate}
+                onChange={(date) => handleDateChange(date, "currentDate")}
+                dateFormat="dd/MM/yyyy"
+                customInput={<CustomInput />}
+              />
+            </div>
+          </div>
         </div>
 
         <>
@@ -992,55 +1033,66 @@ const ReceivedFood = () => {
                 </div>
               )}
 
+              <div>
+                {(breakfast || lunch || dinner) &&
+                  (breakfast.length > 0 ||
+                    lunch.length > 0 ||
+                    dinner.length > 0) && (
+                    <h5 className="mt-3 text-center mt-2 text-xl text-[#A24C4A] font-bold">
+                      Enter Retuned Plates
+                    </h5>
+                  )}
+              </div>
               {(breakfast || lunch || dinner) &&
               (breakfast.length > 0 ||
                 lunch.length > 0 ||
                 dinner.length > 0) ? (
-                <div className="overflow-x-auto">
-                  <div className="flex justify-center">
+                <div className="overflow-x-auto pb-2">
+                  <div className="flex justify-center gap-4 min-w-max">
                     {Array.isArray(plateValues) &&
-                      plateValues.map((plate) => (
-                        <div
-                          className="min-w-[200px] mx-2 mb-4 lg:mb-0 px-4"
-                          key={plate.issue_food_id}
-                        >
-                          <div className="row my-2">
-                            <span>
-                              <span className="font-bold">
-                                {plate.item_name}
-                              </span>
-                            </span>
-                          </div>
-                          <div className="row">
+                      plateValues.map(
+                        ({
+                          issue_food_id,
+                          item_name,
+                          total_quantity,
+                          returned_quantity,
+                        }) => (
+                          <div
+                            key={issue_food_id}
+                            className="min-w-[200px] px-2"
+                          >
+                            <div className="flex justify-between py-2">
+                              <span className="font-bold">{item_name}</span>
+                              <span>{total_quantity}</span>
+                            </div>
+
                             <input
                               type="number"
                               placeholder="Quantity"
                               min="0"
                               value={
-                                plate.returned_quantity === 0
+                                returned_quantity === 0
                                   ? "0"
-                                  : plate.returned_quantity || ""
+                                  : returned_quantity || ""
                               }
                               onChange={(e) =>
-                                handleInputChange(
-                                  plate.issue_food_id,
-                                  e.target.value
-                                )
+                                handleInputChange(issue_food_id, e.target.value)
                               }
                               className={`px-2 py-1 border rounded-md focus:outline-none focus:ring-2 w-full ${
-                                errors[plate.issue_food_id]
+                                errors[issue_food_id]
                                   ? "border-red-500"
-                                  : ""
+                                  : "border-gray-300"
                               }`}
                             />
-                            {errors[plate.issue_food_id] && (
-                              <div className="text-red-500 text-sm mt-1 w-full">
-                                {errors[plate.issue_food_id]}
+
+                            {errors[issue_food_id] && (
+                              <div className="text-red-500 text-sm mt-1">
+                                {errors[issue_food_id]}
                               </div>
                             )}
                           </div>
-                        </div>
-                      ))}
+                        )
+                      )}
                   </div>
                 </div>
               ) : null}
