@@ -231,9 +231,17 @@ const PymentAnnalytic = () => {
           </h1>
         </div>
         <div className="mt-3 flex items-center">
-          <span className="font-bold text-green-600 flex items-center bg-slate-100 rounded-md px-1">
-            <FiArrowUp className="mr-1" />₹{" "}
-            {lastIncrement.toLocaleString("en-IN")}
+          <span
+            className={`font-bold flex items-center bg-slate-100 rounded-md px-1 ${
+              lastIncrement >= 0 ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {lastIncrement >= 0 ? (
+              <FiArrowUp className="mr-1" />
+            ) : (
+              <FiArrowDown className="mr-1" />
+            )}
+            {Number(lastIncrement?.toFixed(0)).toLocaleString("en-IN")}
           </span>
           <span className="ml-2 font-normal text-sm text-slate-500">
             vs last month <span>{response?.collection_growth_label}</span>

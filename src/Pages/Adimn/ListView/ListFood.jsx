@@ -144,20 +144,20 @@ const ListFood = () => {
       <ToastContainer />
       <div className="bg-white p-2">
         <div className="mb-2">
-          <div className="flex items-center justify-between space-x-2">
+          <div className="flex flex-col md:flex-row items-center md:justify-between gap-2">
             <input
               type="text"
               value={searchText}
               onChange={handleSearchChange}
               placeholder="Search"
-              className="w-64 p-2 py-1 border border-gray-300 rounded-md focus:outline-none"
+              className="w-full md:w-64 p-2 py-1 border border-gray-300 rounded-md focus:outline-none"
             />
-            <span className="d-flex gap-4">
+            <div className="flex gap-4">
               <Link
                 to="/plateDetails"
                 className="d-flex align-items-center btn btn-dark hover:bg-[#53230A] px-3 py-1"
               >
-                <span> Plates</span>
+                <span>Plates</span>
               </Link>
               <Link
                 to="/addfood"
@@ -166,7 +166,7 @@ const ListFood = () => {
                 <FaPlus className="me-1 text-sm" />
                 <span>Add</span>
               </Link>
-            </span>
+            </div>
           </div>
         </div>
 

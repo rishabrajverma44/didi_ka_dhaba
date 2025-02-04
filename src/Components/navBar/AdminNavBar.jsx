@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FiMenu } from "react-icons/fi";
 import { IoCloseOutline } from "react-icons/io5";
@@ -8,6 +8,51 @@ const AdminNavBar = () => {
   const [isSideMenuOpen, setMenu] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const toggleDropdown = () => setIsOpen(!isOpen);
+  useEffect(() => {
+    if (!document.querySelector("script[src*='translate_a/element.js']")) {
+      var addScript = document.createElement("script");
+      addScript.setAttribute(
+        "src",
+        "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+      );
+      document.body.appendChild(addScript);
+    }
+
+    window.googleTranslateElementInit = () => {
+      new window.google.translate.TranslateElement(
+        { pageLanguage: "en" },
+        "google_translate_element"
+      );
+
+      setTimeout(() => {
+        const selectElement = document.querySelector(
+          "#google_translate_element select"
+        );
+
+        if (selectElement) {
+          selectElement.className = "form-control px-3 py-1 text-blue-100";
+          selectElement.style.boxShadow = "0px 1px 1px #e4e4e4";
+        }
+      }, 1000);
+    };
+
+    const removeGoogleTranslateStyles = () => {
+      const style = document.createElement("style");
+      style.innerHTML = `
+        .goog-te-banner-frame {
+          height: 20px !important; /* Reduce banner height */
+          overflow: hidden !important;
+        }
+        .goog-te-banner-frame > div {
+          font-size: 12px !important; /* Smaller text */
+          padding: 2px 0 !important;
+        }
+      `;
+      document.head.appendChild(style);
+    };
+
+    setTimeout(removeGoogleTranslateStyles, 1000);
+  }, []);
 
   const navigate = useNavigate();
   const handleLogout = () => {
@@ -31,6 +76,10 @@ const AdminNavBar = () => {
                 <h5 className="tracking-wide font-bold text-[#344050] text-md md:text-2xl mt-2 text-center font-sans flex-1">
                   DIDI KA DHABA
                 </h5>
+                <div
+                  id="google_translate_element"
+                  className="hidden md:block mr-4 h-9 overflow-hidden"
+                ></div>
 
                 <FiMenu
                   onClick={() => setMenu(true)}

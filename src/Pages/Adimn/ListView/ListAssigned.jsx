@@ -73,7 +73,10 @@ const ListAssigned = () => {
 
   const columns = useMemo(
     () => [
-      { Header: "S. No", Cell: ({ row }) => row.index + 1 },
+      {
+        Header: "S. No",
+        Cell: ({ row }) => pageIndex * pageSize + row.index + 1,
+      },
       {
         Header: "From Date",
         Cell: ({ row }) => {

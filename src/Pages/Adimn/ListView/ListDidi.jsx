@@ -165,6 +165,7 @@ const ListDidi = () => {
     previousPage,
     nextPage,
     setPageSize,
+    page,
   } = useTable(
     {
       columns,
@@ -197,13 +198,13 @@ const ListDidi = () => {
       <ToastContainer />
       <div className="bg-white p-2">
         <div className="mb-2">
-          <div className="flex items-center justify-between space-x-2">
+          <div className="flex flex-col md:flex-row items-center md:justify-between gap-2">
             <input
               type="text"
               value={searchText}
               onChange={handleSearchChange}
               placeholder="Search"
-              className="w-64 p-2 py-1 border border-gray-300 rounded-md focus:outline-none"
+              className="w-full md:w-64 p-2 py-1 border border-gray-300 rounded-md focus:outline-none"
             />
             <Link
               to={route3}
