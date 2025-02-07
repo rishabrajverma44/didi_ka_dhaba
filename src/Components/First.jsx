@@ -25,7 +25,6 @@ const First = () => {
   }, []);
 
   const pageHandler = (selectedPage) => {
-    console.log(selectedPage);
     if (
       selectedPage >= 1 &&
       selectedPage <= products.length / page &&

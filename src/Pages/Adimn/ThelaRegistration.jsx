@@ -211,7 +211,6 @@ const ThelaRegistration = () => {
         const formattedAddress = results[0].formatted_address;
         location.value = formattedAddress;
         setAddress(formattedAddress);
-        console.log("Address:", formattedAddress);
       } else {
         console.error("Geocoder failed due to:", status);
       }

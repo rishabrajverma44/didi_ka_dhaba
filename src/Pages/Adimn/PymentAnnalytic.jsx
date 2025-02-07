@@ -203,6 +203,14 @@ const PymentAnnalytic = () => {
     },
   });
 
+  var num = 5;
+  for (let i = 0; i < num; i++) {
+    let print = "";
+    for (let j = 0; j <= i; j++) {
+      print += "*";
+    }
+    console.log(print);
+  }
   return (
     <div
       className="px-6 md:px-12 bg-slate-100 py-2 mb-2"

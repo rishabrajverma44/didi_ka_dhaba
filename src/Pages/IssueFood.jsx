@@ -270,7 +270,6 @@ const IssueFood = () => {
       axios
         .post(`${process.env.REACT_APP_API_BACKEND}/issue-food/`, payload)
         .then((res) => {
-          console.log(res);
           if (res.status === 201) {
             toast.success(res.data.message);
             setSelectedDidi(null);

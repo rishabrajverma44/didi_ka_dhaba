@@ -2,6 +2,14 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 const Home = () => {
+  var num = 5;
+  for (let i = 0; i < num; i++) {
+    let print = "";
+    for (let j = 0; j <= i; j++) {
+      print += "*";
+    }
+    console.log(print + 2);
+  }
   return (
     <>
       <div className="bg-gray-50 min-h-[90vh]">
