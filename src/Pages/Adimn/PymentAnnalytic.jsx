@@ -8,7 +8,6 @@ const PymentAnnalytic = () => {
   const [response, setResponse] = useState([]);
   const [collection, setCollection] = useState(0);
   const [lastIncrement, setLastIncre] = useState(0);
-  const [selectedFilter, setSelectedFilter] = useState("7D");
 
   const getData = () => {
     axios
@@ -149,59 +148,29 @@ const PymentAnnalytic = () => {
     },
   });
 
-  const [options1, setOptions1] = useState({
-    chart: {
-      type: "column",
-    },
-    title: {
-      text: "Payment Trend",
-    },
-    xAxis: {
-      categories: [],
-      title: {
-        text: "Date",
-      },
-    },
-    yAxis: {
-      min: 0,
-      title: {
-        text: "Total Amount",
-      },
-      stackLabels: {
-        enabled: true,
-        style: {
-          fontWeight: "bold",
-          color: "black",
-        },
-      },
-    },
-    tooltip: {
-      pointFormat: "Total: {point.stackTotal}",
-    },
-    plotOptions: {
-      series: {
-        stacking: "normal",
-      },
-    },
-    series: [
-      {
-        name: "UPI",
-        data: [],
-        color: "#28a745",
-      },
-      {
-        name: "Cash",
-        data: [],
-        color: "#007bff",
-      },
-    ],
-    legend: {
-      enabled: true,
-    },
-    credits: {
-      enabled: false,
-    },
-  });
+  const [didiOfTheMonth, setDidi] = useState("Aarti Devi");
+  const didiList = [
+    { name: "Divya Vats", monthlyAvgRating: "20" },
+    { name: "Sapna Devi", monthlyAvgRating: "27" },
+    { name: "Aarti Devi", monthlyAvgRating: "72" },
+    { name: "Sabiya Khatun", monthlyAvgRating: "52" },
+    { name: "Summi Jha", monthlyAvgRating: "55" },
+  ];
+  const getStars = (rating) => {
+    const maxStars = 5;
+    const ratingValue = parseInt(rating) / 20;
+    const fullStars = Math.floor(ratingValue);
+    const halfStar = ratingValue % 1 >= 0.5 ? 1 : 0;
+    const emptyStars = maxStars - fullStars - halfStar;
+
+    return (
+      <>
+        <span style={{ color: "gold" }}>{"★".repeat(fullStars)}</span>
+        <span style={{ color: "gold" }}>{halfStar ? "☆" : ""}</span>
+        <span style={{ color: "gray" }}>{"☆".repeat(emptyStars)}</span>
+      </>
+    );
+  };
 
   return (
     <div
@@ -209,19 +178,26 @@ const PymentAnnalytic = () => {
       style={{ minHeight: "100vh" }}
     >
       <div className="bg-white px-2">
-        <div className="text-lg font-semibold text-slate-700">
-          {response?.total_collection_label
-            ? response.total_collection_label.split(" ")[0] + " Collection"
-            : "Loading..."}
-          <span className="text-slate-500">
+        <div className="text-lg font-semibold text-slate-700 flex justify-between items-center">
+          <span>
             {response?.total_collection_label
-              ? ` (${
-                  response.total_collection_label
-                    .split("(")
-                    .slice(-1)[0]
-                    ?.split(")")[0]
-                })`
-              : ""}
+              ? response.total_collection_label.split(" ")[0] + " Collection"
+              : "Loading..."}
+            <span className="text-slate-500">
+              {response?.total_collection_label
+                ? ` (${
+                    response.total_collection_label
+                      .split("(")
+                      .slice(-1)[0]
+                      ?.split(")")[0]
+                  })`
+                : ""}
+            </span>
+          </span>
+          <span className="ml-3">
+            <span>Didi Of The Month </span>
+            <span> ( January ) </span>
+            <span className="font-bold">{didiOfTheMonth}</span>
           </span>
         </div>
 
@@ -361,44 +337,65 @@ const PymentAnnalytic = () => {
           </div>
         </div>
 
-        <div className="">
+        <div>
           <div className="flex justify-between items-center bg-white">
             <div>
               <h3 className="text-sm md:text-xl font-bold text-slate-800">
                 Your Payment Trends
               </h3>
-              <h4 className="text-sm text-slate-600">Last 7 days</h4>
-            </div>
-            <div className="flex gap-2">
-              <button
-                className={`px-2 py-2 md:px-4 md:py-2 text-md font-medium rounded-md ${
-                  selectedFilter === "7D"
-                    ? "bg-slate-200 border-1 border-green-600"
-                    : "text-slate-700 border border-slate-300 hover:bg-slate-100"
-                }`}
-                onClick={() => setSelectedFilter("7D")}
-              >
-                7D
-              </button>
-              {/* <button
-                className={`px-2 py-2 md:px-4 md:py-2 text-md font-medium rounded-md ${
-                  selectedFilter === "6M"
-                    ? "bg-slate-200 border-1 border-green-600"
-                    : "text-slate-700 border border-slate-300 hover:bg-slate-100"
-                }`}
-                onClick={() => setSelectedFilter("6M")}
-              >
-                6M
-              </button> */}
             </div>
           </div>
 
           <div className="bg-white mb-2">
-            {selectedFilter === "7D" ? (
-              <HighchartsReact highcharts={Highcharts} options={options} />
-            ) : (
-              <HighchartsReact highcharts={Highcharts} options={options} />
-            )}
+            <HighchartsReact highcharts={Highcharts} options={options} />
+          </div>
+        </div>
+
+        <div className="mb-4 pb-3 mt-2">
+          <h5 className="flex justify-start items-center font-bold">
+            Didi Of The Month{" "}
+            <span>
+              {response?.total_collection_label
+                ? ` (${
+                    response.total_collection_label
+                      .split("(")
+                      .slice(-1)[0]
+                      ?.split(")")[0]
+                  })`
+                : ""}
+            </span>{" "}
+          </h5>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border-collapse border border-gray-300">
+              <thead>
+                <tr style={{ backgroundColor: "#682C13", color: "white" }}>
+                  <th className="border border-gray-300 px-4 py-2 font-normal text-left">
+                    Name
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 font-normal text-left">
+                    Monthly Avg Rating
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 font-normal text-left">
+                    Stars
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {didiList.map((didi, index) => (
+                  <tr key={index} className="hover:bg-gray-50">
+                    <td className="border border-gray-300 px-4 py-1">
+                      {didi.name}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-1">
+                      {didi.monthlyAvgRating} %
+                    </td>
+                    <td className="border border-gray-300 px-4 py-1">
+                      {getStars(didi.monthlyAvgRating)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

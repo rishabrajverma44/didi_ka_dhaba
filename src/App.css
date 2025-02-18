@@ -3,25 +3,20 @@
       size: landscape;
       margin: 20mm;
     }
-  
-    
     body {
       margin: 0;
       padding: 0;
     }
-  
     .print-container {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 20px;
     }
-  
     .print-container > div {
       break-inside: avoid;
     }
   }
 
-/* Hide Google Translate logo */
 .goog-te-banner-frame,
 .goog-te-gadget span,
 .goog-te-gadget-simple img,
@@ -29,12 +24,10 @@
   display: none !important;
 }
 
-/* Hide the Google Translate bar */
 body > .skiptranslate {
   display: none !important;
 }
 
-/* Adjust the dropdown style */
 #google_translate_element select {
   background: white;
   border: 1px solid #ccc;
