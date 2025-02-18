@@ -101,7 +101,6 @@ const FoodEdit = () => {
         .put(`${process.env.REACT_APP_API_BACKEND}/foodmaster/${id}/`, payload)
         .then((res) => {
           if (res.status === 200) {
-            console.log(res);
             setSelectedCategory("");
             setSelectedUnit("");
             setFoodName("");

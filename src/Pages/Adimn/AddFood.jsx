@@ -65,7 +65,6 @@ const AddFood = () => {
         .post(`${process.env.REACT_APP_API_BACKEND}/foodmaster/`, payload)
         .then((res) => {
           if (res.status === 201) {
-            console.log(res);
             setSelectedCategory("");
             setSelectedUnit("");
             setFoodName("");

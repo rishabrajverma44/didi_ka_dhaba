@@ -146,16 +146,12 @@ const ListAssigned = () => {
   };
 
   const handleSearch = () => {
-    console.log(fromDate);
-    console.log(toDate);
     if (fromDate > toDate) {
       toast.error("From date is earlier than To date");
       return;
     }
 
     let filteredData = [...data];
-    console.log(filteredData);
-
     const formattedFromDate = fromDate ? formatDate(fromDate) : null;
     const formattedToDate = toDate ? formatDate(toDate) : null;
 
@@ -185,7 +181,6 @@ const ListAssigned = () => {
     }
 
     setData(filteredData);
-    console.log(filteredData);
   };
 
   const getDidiName = async () => {

@@ -146,7 +146,6 @@ const AssignEdit = () => {
       axios
         .put(`${process.env.REACT_APP_API_BACKEND}/didi_thela/${id}/`, payload)
         .then((res) => {
-          console.log(res);
           if (res.status === 200) {
             toast.success(res.data.message);
             setTimeout(() => {
@@ -167,16 +166,9 @@ const AssignEdit = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    console.log("Submitting form...");
-
     if (!validateForm()) {
-      console.log("Form validation failed.");
       return;
     }
-
-    console.log("Form validated successfully");
-
     if (!selectedDidi) {
       toast.error("Please select a Didi name!");
       return;
