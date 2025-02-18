@@ -6,7 +6,7 @@ import {
   usePagination,
   useGlobalFilter,
 } from "react-table";
-import { FaPencilAlt, FaTrashAlt, FaPlus, FaCalendarAlt } from "react-icons/fa";
+import { FaPencilAlt, FaPlus, FaCalendarAlt } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 import Pagination from "../../../Components/prebuiltComponent/Pagination";
@@ -14,7 +14,6 @@ import DatePicker from "react-datepicker";
 
 const ListAssigned = () => {
   const navigate = useNavigate();
-  const [selectedDate, setSelectedDate] = useState("");
   const [selectedDidi, setSelectedDidi] = useState("");
   const [selectedStall, setSelectedStall] = useState("");
   const [fromDate, setFromDate] = useState("");
@@ -105,13 +104,6 @@ const ListAssigned = () => {
             >
               <FaPencilAlt />
             </button>
-
-            {/* <button
-              onClick={() => handleDelete(row.original.didi_thela_id)}
-              className="text-red-500 hover:text-red-700 px-2"
-            >
-              <FaTrashAlt />
-            </button> */}
           </div>
         ),
       },

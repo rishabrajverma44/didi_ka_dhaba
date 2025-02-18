@@ -18,7 +18,6 @@ const ThelaRegistration = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [address, setAddress] = useState("");
-  const [locationError, setLocationError] = useState("");
   const navigate = useNavigate();
   const [route, setRoute] = useState();
 
@@ -57,7 +56,7 @@ const ThelaRegistration = () => {
 
   const sendData = (payload) => {
     try {
-      const res = axios
+      axios
         .post(`${process.env.REACT_APP_API_BACKEND}/thelas/`, payload)
         .then((res) => {
           if (res.status) {
@@ -190,12 +189,10 @@ const ThelaRegistration = () => {
           reverseGeocode(newLocation);
         },
         (error) => {
-          setLocationError("Unable to retrieve your location.");
           console.error("Error getting location", error);
         }
       );
     } else if (!navigator.geolocation) {
-      setLocationError("Geolocation is not supported by your browser.");
     }
   }, [isLoaded]);
 
